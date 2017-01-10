@@ -26,27 +26,6 @@ else
 fi
 
 
-###---
-### The 'Where'
-###---
-#if [[ "$USER" = 'vagrant' ]]; then
-#    export myLoc='/vagrant'            # For a 'vagrant'  install'
-#else
-#    export myLoc="$PWD"                # For a 'standard' install'
-#fi
-
-
-###---
-### Verify the payload before beginning
-###---
-#if [[ ! -d "$myLoc/payload" ]]; then
-#    echo "Something's gone wrong; there is no payload, exiting."
-#    exit 1
-#else
-#    echo "We will be executing from $myLoc"
-#fi
-
-
 ###------------------------------------------------------------------------------
 ### VARIABLES
 ###------------------------------------------------------------------------------
@@ -57,9 +36,6 @@ declare myBashrc="$HOME/.bashrc"
 ###------------------------------------------------------------------------------
 ### FUNCTIONS
 ###------------------------------------------------------------------------------
-#source "$instLib/start.sh"
-#source "$instLib/finish.sh"
-#source "$instLib/printfmsg.sh"
 
 
 ###----------------------------------------------------------------------------
@@ -69,15 +45,24 @@ echo "Configuring base shell options..."
 
 cat << EOF >> "$myBashProfile"
 # URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
-if [ -f ~/.bashrc ]; then . ~/.bashrc; fi
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
 
 EOF
 
 
 cat << EOF >> "$myBashrc"
+### My ~/.bashrc
+declare sysBashrc='/etc/bashrc'
+if [[ -f "\$sysBashrc" ]]; then
+    . "\$sysBashrc"
+fi
+
 ###############################################################################
 ###                                  System                                 ###
 ###############################################################################
+export TERM='xterm-256color'
 export HISTFILESIZE=
 export HISTSIZE=
 export PROMPT_COMMAND='history -a'
@@ -87,12 +72,14 @@ export HISTIGNORE='ls:bg:fg:history'
 
 EOF
 
+source "$myBashrc" && tail -26 "$myBashrc"
+
 
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
 echo "Installing Homebrew..."
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 echo "Updating Homebrew..."
 brew update
@@ -102,6 +89,9 @@ brew doctor
 
 echo "Tapping Homebrew binaries..."
 brew tap homebrew/binary
+
+echo "Opening up the cask room..."
+brew install caskroom/cask/brew-cask
 
 
 ###----------------------------------------------------------------------------
@@ -113,8 +103,8 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 Homebrew                                ###
 ###############################################################################
-export PATH="\$(brew --prefix coreutils)/libexec/gnubin:/usr/local/bin:\$PATH"
-export MANPATH="\$(brew --prefix coreutils)/libexec/gnuman:$MANPATH"
+export PATH="\$(brew --prefix coreutils)/libexec/gnubin:\$PATH"
+export MANPATH="\$(brew --prefix coreutils)/libexec/gnuman:/usr/local/share/man:\$MANPATH"
 
 EOF
 
@@ -135,17 +125,20 @@ function ll { ls --color -Al  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)';
 function la { ls --color -al  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
 function ld { ls --color -ld  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
 function lh { ls --color -alh "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
+alias cp='cp -vp'
+alias mv='mv -v'
+alias hist='history | cut -c 21-'
 
 EOF
 
-source "$myBashrc" && tail -7 "$myBashrc"
+source "$myBashrc" && tail -11 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
 ### Install GNU Tools and Languages
 ###----------------------------------------------------------------------------
 echo "Installing and configuring GNU Tools..."
-brew install ed --default-names
+brew install ed --with-default-names
 brew install gnu-sed --with-default-names
 brew install gawk
 brew install gnu-indent --with-default-names
@@ -154,7 +147,8 @@ brew install findutils --with-default-names
 brew install gnu-which --with-default-names
 brew install watch
 brew install tree
-brew install wget
+brew install wget --with-pcre
+# Both zip & unzip are in the same package
 brew install homebrew/dupes/gzip
 brew install gnu-tar --with-default-names
 brew install homebrew/dupes/diffutils
@@ -171,9 +165,40 @@ alias grep='grep   --color=auto' 2>/dev/null
 alias egrep='egrep --color=auto' 2>/dev/null
 alias fgrep='fgrep --color=auto' 2>/dev/null
 
+###############################################################################
+###                                   find                                  ###
+###-------------------------------------------------------------------------###
+### Easily find stuff within the root '/' filesystem (fs) without errors.
+###----------------------------------------------------------------------------
+# Find files somewhere on the system; to use:
+#   1) call the alias, 'findsys'
+#   2) pass a directory where the search should begin, and
+#   3) pass a file name, either exact or fuzzy: e.g.:
+# $ findsys /var/ '*.log'
+function findSystemStuff()   {
+    findDir="\$1"
+    findFSO="\$2"
+    sudo find "\$findDir" -name 'cores' -prune , -name 'dev' -prune , -name 'net' -prune , -name "\$findFSO"
+}
+
+alias findsys=findSystemStuff
+###-------------------------------------------------------------------------###
+### Easily find stuff within your home directory. To use:
+#     1) call the alias, 'findmy'
+#     2) pass a 'type' of fs object, either 'f' (file) or 'd' (directory)
+#     3) pass the object name, either exact or fuzzy: e.g.:
+#     \$ findmy f '.vim*'
+function findMyStuff()   {
+    findType="\$1"
+    findFSO="\$2"
+    find "\$HOME" -type "\$findType" -name "\$findFSO"
+}
+
+alias findmy=findMyStuff
+
 EOF
 
-source "$myBashrc" && tail -7 "$myBashrc"
+source "$myBashrc" && tail -38 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -193,14 +218,14 @@ export PYTHONPATH="$(brew --prefix)/lib/python2.7/site-packages"
 
 EOF
 
-source "$myBashrc" && tail -4 "$myBashrc"
+source "$myBashrc" && tail -5 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
 ### Bash
 ###----------------------------------------------------------------------------
 echo "Installing Bash..."
-brew install bash
+brew install bash shellcheck
 
 # Add the new version of Bash to system shells file
 declare sysShells='/etc/shells'
@@ -214,34 +239,46 @@ cat << EOF >> "$myBashrc"
 ###                                   Bash                                  ###
 ###############################################################################
 export SHELL='/usr/local/bin/bash'
+# ShellCheck: Ignore: https://goo.gl/n9W5ly
+export SHELLCHECK_OPTS="-e SC2155"
 
 EOF
 
-source "$myBashrc" && tail -5 "$myBashrc"
+source "$myBashrc" && tail -7 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
 ### Vim: The Power and the Glory
 ###----------------------------------------------------------------------------
 # Verify before install
-echo "The Apple version of Vim:"
 vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
 
-echo "Installing and configuring Vim..."
-brew install vim --override-system-vim --with-features=huge --disable-nls --enable-interp=tcl,lua,ruby,perl,python
+# Install it
+echo "Installing Vim..."
+brew install vim --override-system-vi --without-nls \
+    --with-lua --with-mzscheme --with-tcl
 
+# We should evaluate Neovim
+echo "Installing Neovim..."
+brew install neovim/neovim/neovim
+
+echo "Configuring Vim..."
+# +Python (2; default)
+# +Ruby   (default)
+# w/o NLS (National Language Support)
 
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                   Vim                                   ###
 ###############################################################################
 export EDITOR='/usr/local/bin/vim'
-alias vi='/usr/local/bin/vim'
-alias vim='/usr/local/bin/vim'
+alias vi="\$EDITOR"
+alias vim=\$EDITOR'
+alias nim='/usr/local/bin/nvim'
 
 EOF
 
-source "$myBashrc" && tail -6 "$myBashrc"
+source "$myBashrc" && tail -8 "$myBashrc"
 
 
 # Verify after install
@@ -250,47 +287,16 @@ vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
 
 
 ###----------------------------------------------------------------------------
-### HashiCorp: Packer
+### HashiCorp: ATLAS    (get TOKEN(s) from your backups)
 ###----------------------------------------------------------------------------
-# Homebrew is occasionally a version behind. Just download it from the site.
+echo "Configuring ATLAS..."
 
-packerDownloads="$(stat -f ~/Downloads/packer_0/)" &> /dev/null
-if [[ ! -z "$packerDownloads" ]]; then
-    echo "Installing Packer..."
-    mkdir -p "$HOME/.packer"
-    mv "$packerDownloads/*" "$HOME/.packer/"
-else
-    echo "You forgot to download Packer; do that while I finish:"
-    echo "    https://packer.io/downloads.html"
-fi
-
-
-echo "Configuring Packer..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
-###                                  Packer                                 ###
+###                                  Atlas                                  ###
 ###############################################################################
-export PACKER_LOG='yes'
-export PACKER_CACHE_DIR='/tmp/packer_cache'
-export PACKER_LOG_PATH='/tmp/packer.log'
-
-EOF
-
-source "$myBashrc" && tail -7 "$myBashrc"
-
-
-###----------------------------------------------------------------------------
-### HashiCorp: Vagrant
-###----------------------------------------------------------------------------
-# Homebrew is occasionally a version behind. Just download it from the site.
-
-echo "Configuring Vagrant..."
-cat << EOF >> "$myBashrc"
-###############################################################################
-###                                 Vagrant                                 ###
-###############################################################################
-export VAGRANT_HOME="\$HOME/vms/vagrant/"
-#export VAGRANT_LOG=debug
+export ATLAS_TOKEN=''
+export HOMEBREW_GITHUB_API_TOKEN=''
 
 EOF
 
@@ -298,28 +304,129 @@ source "$myBashrc" && tail -6 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
-### Nginx
+### HashiCorp: Terraform
 ###----------------------------------------------------------------------------
-echo "Installing and configuring Nginx..."
-brew install nginx --with-debug --with-spdy
+echo "Installing Terraform..."
+brew install terraform terraform-inventory
 
 cat << EOF >> "$myBashrc"
 ###############################################################################
-###                                  Nginx                                  ###
+###                              Terraform                                  ###
 ###############################################################################
-alias docroot='cd /usr/local/var/www'
+alias tf='/usr/local/bin/terraform'
+export TF_LOG='DEBUG'
+export TF_LOG_PATH='/tmp/terraform.log'
 
 EOF
 
-source "$myBashrc" && tail -5 "$myBashrc"
+source "$myBashrc" && tail -7 "$myBashrc"
+
+###----------------------------------------------------------------------------
+### HashiCorp: Packer
+###----------------------------------------------------------------------------
+# Homebrew is occasionally a version behind. Just download it from the site.
+echo "Installing Packer..."
+brew install packer
+
+echo "Configuring Packer..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                                  Packer                                 ###
+###############################################################################
+export PACKER_LOG='yes'
+export PACKER_HOME="\$HOME/vms/packer"
+export PACKER_CACHE_DIR="\$PACKER_HOME/vms/packer/iso-cache/"
+export PACKER_BUILD_DIR="\$PACKER_HOME/builds"
+export PACKER_LOG_PATH='/tmp/packer.log'
+
+EOF
+
+source "$myBashrc" && tail -9 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
-### Open the Cask Room / Install sshfs
+### HashiCorp: Vagrant
 ###----------------------------------------------------------------------------
-echo "Opening up the cask room..."
+# Homebrew is occasionally a version behind. Just download it from the site.
+echo "Installing Vagrant..."
+brew cask install vagrant
 
-brew install caskroom/cask/brew-cask
+echo "Configuring Vagrant..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                                 Vagrant                                 ###
+###############################################################################
+#export VAGRANT_LOG=debug
+export VAGRANT_HOME="\$HOME/vms/vagrant"
+export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
+export VAGRANT_DEFAULT_PROVIDER='virtualbox'
+
+EOF
+
+source "$myBashrc" && tail -8 "$myBashrc"
+
+
+###----------------------------------------------------------------------------
+### Ansible
+###----------------------------------------------------------------------------
+echo "Installing Ansible..."
+brew install ansible
+
+echo "Configuring Ansible..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                                 Ansible                                 ###
+###############################################################################
+export ANSIBLE_HOSTS='/etc/ansible/hosts'
+export ANSIBLE_HOSTS='/usr/local/etc/ansible/hosts'
+
+EOF
+
+source "$myBashrc" && tail -6 "$myBashrc"
+
+
+###----------------------------------------------------------------------------
+### Docker
+###----------------------------------------------------------------------------
+echo "Installing Docker..."
+brew install docker docker-machine
+
+# Create a vbox VM
+docker-machine create --driver virtualbox default
+
+echo "Configuring Docker..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                                 DOCKER                                  ###
+###############################################################################
+eval "\$(docker-machine' 'env)"
+export DOCKER_TLS_VERIFY="1"
+export DOCKER_HOST="tcp://192.168.99.100:2376"
+export DOCKER_CERT_PATH="\$HOME/.docker/machine/machines/default"
+export DOCKER_MACHINE_NAME="default"
+
+EOF
+
+source "$myBashrc" && tail -9 "$myBashrc"
+
+###----------------------------------------------------------------------------
+### Amazon AWS CLI
+###----------------------------------------------------------------------------
+echo "Installing the AWS CLI..."
+pip install awscli
+
+echo "Configuring Docker..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                                 Amazon                                  ###
+###############################################################################
+complete -C "\$(type -P aws_completer)" aws
+export AWS_PROFILE='awsUser'
+export AWS_CONFIG_FILE="\$HOME/.aws/config"
+
+EOF
+
+source "$myBashrc" && tail -7 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -332,33 +439,28 @@ brew reinstall wget --with-iri
 
 
 ###----------------------------------------------------------------------------
-### sshfs
+### Install the Casks (GUI Apps)
 ###----------------------------------------------------------------------------
-brew cask search sshfs
-brew cask install sshfs
+echo "Installing some utilities..."
+brew cask install \
+    gfxCardStatus google-chrome java vagrant vmware-fusion7 \
+    virtualbox wireshark tcl android-file-transfer flux osxfuse
+
+brew install homebrew/fuse/sshfs
 
 
 ###----------------------------------------------------------------------------
-### MariaDB
+### Adobe CS6 Web & Design Premium (4.5GB)
 ###----------------------------------------------------------------------------
-echo "Installing and configuring MariaDB..."
-brew install mariadb --with-tests --with-local-infile
+#brew cask install adobe-cs6-design-web-premium
 
-cat << EOF >> "$myBashrc"
-###############################################################################
-###                                 MariaDB                                 ###
-###############################################################################
-export MARIADB_TCP_PORT='3306'
-
-EOF
-
-source "$myBashrc" && tail -5 "$myBashrc"
 
 ###----------------------------------------------------------------------------
 ### Post-configuration Steps
 ###----------------------------------------------------------------------------
 echo "Securing ~/.bashrc ..."
 chmod 600 "$myBashrc"
+
 
 ###----------------------------------------------------------------------------
 ### Last-minute Instructions
