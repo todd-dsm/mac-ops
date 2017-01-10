@@ -2,7 +2,8 @@
 #------------------------------------------------------------------------------
 # PURPOSE: Configure a base environment to get back to work quickly.
 #------------------------------------------------------------------------------
-# EXECUTE: curl -Lo- https://goo.gl/mQwC09 | bash | tee -ai mymac.log
+# EXECUTE: curl -Lo- https://goo.gl/IjzNwV | bash | tee -ai mymac.log
+# EXECUTE: curl -Lo- https://goo.gl/mQwC09 | bash | tee -ai mymac.log OLD
 #------------------------------------------------------------------------------
 #  AUTHOR: todd_dsm
 #------------------------------------------------------------------------------
@@ -259,8 +260,8 @@ if [[ ! -z "$packerDownloads" ]]; then
     mkdir -p "$HOME/.packer"
     mv "$packerDownloads/*" "$HOME/.packer/"
 else
-    echo "You forgot to download Packer; do that while I finish:" 
-    echo "    https://packer.io/downloads.html" 
+    echo "You forgot to download Packer; do that while I finish:"
+    echo "    https://packer.io/downloads.html"
 fi
 
 
