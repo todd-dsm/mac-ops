@@ -3,13 +3,12 @@
 # PURPOSE: Configure a base environment to get back to work quickly.
 #------------------------------------------------------------------------------
 # EXECUTE: curl -Lo- https://goo.gl/IjzNwV | bash | tee -ai mymac.log
-# EXECUTE: curl -Lo- https://goo.gl/mQwC09 | bash | tee -ai mymac.log OLD
 #------------------------------------------------------------------------------
 #  AUTHOR: todd_dsm
 #------------------------------------------------------------------------------
 #    DATE: 2015/07/11
 #------------------------------------------------------------------------------
-#set -x
+set -x
 
 ###------------------------------------------------------------------------------
 ### First, let's define who, where and what I am -  then make the announcement.
@@ -273,7 +272,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 export EDITOR='/usr/local/bin/vim'
 alias vi="\$EDITOR"
-alias vim=\$EDITOR'
+alias vim="\$EDITOR"
 alias nim='/usr/local/bin/nvim'
 
 EOF
@@ -443,7 +442,7 @@ brew reinstall wget --with-iri
 ###----------------------------------------------------------------------------
 echo "Installing some utilities..."
 brew cask install \
-    gfxCardStatus google-chrome java vagrant vmware-fusion7 \
+    gfxcardstatus google-chrome java vagrant vmware-fusion7 \
     virtualbox wireshark tcl android-file-transfer flux osxfuse
 
 brew install homebrew/fuse/sshfs
