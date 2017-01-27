@@ -4,7 +4,7 @@
 # -----------------------------------------------------------------------------
 #  PREREQS: none
 # -----------------------------------------------------------------------------
-#  EXECUTE: curl -Lo- http://tiny.cc/sxzh0x | bash | tee -ai mac-conf.log
+#  EXECUTE: curl -Lo- https://goo.gl/j2y1Dn | bash | tee /tmp/install-prep.out
 # -----------------------------------------------------------------------------
 #     TODO: 1)
 #           2)
@@ -45,16 +45,16 @@ printf '\n%s\n' "Updating macOS..."
 softwareupdate -i -a
 
 ###---
-### Save installed package and library details before the install
-###---
-printf '\n%s\n' "Saving some pre-install app/lib details..."
-admin-app-details.sh pre
-
-###---
 ### Install Xcode CLI Tools
 ###---
 printf '\n%s\n' "Installing Xcode CLI Tools..."
 install-xcode-cli-tools.sh
+
+###---
+### Save installed package and library details before the install
+###---
+printf '\n%s\n' "Saving some pre-install app/lib details..."
+admin-app-details.sh pre
 
 
 ###----------------------------------------------------------------------------

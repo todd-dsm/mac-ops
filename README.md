@@ -13,9 +13,16 @@ Before jumping in, you should probably check the [wiki] first. This may not be f
 ***
 
 ##Pre-Game
-Snag these packages:
- * Download [Packer] - we'll do the rest.
- * Download [Vagrant]: Install it manually.
+Prep the macOS by installing:
+
+* The latest updates,
+* Xcode CLI Tools, and
+* Saving some details about apps that are currently installed.
+
+```bash
+curl -Lo- https://goo.gl/j2y1Dn | bash | tee /tmp/install-prep.out
+```
+
 
 ***
 
