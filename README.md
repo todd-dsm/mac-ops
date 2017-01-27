@@ -1,7 +1,9 @@
-myMac
+mac-ops
 =====
 
-Automation to build a great MBP Desktop with a base configurtion for DevOps enthusiasts.
+**PLEASE DON'T USE THIS YET - IT'S NOT COMPLETE.**
+
+Automation to build a great MBP Desktop with a base configurtion for DevOps people.
 
 This is just my take on the Mac OS X setup. If you find value in it, please feel free to use it.
 
@@ -13,37 +15,45 @@ Before jumping in, you should probably check the [wiki] first. This may not be f
 ***
 
 ##Pre-Game
-Prep the macOS by installing:
+Assuming this is a fresh install prep the macOS by installing:
 
 * The latest updates,
 * Xcode CLI Tools, and
 * Saving some details about apps that are currently installed.
 
 ```bash
-curl -Lo- https://goo.gl/j2y1Dn | bash | tee /tmp/install-prep.out
+curl -fsSL https://goo.gl/j2y1Dn 2>&1 | bash | tee /tmp/install-prep.out
 ```
 
+If you need to backup first, check the [rsync-backups] page. The restore process (in this script) relies on a consistent backup ;-)
 
 ***
 
 ##Kick-off
-To auto-magically configure your new Mac OS X, just
+Once you're all backed-up, auto-magically configure the new macOS:
+
+1. Make sure you have your ssh keys restored from backup.
+2. Clone the repo down to your laptop, and
+3. Kick off the script:
 
 ```sh
-curl -Lo- http://tiny.cc/sxzh0x | bash | tee -ai mac-conf.log
+git clone git@github.com:todd-dsm/mac-ops.git
+
+cd mac-ops/
+
+./bootstrap.sh 2>&1 | tee /tmp/mac-ops-config.out
 ```
 
 ***
 
 ##Post-Game
- * Close all Terminal windows and re-open them; you'll have access to the GNU programs.
+ * Close all of your windows.
+ * Reboot the system
  * Import your Terminal profile, if you have one.
- * Un-tar your .vimrc and .vim/, if you have that.
+ * Finish any outstanding System Preferences configurations.
 
 Then you're ready to start.
 
 
 [wiki]:https://github.com/todd-dsm/myMac/wiki/System-Modifications
-[Packer]:https://packer.io/downloads.html
-[Vagrant]:http://www.vagrantup.com/downloads
-
+[rsync-backups]:https://github.com/todd-dsm/rsync-backups
