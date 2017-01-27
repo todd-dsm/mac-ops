@@ -4,7 +4,7 @@
 # -----------------------------------------------------------------------------
 #  PREREQS: none
 # -----------------------------------------------------------------------------
-#  EXECUTE: curl -Lo- https://goo.gl/j2y1Dn | bash | tee /tmp/install-prep.out
+#  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | bash | tee /tmp/install-prep.out
 # -----------------------------------------------------------------------------
 #     TODO: 1)
 #           2)
@@ -21,7 +21,13 @@ set -x
 ### VARIABLES
 ###----------------------------------------------------------------------------
 # ENV Stuff
-# Data Files
+# install Xcode CLI Tools
+distPlcholder='/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
+
+# admin app install details
+stage="pre"
+declare adminDir="$HOME/.config/admin"
+declare adminLogs="$adminDir/logs"
 
 
 ###----------------------------------------------------------------------------
@@ -34,49 +40,103 @@ set -x
 ###----------------------------------------------------------------------------
 ### Get the start time
 ###---
-printf '\n%s\n' "Prepping the OS for mac-ops install..."
-timePre="$(date +'%T')"
+printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
 
 
-###---
+###----------------------------------------------------------------------------
 ### Update the OS
-###---
+###----------------------------------------------------------------------------
 printf '\n%s\n' "Updating macOS..."
 softwareupdate -i -a
 
+
+
+###----------------------------------------------------------------------------
+### Install the Xcode CLI Tools
+###----------------------------------------------------------------------------
+### create the placeholder file that's checked by CLI updates' .dist code
 ###---
-### Install Xcode CLI Tools
-###---
-printf '\n%s\n' "Installing Xcode CLI Tools..."
-install-xcode-cli-tools.sh
+touch "$distPlcholder"
+
 
 ###---
-### Save installed package and library details before the install
+### Find the CLI Tools update; resolves to:
+### 'Command Line Tools (macOS Sierra version 10.12) for Xcode-8.2'
 ###---
+cliTools="$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 |   \
+    awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
+
+
+###---
+### Install the package
+###---
+softwareupdate -i "$cliTools" --verbose
+
+
+###---
+### Do some light cleaning
+###---
+rm "$distPlcholder"
+
+
+###----------------------------------------------------------------------------
+### Save installed package and library details before the install
+###----------------------------------------------------------------------------
 printf '\n%s\n' "Saving some pre-install app/lib details..."
-admin-app-details.sh pre
+
+# Create the admin directory if it doesn't exist
+if [[ ! -d "$adminDir" ]]; then
+    printf '\n%s\n' "Creating a space for admin logs..."
+    mkdir -p "$adminDir/"{logs,backup}
+fi
+
+# Save minimal application and library output
+printf '\n%s\n' "Saving all..."
+printf '%s\n' "  Apps to a list: pkgutil..."
+pkgutil --pkgs > "$adminLogs/apps-pkgutil-$stage-install.log"
+
+
+printf '%s\n' "  Apps to a list: GNU find..."
+find /Applications -maxdepth 1 -type d -print | \
+    sed 's|/Applications/||'    \
+    > "$adminLogs/apps-find-all-$stage-install.log"
+
+
+printf '%s\n' "  PAID Apps to a list: GNU find..."
+find /Applications -maxdepth 4 -path '*Contents/_MASReceipt/receipt' -print | \
+    sed 's|.app/Contents/_MASReceipt/receipt|.app|g; s|/Applications/||' \
+    > "$adminLogs/apps-paid-$stage-install.log"
+
+
+# if it's pre-install there will be no Homebrew
+if [[ "$stage" == 'post' ]]; then
+    # Collect Homebrew stats
+    printf '%s\n' "  Homebrew programs to a list..."
+    brew leaves > "$adminLogs/apps-homebrew-$stage-install.log"
+
+    # Collect Homebrew Python stats
+    printf '%s\n' "  Python libraries (Homebrew) to a list..."
+    pip list > "$adminLogs/libs-pip-python-$stage-install.log"
+else
+    printf '%s\n' """
+      No Homebrew packages or Python libraries
+      Homebrew is not installed yet.
+    """
+fi
+
+
+printf '%s\n\n' "  \$HOME dot directories to a list..."
+find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
+    sed "s|^$HOME/||" > "$adminLogs/apps-home-dot-dirs-$stage-install.log"
+
+
 
 
 ###----------------------------------------------------------------------------
 ### Announcements
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' """
-	You are now prepped for the mac-ops install process.
-"""
-
-###----------------------------------------------------------------------------
-### Quick and Dirty duration
-###----------------------------------------------------------------------------
-timePost="$(date +'%T')"
-
-### Convert time to a duration
-startTime=$(date -u -d "$timePre" +"%s")
-endTime=$(date -u -d "$timePost" +"%s")
-procDur="$(date -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
-printf '%s\n' """
-    Prep start  at: $timePre
-    Prep end    at: $timePost
-    Prep  duration: $procDur
+	You are now prepped for the mac-ops process.
 """
 
 
