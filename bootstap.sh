@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 # PURPOSE: Configure a base environment to get back to work quickly.
 #------------------------------------------------------------------------------
-# EXECUTE: curl -Lo- https://goo.gl/IjzNwV | bash | tee -ai mymac.log
+# EXECUTE: ./bootstrap.sh 2>&1 | tee macos-config.out
 #------------------------------------------------------------------------------
 # PREREQS: 1) ssh keys must be on the new system for Github clones
 #          2)
@@ -65,24 +65,6 @@ fi
 ###---
 printf '\n%s\n' "Backing up the /etc directory before we begin..."
 sudo rsync -aE /private/etc "$backupDir/"
-
-###---
-### Update the OS
-###---
-printf '\n%s\n' "Updating macOS..."
-softwareupdate -i -a
-
-###---
-### Save installed package and library details before the install
-###---
-printf '\n%s\n' "Saving some pre-install app/lib details..."
-tools/admin-app-details.sh pre
-
-###---
-### Install Xcode CLI Tools
-###---
-printf '\n%s\n' "Installing Xcode CLI Tools..."
-sources/install-xcode-cli-tools.sh
 
 ###---
 ### Restore SSH Keys from backup. Required for Github interaction.
@@ -147,7 +129,7 @@ export HISTIGNORE='ls:bg:fg:history'
 
 EOF
 
-source "$myBashrc" && tail -26 "$myBashrc"
+source "$myBashrc" && tail -17 "$myBashProfile"
 
 ###----------------------------------------------------------------------------
 ### Install Homebrew
