@@ -5,6 +5,8 @@ mac-ops
 
 Automation to build a great MBP Desktop with a base configurtion for DevOps people.
 
+Before you can build anything, you first need the tools. `alias mac-ops='phase0';` Take a look at [phase1]
+
 This is just my take on the Mac OS X setup. If you find value in it, please feel free to use it.
 
 ***
@@ -54,6 +56,6 @@ cd mac-ops/
 
 Then you're ready to start.
 
-
+[phase1]:https://github.com/todd-dsm/process-ph1
 [wiki]:https://github.com/todd-dsm/mac-ops/wiki
 [rsync-backups]:https://github.com/todd-dsm/rsync-backups
