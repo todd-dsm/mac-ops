@@ -67,12 +67,6 @@ printf '\n%s\n' "Backing up the /etc directory before we begin..."
 sudo rsync -aE /private/etc "$backupDir/"
 
 ###---
-### Restore SSH Keys from backup. Required for Github interaction.
-###---
-printf '\n%s\n' "Checking to see if we have the Github public key..."
-rsync -aEv  "$myBackups/.ssh/" "$mySSHDir/"
-
-###---
 ### Add the Github key to the knownhosts file
 ###---
 printf '\n%s\n\n' "Checking to see if we have the Github public key..."
@@ -90,7 +84,7 @@ printf '\n%s\n\n' "Pulling Terminal stuff..."
 git clone "$solarizedGitRepo" "$termStuff/solarized"
 
 # Pull the settings back
-rsync -aEv  "$myBackups/Documents/system" "$myDocs/"
+rsync -aEv  "$myDocs/system" "$myDocs/"
 
 
 ###----------------------------------------------------------------------------
@@ -150,8 +144,15 @@ brew tap caskroom/fonts
 printf '\n%s\n' "Current paths:"
 cat "$sysPaths"
 
+printf '\n%s\n' "Paths in the environment:"
+echo "$PATH"
+export "$(/usr/libexec/path_helper | head -1 | awk -F ";" '{print $1}')"
+
+
 printf '%s\n' "  Current man paths:"
 cat "$sysManPaths"
+echo "$MANPATH"
+
 
 ###----------------------------------------------------------------------------
 ### Install the font: Hack
@@ -172,7 +173,7 @@ printf '%s\n' "  Installing GNU Coreutils..."
 brew install coreutils
 
 # Set new Variables
-#declare pathHomeBrew="$(brew --prefix)"
+export pathHomeBrew="$(brew --prefix)"
 declare pathGNU_CORE="$(brew --prefix coreutils)"
 
 # Set path for the GNU Coreutils
@@ -182,12 +183,23 @@ sudo sed -i "\|/usr/local/bin|i $pathGNU_CORE/libexec/gnubin" "$sysPaths"
 # FIX: MANPATH: no one seems to reliably know how it works; more later.
 sudo sed -i "\|/usr/share/man|i $pathGNU_CORE/libexec/gnuman" "$sysManPaths"
 
-# Verify the new paths have been set
+
+###---
+#### Verify the new paths have been set
+###---
 printf '\n%s\n' "New paths:"
 cat "$sysPaths"
 
+printf '\n%s\n' "New paths again:"
+export "$(/usr/libexec/path_helper | head -1 | awk -F ";" '{print $1}')"
+echo "$PATH"
+
 printf '%s\n' "New man paths:"
 cat "$sysManPaths"
+
+printf '\n%s\n' "New manpaths again:"
+export "$(/usr/libexec/path_helper | tail -t | awk -F ";" '{print $1}')"
+echo "$MANPATH"
 
 
 printf '%s\n' "  Configuring GNU Coreutils..."
@@ -291,8 +303,13 @@ brew install git nmap ssh-copy-id sipcalc pstree gnupg dos2unix testdisk
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing some utilities..."
 brew cask install \
-    gfxcardstatus java virtualbox android-file-transfer \
-    wireshark tcl flux osxfuse atom
+    gfxcardstatus android-file-transfer \
+    tcl flux atom
+
+env > /tmp/pre-fail.out
+
+brew cask install --debug   \
+    java virtualbox wireshark tcl osxfuse atom
 
 brew install homebrew/fuse/sshfs
 
@@ -340,7 +357,7 @@ format=columns
 
 EOF
 
-source "$myBashrc" && tail -5 "$myBashrc"
+source "$myBashrc" && tail -6 "$myBashrc"
 
 
 printf '\n%s\n' "  Testing pip config..."
@@ -370,7 +387,7 @@ alias mygo="cd \$GOPATH"
 
 EOF
 
-source "$myBashrc" && tail -5 "$myBashrc"
+source "$myBashrc" && tail -6 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -626,12 +643,6 @@ chmod 600 "$myBashrc"
 printf '\n%s\n\n' "Pulling the vimSimple repo..."
 git clone --recursive -j10 "$vimSimpleGitRepo" "$vimSimpleLocal"
 
-### Make softlinks to the important files
-printf '\n%s\n\n' "Creating softlinks for ~/.vim and ~/.vimrc"
-ln -s "$vimSimpleLocal/vimrc" .vimrc
-ln -s "$vimSimpleLocal/vim"   .vim
-
-
 ###----------------------------------------------------------------------------
 ### Modify 1-off configurations on current submodules
 ###---
@@ -666,6 +677,12 @@ sed -i "/$jsonIndREGEX/G" "$jsonIndent"
 ### json-vim: add: tag as vimSimple configuration
 sed -i "/${jsonAppendStr%%\ *}/i $vimSimpleTag" "$jsonIndent"
 
+### Make softlinks to the important files
+printf '\n%s\n\n' "Creating softlinks for ~/.vim and ~/.vimrc"
+ln -s "$vimSimpleLocal/vimrc" .vimrc
+ln -s "$vimSimpleLocal/vim"   .vim
+
+ls -dl ~/.vimrc ~/.vim
 
 ###----------------------------------------------------------------------------
 ### Configure The macOS
@@ -924,6 +941,8 @@ defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
 printf '\n%s\n' "Saving some pre-install app/lib details..."
 tools/admin-app-details.sh post
 
+### Create a link to the log file
+ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 
 ###----------------------------------------------------------------------------
 ### Restore Personal Data
@@ -966,12 +985,13 @@ printf '%s\n' """
 ###----------------------------------------------------------------------------
 ### Quick and Dirty duration
 ###----------------------------------------------------------------------------
-timePost="$(date +'%T')"
-
+# we can't read /etc/paths until the next login; set date location
+declare gnuDate='/usr/local/opt/coreutils/libexec/gnubin/date'
+timePost=$("$gnuDate" +'%T')
 ### Convert time to a duration
-startTime=$(date -u -d "$timePre" +"%s")
-endTime=$(date -u -d "$timePost" +"%s")
-procDur="$(date -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
+startTime=$("$gnuDate" -u -d "$timePre" +"%s")
+endTime=$("$gnuDate" -u -d "$timePost" +"%s")
+procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
 printf '%s\n' """
     The procss start  at: $timePre
     The procss end    at: $timePost

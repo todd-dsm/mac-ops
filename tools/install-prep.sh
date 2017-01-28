@@ -21,7 +21,7 @@ set -x
 ### VARIABLES
 ###----------------------------------------------------------------------------
 # ENV Stuff
-# install Xcode CLI Tools
+# Xcode CLI Tools
 distPlcholder='/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
 
 # admin app install details
@@ -58,7 +58,6 @@ softwareupdate -i -a
 ###---
 touch "$distPlcholder"
 
-
 ###---
 ### Find the CLI Tools update; resolves to:
 ### 'Command Line Tools (macOS Sierra version 10.12) for Xcode-8.2'
@@ -66,12 +65,10 @@ touch "$distPlcholder"
 cliTools="$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 |   \
     awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
 
-
 ###---
 ### Install the package
 ###---
 softwareupdate -i "$cliTools" --verbose
-
 
 ###---
 ### Do some light cleaning
