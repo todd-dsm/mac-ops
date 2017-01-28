@@ -55,5 +55,5 @@ cd mac-ops/
 Then you're ready to start.
 
 
-[wiki]:https://github.com/todd-dsm/myMac/wiki/System-Modifications
+[wiki]:https://github.com/todd-dsm/mac-ops/wiki
 [rsync-backups]:https://github.com/todd-dsm/rsync-backups
