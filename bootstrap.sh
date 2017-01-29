@@ -22,6 +22,8 @@ source './my-vars.sh'
 
 # macOS Build
 declare adminDir="$HOME/.config/admin"
+declare myPath=''
+declare myMans=''
 #declare adminLogs="$adminDir/logs"
 declare backupDir="$adminDir/backup"
 declare hostRemote='github.com'
@@ -56,6 +58,48 @@ fi
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
 ###----------------------------------------------------------------------------
+# ENV Stuff
+# Data Files
+
+
+###----------------------------------------------------------------------------
+### FUNCTIONS
+###----------------------------------------------------------------------------
+getNewPaths() {
+    declare PATH=''
+    ### Construct new paths
+    printf '%s\n' "Constructing these lines into \$PATH..."
+    cat "$sysPaths"
+
+    printf '%s\n' "Constructing the \$PATH environment variable..."
+    while IFS= read -r binPath; do
+        printf '%s\n' "  Adding: $binPath"
+        if [[ -z "$myPath" ]]; then
+           declare "myPath=$binPath"
+       else
+           declare myPath="$myPath:$binPath"
+        fi
+    done < "$sysPaths"
+
+    export PATH="$myPath"
+
+
+    ### Construct new manpaths
+    printf '%s\n' "Constructing these lines into \$MANPATH..."
+    cat "$sysManPaths"
+
+    printf '%s\n' "Constructing the \$MANPATH environment variable..."
+    while IFS= read -r binPath; do
+        printf '%s\n' "  Adding: $binPath"
+        if [[ -z "$myMans" ]]; then
+           declare "myMans=$binPath"
+       else
+           declare myMans="$myMans:$binPath"
+        fi
+    done < "$sysManPaths"
+
+    export MANPATH="$myMans"
+}
 
 
 ###----------------------------------------------------------------------------
@@ -84,7 +128,7 @@ printf '\n%s\n\n' "Pulling Terminal stuff..."
 git clone "$solarizedGitRepo" "$termStuff/solarized"
 
 # Pull the settings back
-rsync -aEv  "$myDocs/system" "$myDocs/"
+rsync -aEv  "$myBackups/Documents/system" "$myDocs/"
 
 
 ###----------------------------------------------------------------------------
@@ -123,13 +167,15 @@ export HISTIGNORE='ls:bg:fg:history'
 
 EOF
 
-source "$myBashrc" && tail -17 "$myBashProfile"
+source "$myBashProfile" && tail -17 "$myBashrc"
 
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Homebrew..."
+set +x
 yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+set -x
 
 printf '%s\n' "  Updating Homebrew..."
 brew update
@@ -141,17 +187,14 @@ printf '%s\n' "  Tapping Homebrew binaries..."
 brew tap homebrew/binary
 brew tap caskroom/fonts
 
-printf '\n%s\n' "Current paths:"
+printf '\n%s\n' "Default macOS paths:"
+printf '%s\n' "  \$PATH:"
 cat "$sysPaths"
+printf '%s\n\n' "$PATH:"
 
-printf '\n%s\n' "Paths in the environment:"
-echo "$PATH"
-export "$(/usr/libexec/path_helper | head -1 | awk -F ";" '{print $1}')"
-
-
-printf '%s\n' "  Current man paths:"
+printf '%s\n' "  \$MANPATH:"
 cat "$sysManPaths"
-echo "$MANPATH"
+printf '%s\n\n' "$MANPATH:"
 
 
 ###----------------------------------------------------------------------------
@@ -173,33 +216,28 @@ printf '%s\n' "  Installing GNU Coreutils..."
 brew install coreutils
 
 # Set new Variables
-export pathHomeBrew="$(brew --prefix)"
 declare pathGNU_CORE="$(brew --prefix coreutils)"
 
 # Set path for the GNU Coreutils
 sudo sed -i "\|/usr/local/bin|i $pathGNU_CORE/libexec/gnubin" "$sysPaths"
 
 # Set path for the GNU Coreutils Manuals
-# FIX: MANPATH: no one seems to reliably know how it works; more later.
 sudo sed -i "\|/usr/share/man|i $pathGNU_CORE/libexec/gnuman" "$sysManPaths"
 
 
 ###---
 #### Verify the new paths have been set
 ###---
-printf '\n%s\n' "New paths:"
+getNewPaths
+
+printf '\n%s\n' "The new paths:"
+printf '%s\n' "  \$PATH:"
 cat "$sysPaths"
+printf '%s\n\n' "$PATH:"
 
-printf '\n%s\n' "New paths again:"
-export "$(/usr/libexec/path_helper | head -1 | awk -F ";" '{print $1}')"
-echo "$PATH"
-
-printf '%s\n' "New man paths:"
+printf '%s\n' "  \$MANPATH:"
 cat "$sysManPaths"
-
-printf '\n%s\n' "New manpaths again:"
-export "$(/usr/libexec/path_helper | tail -t | awk -F ";" '{print $1}')"
-echo "$MANPATH"
+printf '%s\n\n' "$MANPATH:"
 
 
 printf '%s\n' "  Configuring GNU Coreutils..."
@@ -207,10 +245,10 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 coreutils                               ###
 ###############################################################################
-declare manGNUCoreUtils='/usr/local/opt/coreutils/libexec/gnuman'
-declare manBrewProgs='/usr/local/share/man'
-declare manSystemProgs='/usr/share/man'
-export MANPATH="\$manGNUCoreUtils:\$manBrewProgs:\$manSystemProgs"
+#declare manGNUCoreUtils='/usr/local/opt/coreutils/libexec/gnuman'
+#declare manBrewProgs='/usr/local/share/man'
+#declare manSystemProgs='/usr/share/man'
+#export MANPATH="\$manGNUCoreUtils:\$manBrewProgs:\$manSystemProgs"
 # Filesystem Operational Behavior
 function ll { ls --color -l   "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
 function la { ls --color -al  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
