@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1090,SC1091,SC2059,SC2154
+# shellcheck disable=SC1090,SC1091,SC2059,SC2154,SC2116
 #------------------------------------------------------------------------------
 # PURPOSE: Configure a base environment to get back to work quickly.
 #------------------------------------------------------------------------------
@@ -21,11 +21,15 @@ timePre="$(date +'%T')"
 source './my-vars.sh'
 
 # macOS Build
-declare adminDir="$HOME/.config/admin"
 declare myPath=''
 declare myMans=''
-#declare adminLogs="$adminDir/logs"
+declare configDir="$HOME/.config"
+declare adminDir="$configDir/admin"
+declare adminLogs="$adminDir/logs"
 declare backupDir="$adminDir/backup"
+declare termDir="$configDir/term"
+declare nvimDir="$configDir/nvim"
+declare sysShells='/etc/shells'
 declare hostRemote='github.com'
 declare termStuff="$myDownloads"
 declare solarizedGitRepo='git@github.com:altercation/solarized.git'
@@ -108,7 +112,7 @@ getNewPaths() {
 ### Backup some files before we begin
 ###---
 printf '\n%s\n' "Backing up the /etc directory before we begin..."
-sudo rsync -aE /private/etc "$backupDir/"
+sudo rsync -aE /private/etc "$backupDir/" 2> /tmp/rsync-err-etc.out
 
 ###---
 ### Add the Github key to the knownhosts file
@@ -128,7 +132,7 @@ printf '\n%s\n\n' "Pulling Terminal stuff..."
 git clone "$solarizedGitRepo" "$termStuff/solarized"
 
 # Pull the settings back
-rsync -aEv  "$myBackups/Documents/system" "$myDocs/"
+rsync -aEv  "$myBackups/Documents/system" "$myDocs/" 2> /tmp/rsync-err-system.out
 
 
 ###----------------------------------------------------------------------------
@@ -200,8 +204,8 @@ printf '%s\n\n' "$MANPATH:"
 ###----------------------------------------------------------------------------
 ### Install the font: Hack
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing font: Hack..."
-brew cask install font-hack
+#printf '\n%s\n' "Installing font: Hack..."
+#brew cask install font-hack
 
 
 ###----------------------------------------------------------------------------
@@ -237,7 +241,7 @@ printf '%s\n\n' "$PATH:"
 
 printf '%s\n' "  \$MANPATH:"
 cat "$sysManPaths"
-printf '%s\n\n' "$MANPATH:"
+printf '%s\n' "$MANPATH:"
 
 
 printf '%s\n' "  Configuring GNU Coreutils..."
@@ -245,10 +249,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 coreutils                               ###
 ###############################################################################
-#declare manGNUCoreUtils='/usr/local/opt/coreutils/libexec/gnuman'
-#declare manBrewProgs='/usr/local/share/man'
-#declare manSystemProgs='/usr/share/man'
-#export MANPATH="\$manGNUCoreUtils:\$manBrewProgs:\$manSystemProgs"
+export MANPATH=$(echo "$myMans")
 # Filesystem Operational Behavior
 function ll { ls --color -l   "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
 function la { ls --color -al  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
@@ -344,8 +345,6 @@ brew cask install \
     gfxcardstatus android-file-transfer \
     tcl flux atom
 
-env > /tmp/pre-fail.out
-
 brew cask install --debug   \
     java virtualbox wireshark tcl osxfuse atom
 
@@ -367,12 +366,16 @@ brew install Caskroom/versions/vmware-fusion7
 printf '\n%s\n' "Installing Python..."
 brew install python
 
+printf '%s\n' "  Upgrading Python Pip and setuptools..."
+pip  install --upgrade pip setuptools neovim
+pip3 install --upgrade pip setuptools wheel neovim
+
+
 printf '%s\n' "  Configuring Python..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  Python                                 ###
 ###############################################################################
-export PYTHONPATH="$(brew --prefix)/lib/python2.7/site-packages"
 export PIP_CONFIG_FILE="\$HOME/.config/pip/pip.conf"
 
 EOF
@@ -396,6 +399,39 @@ format=columns
 EOF
 
 source "$myBashrc" && tail -6 "$myBashrc"
+
+
+printf '\n%s\n' "  Testing pip config..."
+pip list
+
+
+###----------------------------------------------------------------------------
+### Ruby
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Installing Ruby..."
+brew install ruby
+
+###---
+### Update/Install Gems
+###---
+printf '%s\n' "Updating all Gems..."
+gem update "$(gem list | cut -d' ' -f1)"
+
+printf '%s\n' "Installing new Gems to test..."
+gem install neovim
+
+
+printf '%s\n' "  Configuring Ruby..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                                   Ruby                                  ###
+###############################################################################
+# Placeholder incase there is a later discovery.
+
+EOF
+
+
+#source "$myBashrc" && tail -5 "$myBashrc"
 
 
 printf '\n%s\n' "  Testing pip config..."
@@ -434,20 +470,35 @@ source "$myBashrc" && tail -6 "$myBashrc"
 printf '\n%s\n' "Installing Bash..."
 brew install bash shellcheck dash
 
-# Add the new version of Bash to system shells file
+# Configure GNU Bash for the system and current $USER
 printf '\n%s\n' "  Configuring Bash..."
-declare sysShells='/etc/shells'
 
-grep ".*bash$" "$sysShells"
-sudo sed -i "/.*bash$/ i\/usr/local/bin/bash" "$sysShells"
-grep ".*bash$" "$sysShells"
+printf '%s\n' "  Creating a softlink from sh to dash..."
+ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
+
+printf '%s\n' "  System Shells default:"
+grep '^\/' "$sysShells"
+sudo sed -i "\|^.*bash$|i /usr/local/bin/bash" "$sysShells"
+sudo sed -i "\|local|a /usr/local/bin/sh"      "$sysShells"
+printf '%s\n' "  System Shells new:"
+grep '^\/' "$sysShells"
+
+printf '\n%s\n' "  $USER's default shell:"
+dscl . -read "$HOME" UserShell
+
+printf '%s\n' "  Configuring $USER's shell..."
+sudo chpass -s "$(which bash)" "$USER"
+
+printf '%s\n' "  $USER's new shell:"
+dscl . -read "$HOME" UserShell
+
 
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                   Bash                                  ###
 ###############################################################################
 export SHELL='/usr/local/bin/bash'
-export BASH_VERSION="\$(bash --version | head -1)"
+export BASH_VERSION="\$(bash --version | head -1 | awk -F " " '{print $4}')"
 # ShellCheck: Ignore: https://goo.gl/n9W5ly
 export SHELLCHECK_OPTS="-e SC2155"
 
@@ -472,7 +523,7 @@ vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
 #   +Lua      (broke)
 #   +mzscheme (broke)
 printf '%s\n' "  Installing Vim..."
-brew install vim --override-system-vi --without-nls \
+brew install vim --with-override-system-vi --without-nls --with-python3 \
     --with-lua --with-mzscheme --with-tcl
 
 # We should evaluate Neovim
@@ -497,6 +548,20 @@ source "$myBashrc" && tail -8 "$myBashrc"
 # Verify after install
 printf '%s\n' "  The Real version of Vim:"
 vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
+
+# Nvim Configurations
+printf '%s\n' "  Saving default \$TERM details > ~/config/term/..."
+infocmp "$TERM" > "$termDir/$TERM.ti"
+infocmp "$TERM" > "$termDir/$TERM-nvim.ti"
+
+printf '%s\n' "  Compiling terminfo for Neovim warning..."
+tic "$termDir/$TERM-nvim.ti"
+
+printf '%s\n' "  Linking to existing .vim directory..."
+ln -s "$vimSimpleLocal/vim" "$nvimDir"
+
+printf '%s\n' "  Linking to exiting .vimrc file..."
+ln -s "$vimSimpleLocal/vimrc" "$nvimDir/init.vim"
 
 
 ###----------------------------------------------------------------------------
@@ -635,6 +700,7 @@ source "$myBashrc" && tail -6 "$myBashrc"
 printf '%s\n' "  Creating the Ansible directory..."
 mkdir -p "$HOME/.ansible/roles"
 touch "$HOME/.ansible/"{ansible.cfg,hosts}
+cp -pv 'sources/ansible/ansible.cfg' ~/.ansible/ansible.cfg
 
 
 ###----------------------------------------------------------------------------
@@ -717,8 +783,8 @@ sed -i "/${jsonAppendStr%%\ *}/i $vimSimpleTag" "$jsonIndent"
 
 ### Make softlinks to the important files
 printf '\n%s\n\n' "Creating softlinks for ~/.vim and ~/.vimrc"
-ln -s "$vimSimpleLocal/vimrc" .vimrc
-ln -s "$vimSimpleLocal/vim"   .vim
+ln -s "$vimSimpleLocal/vimrc" ~/.vimrc
+ln -s "$vimSimpleLocal/vim"   ~/.vim
 
 ls -dl ~/.vimrc ~/.vim
 
@@ -982,11 +1048,19 @@ tools/admin-app-details.sh post
 ### Create a link to the log file
 ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 
+
 ###----------------------------------------------------------------------------
 ### Restore Personal Data
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Restoring files..."
 tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
+
+
+###----------------------------------------------------------------------------
+### Some light housework
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Cleaning up a bit..."
+sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 
 
 ###----------------------------------------------------------------------------
