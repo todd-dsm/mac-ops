@@ -93,12 +93,12 @@ getNewPaths() {
     cat "$sysManPaths"
 
     printf '%s\n' "Constructing the \$MANPATH environment variable..."
-    while IFS= read -r binPath; do
-        printf '%s\n' "  Adding: $binPath"
+    while IFS= read -r manPath; do
+        printf '%s\n' "  Adding: $manPath"
         if [[ -z "$myMans" ]]; then
-           declare "myMans=$binPath"
+           declare "myMans=$manPath"
        else
-           declare myMans="$myMans:$binPath"
+           declare myMans="$myMans:$manPath"
         fi
     done < "$sysManPaths"
 
@@ -203,8 +203,14 @@ printf '%s\n\n' "$MANPATH:"
 
 ###----------------------------------------------------------------------------
 ### Install the font: Hack
+### Hack is a solid font for programmers; version 2.010 is the golden-age.
+### If you want the latest version then:
+###   *delete the tar line and
+###   *uncomment the brew lines.
 ###----------------------------------------------------------------------------
-#printf '\n%s\n' "Installing font: Hack..."
+printf '\n%s\n' "Installing font: Hack..."
+tar xzvf "$myDocs/system/Hack-v2_010-ttf.tgz" -C "$HOME/Library/Fonts"
+#brew tap caskroom/fonts
 #brew cask install font-hack
 
 
@@ -228,6 +234,9 @@ sudo sed -i "\|/usr/local/bin|i $pathGNU_CORE/libexec/gnubin" "$sysPaths"
 # Set path for the GNU Coreutils Manuals
 sudo sed -i "\|/usr/share/man|i $pathGNU_CORE/libexec/gnuman" "$sysManPaths"
 
+# Move system manpaths down 1 line
+sudo sed -i -n '2{h;n;G};p' "$sysManPaths"
+
 
 ###---
 #### Verify the new paths have been set
@@ -249,7 +258,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 coreutils                               ###
 ###############################################################################
-export MANPATH=$(echo "$myMans")
+export MANPATH="$myMans"
 # Filesystem Operational Behavior
 function ll { ls --color -l   "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
 function la { ls --color -al  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
@@ -257,7 +266,7 @@ function ld { ls --color -ld  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)';
 function lh { ls --color -alh "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
 alias cp='cp -rfvp'
 alias mv='mv -v'
-# FIX: alias for GNU zip/unzim do not work
+# FIX: alias for GNU zip/unzip do not work
 alias zip='/usr/local/bin/gzip'
 alias unzip='/usr/local/bin/gunzip'
 alias hist='history | cut -c 21-'
@@ -266,6 +275,12 @@ EOF
 
 source "$myBashrc" && tail -14 "$myBashrc"
 
+
+###----------------------------------------------------------------------------
+### MANPATHs
+###   * System:   /usr/share/man
+###   * Homebrew: /usr/local/share/man
+###----------------------------------------------------------------------------
 
 ###----------------------------------------------------------------------------
 ### Install GNU Tools and Languages
@@ -345,7 +360,7 @@ brew cask install \
     gfxcardstatus android-file-transfer \
     tcl flux atom
 
-brew cask install --debug   \
+brew cask install \
     java virtualbox wireshark tcl osxfuse atom
 
 brew install homebrew/fuse/sshfs
@@ -364,6 +379,15 @@ brew install Caskroom/versions/vmware-fusion7
 ### PYTHON
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Python..."
+printf '%s\n' """
+    ####    ####    ####    ####    ####     ####     ####     ####     ####
+
+        You can safely ignore the message 'echo export PATH' message from
+                  the installer. THIS IS NOT NECESSARY.
+
+    ####    ####    ####    ####    ####     ####     ####     ####     ####
+    """
+
 brew install python
 
 printf '%s\n' "  Upgrading Python Pip and setuptools..."
@@ -430,15 +454,7 @@ cat << EOF >> "$myBashrc"
 
 EOF
 
-
 #source "$myBashrc" && tail -5 "$myBashrc"
-
-
-printf '\n%s\n' "  Testing pip config..."
-pip list
-
-printf '%s\n' "  Upgrading Python Pip and setuptools..."
-pip install --upgrade pip setuptools
 
 
 ###----------------------------------------------------------------------------
@@ -718,7 +734,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 DOCKER                                  ###
 ###############################################################################
-eval "\$(docker-machine env default)"
+#eval "\$(docker-machine env default)"
 
 EOF
 
