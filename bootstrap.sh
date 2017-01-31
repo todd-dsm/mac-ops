@@ -209,6 +209,7 @@ printf '%s\n\n' "$MANPATH:"
 ###   *uncomment the brew lines.
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing font: Hack..."
+mkdir "$HOME/Library/Fonts"
 tar xzvf "$myDocs/system/Hack-v2_010-ttf.tgz" -C "$HOME/Library/Fonts"
 #brew tap caskroom/fonts
 #brew cask install font-hack
@@ -258,7 +259,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 coreutils                               ###
 ###############################################################################
-export MANPATH="$myMans"
+export MANPATH=$(echo "$myMans")
 # Filesystem Operational Behavior
 function ll { ls --color -l   "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
 function la { ls --color -al  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
@@ -388,7 +389,7 @@ printf '%s\n' """
     ####    ####    ####    ####    ####     ####     ####     ####     ####
     """
 
-brew install python
+brew install python python3
 
 printf '%s\n' "  Upgrading Python Pip and setuptools..."
 pip  install --upgrade pip setuptools neovim
@@ -567,8 +568,9 @@ vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
 
 # Nvim Configurations
 printf '%s\n' "  Saving default \$TERM details > ~/config/term/..."
+mkdir "$termDir"
 infocmp "$TERM" > "$termDir/$TERM.ti"
-infocmp "$TERM" > "$termDir/$TERM-nvim.ti"
+infocmp "$TERM" | sed 's/kbs=^[hH]/kbs=\\177/' > "$termDir/$TERM-nvim.ti"
 
 printf '%s\n' "  Compiling terminfo for Neovim warning..."
 tic "$termDir/$TERM-nvim.ti"
@@ -726,8 +728,8 @@ printf '\n%s\n' "Installing Docker, et al..."
 brew install docker docker-machine docker-compose
 
 # Create a vbox VM
-printf '%s\n' "  Creating the Docker VM..."
-docker-machine create --driver virtualbox default
+#printf '%s\n' "  Creating the Docker VM..."
+#docker-machine create --driver virtualbox default
 
 printf '%s\n' "  Configuring Docker..."
 cat << EOF >> "$myBashrc"
@@ -1121,9 +1123,9 @@ startTime=$("$gnuDate" -u -d "$timePre" +"%s")
 endTime=$("$gnuDate" -u -d "$timePost" +"%s")
 procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
 printf '%s\n' """
-    The procss start  at: $timePre
-    The procss end    at: $timePost
-    The process duration: $procDur
+    Process start at: $timePre
+    Process end   at: $timePost
+    Process duration: $procDur
 """
 
 
