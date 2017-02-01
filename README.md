@@ -43,7 +43,7 @@ git clone git@github.com:todd-dsm/mac-ops.git
 
 cd mac-ops/
 
-./bootstrap.sh 2>&1 | tee /tmp/mac-ops-config.out
+./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
 ```
 
 ***
