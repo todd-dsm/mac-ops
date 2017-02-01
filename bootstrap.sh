@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1090,SC1091,SC2059,SC2154,SC2116
 #------------------------------------------------------------------------------
-# PURPOSE: Configure a base environment to get back to work quickly.
+# PURPOSE:  A quick and dirty script to configure a base environment so I can
+#           get back to work quickly. It will be replaced by Ansible automation
+#           as soon as possible.
 #------------------------------------------------------------------------------
-# EXECUTE: ./bootstrap.sh 2>&1 | tee macos-config.out
+# EXECUTE:  ./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
 #------------------------------------------------------------------------------
 # PREREQS: 1) ssh keys must be on the new system for Github clones
 #          2)
@@ -189,7 +191,7 @@ brew doctor
 
 printf '%s\n' "  Tapping Homebrew binaries..."
 brew tap homebrew/binary
-brew tap caskroom/fonts
+#brew tap caskroom/fonts
 
 printf '\n%s\n' "Default macOS paths:"
 printf '%s\n' "  \$PATH:"
@@ -259,7 +261,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 coreutils                               ###
 ###############################################################################
-export MANPATH=$(echo "$myMans")
+export MANPATH=$MANPATH
 # Filesystem Operational Behavior
 function ll { ls --color -l   "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
 function la { ls --color -al  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
@@ -293,7 +295,6 @@ brew install gnu-indent --with-default-names
 brew install findutils --with-default-names
 brew install gnu-which --with-default-names
 brew install wget --with-pcre
-# Both zip & unzip are in the same package
 brew install gnu-tar --with-default-names
 brew install homebrew/dupes/diffutils
 brew install gnu-time --with-default-names
