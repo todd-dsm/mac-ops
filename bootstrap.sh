@@ -14,7 +14,7 @@
 #------------------------------------------------------------------------------
 #    DATE: 2017/01/11
 #------------------------------------------------------------------------------
-set -x
+#set -x
 
 ###------------------------------------------------------------------------------
 ### VARIABLES
@@ -290,19 +290,17 @@ source "$myBashrc" && tail -14 "$myBashrc"
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing and configuring additional GNU programs..."
 brew install homebrew/dupes/ed --with-default-names
-brew install homebrew/dupes/gzip
 brew install gnu-indent --with-default-names
 brew install findutils --with-default-names
 brew install gnu-which --with-default-names
 brew install wget --with-pcre
 brew install gnu-tar --with-default-names
-brew install homebrew/dupes/diffutils
 brew install gnu-time --with-default-names
 brew install homebrew/dupes/grep --with-default-names
-brew install homebrew/dupes/rsync
-brew install watch tree gawk psgrep
+brew install brew install gnupg2 --with-readline --without-dirmngr
+brew install homebrew/dupes/gzip gawk homebrew/dupes/diffutils
 
-printf '\n%s\n' "  Configuring grep..."
+printf '\n%s\n' "  Configuring grep and find..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                   grep                                  ###
@@ -351,21 +349,24 @@ source "$myBashrc" && tail -38 "$myBashrc"
 ### Useful System Utilities
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing some system utilities..."
-brew install git nmap ssh-copy-id sipcalc pstree gnupg dos2unix testdisk
+brew install \
+    git nmap homebrew/dupes/rsync ssh-copy-id watch tree pstree psgrep  \
+    sipcalc whatmask ipcalc dos2unix testdisk homebrew/dupes/tcl-tk
 
+printf '%s\n' "  Installing tcpdump separately..."
+brew install homebrew/dupes/tcpdump --with-libpcap
+
+### Include homebrew sbin in the paths
+printf '%s\n' "  Opening up /usr/local/sbin so we can see tcpdump..."
+sudo sed -i "\|/usr/bin|i /usr/local/sbin"   "$sysPaths"
 
 ###----------------------------------------------------------------------------
 ### Install the Casks (GUI Apps)
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing some utilities..."
 brew cask install \
-    gfxcardstatus android-file-transfer \
-    tcl flux atom
-
-brew cask install \
-    java virtualbox wireshark tcl osxfuse atom
-
-brew install homebrew/fuse/sshfs
+    gfxcardstatus atom android-file-transfer flux java virtualbox wireshark \
+    osxfuse homebrew/fuse/sshfs
 
 
 printf '\n%s\n' "Installing Google Chrome..."
