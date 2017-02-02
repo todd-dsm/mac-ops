@@ -123,7 +123,7 @@ printf '\n%s\n' "Pulling Terminal stuff..."
 git clone "$solarizedGitRepo" "$termStuff/solarized"
 
 # Pull the settings back
-printf '\n%s\n' "  Restoring Terminal (and other) settings..."
+printf '\n%s\n' "Restoring Terminal (and other) settings..."
 rsync -aEv  "$myBackups/Documents/system" "$myDocs/" 2> /tmp/rsync-err-system.out
 
 
@@ -132,7 +132,7 @@ rsync -aEv  "$myBackups/Documents/system" "$myDocs/" 2> /tmp/rsync-err-system.ou
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' "Configuring base shell options..."
 
-printf '%s\n' "  Configuring $myBashProfile ..."
+printf '\n%s\n' "Configuring $myBashProfile ..."
 cat << EOF >> "$myBashProfile"
 # URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
 if [ -f ~/.bashrc ]; then
@@ -142,7 +142,7 @@ fi
 EOF
 
 
-printf '%s\n' "  Configuring $myBashrc ..."
+printf '\n%s\n' "Configuring $myBashrc ..."
 cat << EOF >> "$myBashrc"
 ### My ~/.bashrc
 declare sysBashrc='/etc/bashrc'
@@ -191,13 +191,13 @@ brew tap homebrew/binary
 ###---
 set +x
 printf '\n%s\n' "Default macOS paths:"
-printf '%s\n' "  \$PATH:"
+printf '%s\n' "\$PATH:"
 cat "$sysPaths"
-printf '%s\n\n' "$PATH:"
+printf '%s\n\n' "$PATH"
 
-printf '%s\n' "  \$MANPATH:"
+printf '%s\n' "\$MANPATH:"
 cat "$sysManPaths"
-printf '%s\n\n' "$MANPATH:"
+printf '%s\n\n' "$MANPATH"
 
 
 ###----------------------------------------------------------------------------
@@ -254,7 +254,7 @@ getNewPaths
 printf '\n%s\n' "The new paths:"
 printf '%s\n' "\$PATH:"
 cat "$sysPaths"
-printf '%s\n\n' "$PATH:"
+printf '%s\n\n' "$PATH"
 
 ###----------------------------------------------------------------------------
 ### MANPATHs
@@ -263,10 +263,10 @@ printf '%s\n\n' "$PATH:"
 ###----------------------------------------------------------------------------
 printf '%s\n' "\$MANPATH:"
 cat "$sysManPaths"
-printf '%s\n' "$MANPATH:"
+printf '%s\n' "$MANPATH"
 
 ### Configure coreutils
-printf '%s\n' "  Configuring GNU Coreutils..."
+printf '\n%s\n' "Configuring GNU Coreutils..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 coreutils                               ###
@@ -303,7 +303,7 @@ brew install wget --with-pcre
 brew install gnu-tar --with-default-names
 brew install gnu-time --with-default-names
 brew install homebrew/dupes/grep --with-default-names
-brew install brew install gnupg2 --with-readline --without-dirmngr
+brew install gnupg2 --with-readline --without-dirmngr
 brew install homebrew/dupes/gzip gawk homebrew/dupes/diffutils
 
 printf '\n%s\n' "  Configuring grep and find..."
@@ -354,12 +354,29 @@ source "$myBashProfile" && tail -38 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
+### Install the Casks (GUI Apps)
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Installing some utilities..."
+brew cask install \
+    gfxcardstatus atom android-file-transfer flux java virtualbox wireshark \
+    osxfuse
+
+printf '\n%s\n' "Installing Google Chrome..."
+brew cask install google-chrome
+mkdir -p "$HOME/Library/Application\ Support/Google/Chrome"
+chown -R vagrant:staff "/Users/vagrant/Library/Application Support"/
+
+printf '\n%s\n' "Installing VMware Fusion: 7..."
+brew install Caskroom/versions/vmware-fusion7
+
+
+###----------------------------------------------------------------------------
 ### Useful System Utilities
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing some system utilities..."
 brew install \
     git nmap homebrew/dupes/rsync ssh-copy-id watch tree pstree psgrep  \
-    sipcalc whatmask ipcalc dos2unix testdisk
+    sipcalc whatmask ipcalc dos2unix testdisk homebrew/fuse/sshfs
 
 ### Seperate installs for programs with options
 printf '%s\n' "  Installing tcl-tk with options..."
@@ -375,24 +392,6 @@ brew install homebrew/dupes/tcpdump --with-libpcap
 ### Include path for tcpdump
 printf '%s\n' "  Opening up /usr/local/sbin so we can see tcpdump..."
 sudo sed -i "\|/usr/bin|i /usr/local/sbin"             "$sysPaths"
-
-
-###----------------------------------------------------------------------------
-### Install the Casks (GUI Apps)
-###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing some utilities..."
-brew cask install \
-    gfxcardstatus atom android-file-transfer flux java virtualbox wireshark \
-    osxfuse homebrew/fuse/sshfs
-
-
-printf '\n%s\n' "Installing Google Chrome..."
-brew cask install google-chrome
-mkdir -p "$HOME/Library/Application\ Support/Google/Chrome"
-chown -R vagrant:staff "/Users/vagrant/Library/Application Support"/
-
-printf '\n%s\n' "Installing VMware Fusion: 7..."
-brew install Caskroom/versions/vmware-fusion7
 
 
 ###----------------------------------------------------------------------------
@@ -415,7 +414,7 @@ pip  install --upgrade pip setuptools neovim
 pip3 install --upgrade pip setuptools wheel neovim
 
 
-printf '%s\n' "  Configuring Python..."
+printf '\n%s\n' "Configuring Python..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  Python                                 ###
@@ -434,7 +433,7 @@ if [[ ! -d "$myConfigs/pip" ]]; then
     mkdir -p "$myConfigs/pip"
 fi
 
-printf '%s\n' "  Configuring Python pip..."
+printf '\n%s\n' "Configuring Python pip..."
 cat << EOF >> "$HOME/.config/pip/pip.conf"
 # pip configuration
 [list]
@@ -466,7 +465,7 @@ printf '%s\n' "Installing new Gems to test..."
 gem install neovim
 
 
-printf '%s\n' "  Configuring Ruby..."
+printf '\n%s\n' "Configuring Ruby..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                   Ruby                                  ###
@@ -527,13 +526,13 @@ grep '^\/' "$sysShells"
 printf '\n%s\n' "  $USER's default shell:"
 dscl . -read "$HOME" UserShell
 
-printf '%s\n' "  Configuring $USER's shell..."
+printf '\n%s\n' "Configuring $USER's shell..."
 sudo chpass -s "$(which bash)" "$USER"
 
 printf '%s\n' "  $USER's new shell:"
 dscl . -read "$HOME" UserShell
 
-printf '%s\n' "  Configuring Bash..."
+printf '\n%s\n' "Configuring Bash..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                   Bash                                  ###
@@ -573,7 +572,7 @@ brew install vim --with-override-system-vi --without-nls --with-python3 \
 printf '%s\n' "  Installing Neovim..."
 brew install neovim/neovim/neovim
 
-printf '%s\n' "  Configuring Vim..."
+printf '\n%s\n' "Configuring Vim..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                   Vim                                   ###
@@ -622,7 +621,7 @@ pip install --upgrade jmespath jmespath-terminal
 brew tap jmespath/jmespath
 brew install jp
 
-printf '%s\n' "  Configuring the AWS CLI..."
+printf '\n%s\n' "Configuring the AWS CLI..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 Amazon                                  ###
@@ -667,7 +666,7 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 printf '\n%s\n' "Installing Terraform..."
 brew install terraform terraform-inventory graphviz
 
-printf '%s\n' "  Configuring Terraform..."
+printf '\n%s\n' "Configuring Terraform..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                Terraform                                ###
@@ -690,7 +689,7 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 printf '\n%s\n' "Installing Packer..."
 brew install packer
 
-printf '%s\n' "  Configuring Packer..."
+printf '\n%s\n' "Configuring Packer..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  Packer                                 ###
@@ -715,7 +714,7 @@ source "$myBashProfile" && tail -10 "$myBashrc"
 printf '\n%s\n' "Installing Vagrant..."
 brew cask install vagrant
 
-printf '%s\n' "  Configuring Vagrant..."
+printf '\n%s\n' "Configuring Vagrant..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 Vagrant                                 ###
@@ -741,7 +740,7 @@ pip install --upgrade ansible
 printf '%s\n' "  Ansible Version Info:"
 ansible --version
 
-printf '%s\n' "  Configuring Vagrant..."
+printf '\n%s\n' "Configuring Vagrant..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 Ansible                                 ###
@@ -771,7 +770,7 @@ brew install docker docker-machine docker-compose
 #printf '%s\n' "  Creating the Docker VM..."
 #docker-machine create --driver virtualbox default
 
-printf '%s\n' "  Configuring Docker..."
+printf '\n%s\n' "Configuring Docker..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 DOCKER                                  ###
@@ -859,17 +858,17 @@ printf '\n%s\n' "Configuring the System:"
 ###---
 ###  Set the hostname(s)
 ###---
-printf '%s\n' "  Configuring the hostname(s)..."
+printf '\n%s\n' "Configuring the hostname(s)..."
 ### Configure the network hostname
-printf '%s\n' "  Configuring network hostname..."
+printf '\n%s\n' "Configuring network hostname..."
 sudo scutil --set ComputerName "$myHostName"
 
 ### Configure the Terminal hostname
-printf '%s\n' "  Configuring Terminal hostname..."
+printf '\n%s\n' "Configuring Terminal hostname..."
 sudo scutil --set HostName "${myHostName%%.*}"
 
 ### Configure the AirDrop hostname
-printf '%s\n' "  Configuring AirDrop hostname..."
+printf '\n%s\n' "Configuring AirDrop hostname..."
 sudo scutil --set LocalHostName "${myHostName%%.*}"
 
 ###---
