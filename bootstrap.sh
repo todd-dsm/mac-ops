@@ -158,8 +158,7 @@ export HISTFILESIZE=
 export HISTSIZE=
 #export PROMPT_COMMAND='history -a'
 shopt -s histappend
-shopt histappend
-export PROMPT_COMMAND="history -a; history -c; history -r; \$PROMPT_COMMAND"
+export PROMPT_COMMAND='history -a; history -c; history -r'
 export HISTCONTROL=ignoredups
 export HISTTIMEFORMAT="%a%l:%M %p  "
 export HISTIGNORE='ls:bg:fg:history'
@@ -192,7 +191,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                Homebrew                                 ###
 ###############################################################################
-source "\$(brew --prefix)/etc/bash_completion.d/brew"
+source /usr/local/etc/bash_completion.d/brew
 
 EOF
 
@@ -804,10 +803,10 @@ cat << EOF >> "$myBashrc"
 ###                                 DOCKER                                  ###
 ###############################################################################
 # command-completions for docker, et al.
-source "\$(brew --prefix)/etc/bash_completion.d/docker"
-source "\$(brew --prefix)/etc/bash_completion.d/docker-compose"
-source "\$(brew --prefix)/etc/bash_completion.d/docker-machine.bash"
-source "\$(brew --prefix)/etc/bash_completion.d/docker-machine-wrapper.bash"
+source /usr/local/etc/bash_completion.d/docker
+source /usr/local/etc/bash_completion.d/docker-compose
+source /usr/local/etc/bash_completion.d/docker-machine.bash
+source /usr/local/etc/bash_completion.d/docker-machine-wrapper.bash
 #eval "\$(docker-machine env default)"
 
 EOF
@@ -825,7 +824,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  GIT                                    ###
 ###############################################################################
-source "\$(brew --prefix)/etc/bash_completion.d/git-completion.bash"
+source /usr/local/etc/bash_completion.d/git-completion.bash
 
 EOF
 
