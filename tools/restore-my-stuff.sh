@@ -40,7 +40,7 @@ declare myData=("$myCode" "$myDesktop" "$myDocs" "$myMovies" "$myMusic"     \
 ###---
 printf '\n\n%s\n' "Restoring code, docs, movies, music, etc..."
 for dataDir in "${myData[@]}"; do
-    printf '%s\n' "  Restoring $dataDir"
+    printf '\n\n%s\n' "  Restoring $dataDir"
     rsync -aEv "$myBackups/${dataDir##*/}/" "$dataDir/"
 done
 
@@ -50,8 +50,8 @@ done
 ###---
 printf '\n\n%s\n' "Restoring stuff to \$HOME: vms, etc..."
 for dataDir in "${homeStuff[@]}"; do
-    printf '%s\n' "  Restoring $dataDir"
-    rsync -aEv "$myBackups/${dataDir##*/}" .
+    printf '\n\n%s\n' "  Restoring $dataDir"
+    rsync -aEv "$myBackups/${dataDir##*/}" "$HOME/"
 done
 
 
