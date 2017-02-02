@@ -68,9 +68,6 @@ fi
 getNewPaths() {
     declare PATH=''
     ### Construct new paths
-    printf '%s\n' "Constructing these lines into \$PATH..."
-    cat "$sysPaths"
-
     printf '%s\n' "Constructing the \$PATH environment variable..."
     while IFS= read -r binPath; do
         printf '%s\n' "  Adding: $binPath"
@@ -85,9 +82,6 @@ getNewPaths() {
 
 
     ### Construct new manpaths
-    printf '%s\n' "Constructing these lines into \$MANPATH..."
-    cat "$sysManPaths"
-
     printf '%s\n' "Constructing the \$MANPATH environment variable..."
     while IFS= read -r manPath; do
         printf '%s\n' "  Adding: $manPath"
@@ -125,7 +119,7 @@ fi
 ### Pull some stuff for the Terminal
 ###---
 printf '\n%s\n' "Pulling Terminal stuff..."
-printf '\n%s\n' "  Cloning $solarizedGitRepo..."
+#printf '\n%s\n' "  Cloning $solarizedGitRepo..."
 git clone "$solarizedGitRepo" "$termStuff/solarized"
 
 # Pull the settings back
@@ -258,7 +252,7 @@ getNewPaths
 ###   * Homebrew: anything under /usr/local
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "The new paths:"
-printf '%s\n' "  \$PATH:"
+printf '%s\n' "\$PATH:"
 cat "$sysPaths"
 printf '%s\n\n' "$PATH:"
 
@@ -267,7 +261,7 @@ printf '%s\n\n' "$PATH:"
 ###   * System:   /usr/share/man
 ###   * Homebrew: /usr/local/share/man
 ###----------------------------------------------------------------------------
-printf '%s\n' "  \$MANPATH:"
+printf '%s\n' "\$MANPATH:"
 cat "$sysManPaths"
 printf '%s\n' "$MANPATH:"
 
