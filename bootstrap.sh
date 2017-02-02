@@ -172,17 +172,17 @@ source "$myBashProfile" && tail -17 "$myBashrc"
 ### Install Homebrew
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Homebrew..."
-#yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 printf '%s\n' "  Updating Homebrew..."
-#brew update
+brew update
 
 printf '%s\n' "  Running 'brew doctor'..."
-#brew doctor
+brew doctor
 
 printf '%s\n' "  Tapping Homebrew binaries..."
-#brew tap homebrew/binary
-#brew tap caskroom/fonts
+brew tap homebrew/binary
+brew tap caskroom/fonts
 
 printf '\n%s\n' "Configuring Homebrew..."
 cat << EOF >> "$myBashrc"
@@ -227,8 +227,8 @@ fi
 printf '\n%s\n' "Installing font: Hack..."
 mkdir "$HOME/Library/Fonts"
 tar xzvf "$myDocs/system/Hack-v2_010-ttf.tgz" -C "$HOME/Library/Fonts"
-#brew tap caskroom/fonts
-#brew cask install font-hack
+brew tap caskroom/fonts
+brew cask install font-hack
 
 
 ###----------------------------------------------------------------------------
@@ -237,10 +237,10 @@ tar xzvf "$myDocs/system/Hack-v2_010-ttf.tgz" -C "$HOME/Library/Fonts"
 printf '\n\n%s\n' "Let's get open..."
 
 printf '%s\n' "Installing sed - the stream editor..."
-#brew install gnu-sed --with-default-names
+brew install gnu-sed --with-default-names
 
 printf '%s\n' "  Installing GNU Coreutils..."
-#brew install coreutils
+brew install coreutils
 
 
 ###----------------------------------------------------------------------------
@@ -317,16 +317,16 @@ source "$myBashProfile" && tail -16 "$myBashrc"
 ### Install GNU Tools and Languages
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing and configuring additional GNU programs..."
-#brew install homebrew/dupes/ed --with-default-names
-#brew install gnu-indent --with-default-names
-#brew install findutils --with-default-names
-#brew install gnu-which --with-default-names
-#brew install wget --with-pcre
-#brew install gnu-tar --with-default-names
-#brew install gnu-time --with-default-names
-#brew install homebrew/dupes/grep --with-default-names
-#brew install gnupg2 --with-readline --without-dirmngr
-#brew install homebrew/dupes/gzip gawk homebrew/dupes/diffutils
+brew install homebrew/dupes/ed --with-default-names
+brew install gnu-indent --with-default-names
+brew install findutils --with-default-names
+brew install gnu-which --with-default-names
+brew install wget --with-pcre
+brew install gnu-tar --with-default-names
+brew install gnu-time --with-default-names
+brew install homebrew/dupes/grep --with-default-names
+brew install gnupg2 --with-readline --without-dirmngr
+brew install homebrew/dupes/gzip gawk homebrew/dupes/diffutils
 
 printf '\n%s\n' "Configuring grep and find..."
 cat << EOF >> "$myBashrc"
@@ -379,37 +379,37 @@ source "$myBashProfile" && tail -38 "$myBashrc"
 ### Install the Casks (GUI Apps)
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing GUI (cask) Apps..."
-#brew cask install \
+brew cask install \
 #    gfxcardstatus atom android-file-transfer flux java virtualbox wireshark \
 #    osxfuse
 
 printf '%s\n' "  Installing Google Chrome..."
-#brew cask install google-chrome
+brew cask install google-chrome
 mkdir -p "$HOME/Library/Application\ Support/Google/Chrome"
 chown -R vagrant:staff "/Users/vagrant/Library/Application Support"/
 
 printf '%s\n' "  Installing VMware Fusion: 7..."
-#brew install Caskroom/versions/vmware-fusion7
+brew install Caskroom/versions/vmware-fusion7
 
 
 ###----------------------------------------------------------------------------
 ### Useful System Utilities
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' "Installing system utilities..."
-#brew install \
+brew install \
 #    git nmap homebrew/dupes/rsync ssh-copy-id watch tree pstree psgrep  \
 #    sipcalc whatmask ipcalc dos2unix testdisk homebrew/fuse/sshfs
 
 ### Seperate installs for programs with options
 printf '%s\n' "  Installing tcl-tk with options..."
-#brew install homebrew/dupes/tcl-tk --with-threads
+brew install homebrew/dupes/tcl-tk --with-threads
 
 ### Include path for tcl-tk
 printf '%s\n' "  Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
 sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin"   "$sysPaths"
 
 printf '%s\n' "  Installing tcpdump with options..."
-#brew install homebrew/dupes/tcpdump --with-libpcap
+brew install homebrew/dupes/tcpdump --with-libpcap
 
 ### Include path for tcpdump
 printf '%s\n' "  Opening up /usr/local/sbin so we can see tcpdump..."
@@ -429,11 +429,11 @@ printf '%s\n' """
     ####    ####    ####    ####    ####     ####     ####     ####     ####
     """
 
-#brew install python python3
+brew install python python3
 
 printf '\n%s\n' "Upgrading Python Pip and setuptools..."
-#pip  install --upgrade pip setuptools neovim
-#pip3 install --upgrade pip setuptools wheel neovim
+pip  install --upgrade pip setuptools neovim
+pip3 install --upgrade pip setuptools wheel neovim
 
 
 printf '\n%s\n' "Configuring Python..."
@@ -475,16 +475,16 @@ pip list
 ### Ruby
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' "Installing Ruby..."
-#brew install ruby
+brew install ruby
 
 ###---
 ### Update/Install Gems
 ###---
 printf '%s\n' "Updating all Gems..."
-#gem update "$(gem list | cut -d' ' -f1)"
+gem update "$(gem list | cut -d' ' -f1)"
 
 printf '%s\n' "  Installing new Gems to test..."
-#gem install neovim
+gem install neovim
 
 
 printf '\n%s\n' "Configuring Ruby..."
@@ -505,7 +505,7 @@ source "$myBashProfile" && tail -5 "$myBashrc"
 ### golang
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing the Go Programming Language..."
-#brew install go
+brew install go
 
 # Create the code path
 printf '\n%s\n' "  Creating the \$GOPATH directory..."
@@ -530,7 +530,7 @@ source "$myBashProfile" && tail -6 "$myBashrc"
 ### Bash
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Bash..."
-#brew install bash shellcheck dash
+brew install bash shellcheck dash
 
 # Configure GNU Bash for the system and current $USER
 printf '\n%s\n' "  Configuring Bash..."
@@ -588,12 +588,12 @@ vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
 #   +mzscheme (broke)
 
 printf '\n\n%s\n' "Installing Vim..."
-#brew install vim --with-override-system-vi --without-nls --with-python3 \
+brew install vim --with-override-system-vi --without-nls --with-python3 \
 #    --with-lua --with-mzscheme --with-tcl
 
 # We should evaluate Neovim
 printf '\n%s\n' "Installing Neovim..."
-#brew install neovim/neovim/neovim
+brew install neovim/neovim/neovim
 
 printf '\n%s\n' "Configuring Vim..."
 cat << EOF >> "$myBashrc"
@@ -636,13 +636,13 @@ ln -s "$vimSimpleLocal/vimrc" "$nvimDir/init.vim"
 ### Amazon AWS CLI
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' "Installing the AWS CLI..."
-#pip install awscli
+pip install awscli
 
 printf '%s\n' "  Installing some AWS CLI Utilitiese..."
-#pip install --upgrade jmespath jmespath-terminal
+pip install --upgrade jmespath jmespath-terminal
 
-#brew tap jmespath/jmespath
-#brew install jp
+brew tap jmespath/jmespath
+brew install jp
 
 printf '\n%s\n' "Configuring the AWS CLI..."
 cat << EOF >> "$myBashrc"
@@ -687,7 +687,7 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 ### HashiCorp: Terraform
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Terraform..."
-#brew install terraform terraform-inventory graphviz
+brew install terraform terraform-inventory graphviz
 
 printf '\n%s\n' "Configuring Terraform..."
 cat << EOF >> "$myBashrc"
@@ -710,7 +710,7 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 ### HashiCorp: Packer
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Packer..."
-#brew install packer
+brew install packer
 
 printf '\n%s\n' "Configuring Packer..."
 cat << EOF >> "$myBashrc"
@@ -758,7 +758,7 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 ### Ansible
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Ansible..."
-#pip install --upgrade ansible
+pip install --upgrade ansible
 
 printf '%s\n' "  Ansible Version Info:"
 ansible --version
@@ -787,7 +787,7 @@ cp -pv 'sources/ansible/ansible.cfg' ~/.ansible/ansible.cfg
 ### Docker
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Docker, et al..."
-#brew install docker docker-machine docker-compose
+brew install docker docker-machine docker-compose
 
 # Create a vbox VM
 #printf '%s\n' "  Creating the Docker VM..."
@@ -827,13 +827,6 @@ EOF
 # Source-in and Display changes
 printf '\n%s\n' "git ~/.bashrc changes:"
 source "$myBashProfile" && tail -5 "$myBashrc"
-
-
-###----------------------------------------------------------------------------
-### Adobe CS6 Web & Design Premium (4.5GB)
-###----------------------------------------------------------------------------
-#printf '\n%s\n' "Installing Adobe CS6 Design & Web Premium..."
-#brew cask install adobe-cs6-design-web-premium
 
 
 ###----------------------------------------------------------------------------
