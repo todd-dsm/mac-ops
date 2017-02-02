@@ -61,12 +61,6 @@ else
     printf '%s\n' "Initial configs look good. Let's do this!"
 fi
 
-###----------------------------------------------------------------------------
-### FUNCTIONS
-###----------------------------------------------------------------------------
-# ENV Stuff
-# Data Files
-
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
@@ -175,6 +169,7 @@ EOF
 
 source "$myBashProfile" && tail -17 "$myBashrc"
 
+
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
@@ -207,7 +202,7 @@ printf '%s\n\n' "$MANPATH:"
 ### Install the font: Hack
 ### Hack is a solid font for programmers; version 2.010 is the golden-age.
 ### If you want the latest version then:
-###   *delete the tar line and
+###   *delete the mkdir and tar lines
 ###   *uncomment the brew lines.
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing font: Hack..."
@@ -246,16 +241,26 @@ sudo sed -i -n '2{h;n;G};p' "$sysManPaths"
 ###---
 getNewPaths
 
+###----------------------------------------------------------------------------
+### PATHs
+###   * System:  /usr/bin:/bin:/usr/sbin:/sbin
+###   * Homebrew: anything under /usr/local
+###----------------------------------------------------------------------------
 printf '\n%s\n' "The new paths:"
 printf '%s\n' "  \$PATH:"
 cat "$sysPaths"
 printf '%s\n\n' "$PATH:"
 
+###----------------------------------------------------------------------------
+### MANPATHs
+###   * System:   /usr/share/man
+###   * Homebrew: /usr/local/share/man
+###----------------------------------------------------------------------------
 printf '%s\n' "  \$MANPATH:"
 cat "$sysManPaths"
 printf '%s\n' "$MANPATH:"
 
-
+### Configure coreutils
 printf '%s\n' "  Configuring GNU Coreutils..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
@@ -278,12 +283,6 @@ EOF
 
 source "$myBashrc" && tail -14 "$myBashrc"
 
-
-###----------------------------------------------------------------------------
-### MANPATHs
-###   * System:   /usr/share/man
-###   * Homebrew: /usr/local/share/man
-###----------------------------------------------------------------------------
 
 ###----------------------------------------------------------------------------
 ### Install GNU Tools and Languages
@@ -351,14 +350,23 @@ source "$myBashrc" && tail -38 "$myBashrc"
 printf '\n%s\n' "Installing some system utilities..."
 brew install \
     git nmap homebrew/dupes/rsync ssh-copy-id watch tree pstree psgrep  \
-    sipcalc whatmask ipcalc dos2unix testdisk homebrew/dupes/tcl-tk
+    sipcalc whatmask ipcalc dos2unix testdisk
 
-printf '%s\n' "  Installing tcpdump separately..."
+### Seperate installs for programs with options
+printf '%s\n' "  Installing tcl-tk with options..."
+brew install homebrew/dupes/tcl-tk --with-threads
+
+### Include path for tcl-tk
+printf '%s\n' "  Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
+sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin"   "$sysPaths"
+
+printf '%s\n' "  Installing tcpdump with options..."
 brew install homebrew/dupes/tcpdump --with-libpcap
 
-### Include homebrew sbin in the paths
+### Include path for tcpdump
 printf '%s\n' "  Opening up /usr/local/sbin so we can see tcpdump..."
-sudo sed -i "\|/usr/bin|i /usr/local/sbin"   "$sysPaths"
+sudo sed -i "\|/usr/bin|i /usr/local/sbin"             "$sysPaths"
+
 
 ###----------------------------------------------------------------------------
 ### Install the Casks (GUI Apps)
@@ -427,7 +435,6 @@ EOF
 
 source "$myBashrc" && tail -6 "$myBashrc"
 
-
 printf '\n%s\n' "  Testing pip config..."
 pip list
 
@@ -457,7 +464,7 @@ cat << EOF >> "$myBashrc"
 
 EOF
 
-#source "$myBashrc" && tail -5 "$myBashrc"
+source "$myBashrc" && tail -5 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -511,7 +518,7 @@ sudo chpass -s "$(which bash)" "$USER"
 printf '%s\n' "  $USER's new shell:"
 dscl . -read "$HOME" UserShell
 
-
+printf '%s\n' "  Configuring Bash..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                   Bash                                  ###
@@ -808,6 +815,7 @@ ln -s "$vimSimpleLocal/vim"   ~/.vim
 
 ls -dl ~/.vimrc ~/.vim
 
+
 ###----------------------------------------------------------------------------
 ### Configure The macOS
 ###----------------------------------------------------------------------------
@@ -831,7 +839,6 @@ sudo scutil --set HostName "${myHostName%%.*}"
 printf '%s\n' "  Configuring AirDrop hostname..."
 sudo scutil --set LocalHostName "${myHostName%%.*}"
 
-
 ###---
 ### Storage
 ###---
@@ -839,7 +846,6 @@ printf '\n%s\n' "Configuring Storage:"
 printf '%s\n' "  Save to disk by default (not to iCloud)..."
 # defaults read NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
-
 
 ###---
 ### Disable smart quotes and dashes system-wide
@@ -862,7 +868,6 @@ printf '\n%s\n' "Setting Finder Preferences:"
 printf '%s\n'     "  Display all windows in List View..."
 defaults write com.apple.finder FXPreferredViewStyle Nlsv
 
-
 ###---
 ### Enable sidebar directories
 ###---
@@ -879,7 +884,6 @@ sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME/Music"
 printf '%s\n'     "  Add Movies to sidebar..."
 sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME/Movies"
 
-
 ###---
 ### New window displays home
 ###---
@@ -887,13 +891,11 @@ printf '%s\n' "  Display the home directory by default..."
 defaults write com.apple.finder NewWindowTarget -string "PfLo"
 defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
 
-
 ###---
 ### Show status bar in Finder
 ###---
 printf '%s\n' "  Display status bar in Finder..."
 defaults write com.apple.finder ShowStatusBar -bool true
-
 
 ###---
 ### Search the current folder by default
@@ -901,13 +903,11 @@ defaults write com.apple.finder ShowStatusBar -bool true
 printf '%s\n' "  Search the current folder by default..."
 defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
 
-
 ###---
 ### Display all file extensions in Finder
 ###---
 printf '%s\n' "  Display all extensions by default..."
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
-
 
 ###---
 ### Screenshot behavior
@@ -934,7 +934,6 @@ printf '%s\n' "  Show battery percentage..."
 # defaults read com.apple.menuextra.battery ShowPercent
 defaults write com.apple.menuextra.battery ShowPercent -string 'YES'
 
-
 ###---
 ### Display Configuration
 ###---
@@ -947,13 +946,11 @@ defaults write com.apple.airplay showInMenuBarIfPresent -bool false
 printf '%s\n' "  Display Day HH:MM AM format..."
 defaults write com.apple.menuextra.clock 'DateFormat' -string 'EEE MMM d  h:mm a'
 
-
 ###---
 ### Network Shares
 ###---
 printf '%s\n' "  Do NOT create .DS_Store files on network volumes..."
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
-
 
 ###---
 ### Dialog Box behavior
@@ -963,7 +960,6 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 printf '%s\n' "  Expand Save panel by default..."
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
-
 
 ### The Print Dialog Box
 printf '%s\n' "  Expand Print panel by default..."
@@ -987,7 +983,6 @@ defaults write com.apple.dock autohide -bool true
 #defaults write com.apple.dock autohide-delay -float 0
 #defaults write com.apple.dock autohide-time-modifier -float 0
 
-
 ###----------------------------------------------------------------------------
 ### Configure Basic OS Security
 ###----------------------------------------------------------------------------
@@ -1001,13 +996,11 @@ sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -boo
 # sudo defaults read /Library/Preferences/com.apple.loginwindow GuestEnabled
 # OUTPUT: 0
 
-
 ###---
 ### Apple File Protocol
 ###---
 printf '%s\n' "  Disable AFP Guest Access..."
 defaults write com.apple.AppleFileServer.plist AllowGuestAccess -int 0
-
 
 ###----------------------------------------------------------------------------
 ### Configure Application Behavior
@@ -1043,7 +1036,6 @@ defaults write com.apple.TextEdit SmartQuotes -int 0
 
 printf '\n%s\n' "  TextEdit Preferences: after:"
 defaults read com.apple.TextEdit
-
 
 ###---
 ### Stop Photos from opening automatically when plugging in iPhone [TEST]
