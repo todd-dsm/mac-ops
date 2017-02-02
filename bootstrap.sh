@@ -58,7 +58,7 @@ if [[ -z "$linkScreens" ]]; then
     printf '%s\n' "Crap! something is jacked."
     exit 1
 else
-    printf '%s\n' "Initial configs look good. Let's do this!"
+    printf '\n%s\n' "Initial configs look good. Let's do this!"
 fi
 
 
@@ -144,7 +144,7 @@ EOF
 
 printf '%s\n' "  Configuring $myBashrc ..."
 cat << EOF >> "$myBashrc"
-# shellcheck disable=SC2148,SC1090,SC2012,SC2139
+# shellcheck disable=SC2148,SC1090,SC1091,SC2012,SC2139
 declare sysBashrc='/etc/bashrc'
 if [[ -f "\$sysBashrc" ]]; then
     . "\$sysBashrc"
@@ -156,7 +156,10 @@ fi
 export TERM='xterm-256color'
 export HISTFILESIZE=
 export HISTSIZE=
-export PROMPT_COMMAND='history -a'
+#export PROMPT_COMMAND='history -a'
+shopt -s histappend
+shopt histappend
+export PROMPT_COMMAND="history -a; history -c; history -r; \$PROMPT_COMMAND"
 export HISTCONTROL=ignoredups
 export HISTTIMEFORMAT="%a%l:%M %p  "
 export HISTIGNORE='ls:bg:fg:history'
@@ -165,7 +168,7 @@ EOF
 
 # Source-in and Display changes
 printf '\n%s\n' "System ~/.bashrc changes:"
-source "$myBashProfile" && tail -17 "$myBashrc"
+source "$myBashProfile" && tail -18 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -380,8 +383,8 @@ source "$myBashProfile" && tail -38 "$myBashrc"
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing GUI (cask) Apps..."
 brew cask install \
-#    gfxcardstatus atom android-file-transfer flux java virtualbox wireshark \
-#    osxfuse
+    gfxcardstatus atom android-file-transfer flux java virtualbox wireshark \
+    osxfuse
 
 printf '%s\n' "  Installing Google Chrome..."
 brew cask install google-chrome
@@ -397,8 +400,9 @@ brew install Caskroom/versions/vmware-fusion7
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' "Installing system utilities..."
 brew install \
-#    git nmap homebrew/dupes/rsync ssh-copy-id watch tree pstree psgrep  \
-#    sipcalc whatmask ipcalc dos2unix testdisk homebrew/fuse/sshfs
+    git nmap homebrew/dupes/rsync ssh-copy-id watch tree pstree psgrep  \
+    sipcalc whatmask ipcalc dos2unix testdisk homebrew/fuse/sshfs       \
+    homebrew/dupes/openssh
 
 ### Seperate installs for programs with options
 printf '%s\n' "  Installing tcl-tk with options..."
@@ -475,7 +479,7 @@ pip list
 ### Ruby
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' "Installing Ruby..."
-brew install ruby
+brew install ruby chruby
 
 ###---
 ### Update/Install Gems
@@ -492,13 +496,14 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                   Ruby                                  ###
 ###############################################################################
-# Placeholder incase there is a later discovery.
+#source /usr/local/opt/chruby/share/chruby/chruby.sh
+#source /usr/local/opt/chruby/share/chruby/auto.sh
 
 EOF
 
 # Source-in and Display changes
 printf '\n%s\n' "ruby ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myBashrc"
+source "$myBashProfile" && tail -6 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -559,7 +564,7 @@ cat << EOF >> "$myBashrc"
 ###                                   Bash                                  ###
 ###############################################################################
 export SHELL='/usr/local/bin/bash'
-export BASH_VERSION="\$(bash --version | head -1 | awk -F " " '{print $4}')"
+export BASH_VERSION="\$(bash --version | head -1 | awk -F " " '{print \$4}')"
 # ShellCheck: Ignore: https://goo.gl/n9W5ly
 export SHELLCHECK_OPTS="-e SC2155"
 
