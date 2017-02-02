@@ -113,28 +113,30 @@ sudo rsync -aE /private/etc "$backupDir/" 2> /tmp/rsync-err-etc.out
 ###---
 ### Add the Github key to the knownhosts file
 ###---
-printf '\n%s\n\n' "Checking to see if we have the Github public key..."
+printf '\n%s\n' "Checking to see if we have the Github public key..."
 if ! grep "^$hostRemote" "$knownHosts"; then
     printf '%s\n' "  We don't, pulling it now..."
     ssh-keyscan -t 'rsa' "$hostRemote" >> "$knownHosts"
 else
-    printf '%s\n' "  We have it, all good."
+    printf '\n%s\n' "  We have the Github key, all good."
 fi
 
 ###---
 ### Pull some stuff for the Terminal
 ###---
-printf '\n%s\n\n' "Pulling Terminal stuff..."
+printf '\n%s\n' "Pulling Terminal stuff..."
+printf '\n%s\n' "  Cloning $solarizedGitRepo..."
 git clone "$solarizedGitRepo" "$termStuff/solarized"
 
 # Pull the settings back
+printf '\n%s\n' "  Restoring Terminal (and other) settings..."
 rsync -aEv  "$myBackups/Documents/system" "$myDocs/" 2> /tmp/rsync-err-system.out
 
 
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
-printf '\n%s\n\n' "Configuring base shell options..."
+printf '\n\n%s\n' "Configuring base shell options..."
 
 printf '%s\n' "  Configuring $myBashProfile ..."
 cat << EOF >> "$myBashProfile"
@@ -167,6 +169,8 @@ export HISTIGNORE='ls:bg:fg:history'
 
 EOF
 
+# Source-in and Display changes
+printf '\n%s\n' "System ~/.bashrc changes:"
 source "$myBashProfile" && tail -17 "$myBashrc"
 
 
@@ -174,9 +178,7 @@ source "$myBashProfile" && tail -17 "$myBashrc"
 ### Install Homebrew
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Homebrew..."
-set +x
 yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-set -x
 
 printf '%s\n' "  Updating Homebrew..."
 brew update
@@ -188,6 +190,12 @@ printf '%s\n' "  Tapping Homebrew binaries..."
 brew tap homebrew/binary
 #brew tap caskroom/fonts
 
+
+###---
+### Display some defaults for the log
+### For some reason Homebrew triggers a set -x; counter that
+###---
+set +x
 printf '\n%s\n' "Default macOS paths:"
 printf '%s\n' "  \$PATH:"
 cat "$sysPaths"
@@ -223,7 +231,10 @@ brew install gnu-sed --with-default-names
 printf '%s\n' "  Installing GNU Coreutils..."
 brew install coreutils
 
-# Set new Variables
+
+###----------------------------------------------------------------------------
+### Set new Variables
+###----------------------------------------------------------------------------
 declare pathGNU_CORE="$(brew --prefix coreutils)"
 
 # Set path for the GNU Coreutils
@@ -281,7 +292,9 @@ alias hist='history | cut -c 21-'
 
 EOF
 
-source "$myBashrc" && tail -14 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "coreutils ~/.bashrc changes:"
+source "$myBashProfile" && tail -16 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -341,7 +354,9 @@ alias findmy=findMyStuff
 
 EOF
 
-source "$myBashrc" && tail -38 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "grep/find ~/.bashrc changes:"
+source "$myBashProfile" && tail -38 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -433,7 +448,9 @@ format=columns
 
 EOF
 
-source "$myBashrc" && tail -6 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "python ~/.bashrc changes:"
+source "$myBashProfile" && tail -6 "$myBashrc"
 
 printf '\n%s\n' "  Testing pip config..."
 pip list
@@ -464,7 +481,9 @@ cat << EOF >> "$myBashrc"
 
 EOF
 
-source "$myBashrc" && tail -5 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "ruby ~/.bashrc changes:"
+source "$myBashProfile" && tail -5 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -487,7 +506,9 @@ alias mygo="cd \$GOPATH"
 
 EOF
 
-source "$myBashrc" && tail -6 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "golang ~/.bashrc changes:"
+source "$myBashProfile" && tail -6 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -530,7 +551,9 @@ export SHELLCHECK_OPTS="-e SC2155"
 
 EOF
 
-source "$myBashrc" && tail -8 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "bash ~/.bashrc changes:"
+source "$myBashProfile" && tail -8 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -568,7 +591,9 @@ alias nim='/usr/local/bin/nvim'
 
 EOF
 
-source "$myBashrc" && tail -8 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "vim ~/.bashrc changes:"
+source "$myBashProfile" && tail -8 "$myBashrc"
 
 
 # Verify after install
@@ -617,7 +642,9 @@ EOF
 printf '%s\n' "  Setting the AWS User to your local account name..."
 sed -i "/AWS_PROFILE/ s/awsUser/$USER/g" "$myBashrc"
 
-source "$myBashrc" && tail -7 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "aws ~/.bashrc changes:"
+source "$myBashProfile" && tail -7 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -635,7 +662,9 @@ export HOMEBREW_GITHUB_API_TOKEN=''
 
 EOF
 
-source "$myBashrc" && tail -8 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "token ~/.bashrc changes:"
+source "$myBashProfile" && tail -8 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -656,7 +685,9 @@ export TF_LOG_PATH='/tmp/terraform.log'
 
 EOF
 
-source "$myBashrc" && tail -8 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "terraform ~/.bashrc changes:"
+source "$myBashProfile" && tail -8 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -679,7 +710,9 @@ export PACKER_NO_COLOR='yes'
 
 EOF
 
-source "$myBashrc" && tail -10 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "packer ~/.bashrc changes:"
+source "$myBashProfile" && tail -10 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -700,7 +733,9 @@ export VAGRANT_DEFAULT_PROVIDER='virtualbox'
 
 EOF
 
-source "$myBashrc" && tail -8 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "vagrant ~/.bashrc changes:"
+source "$myBashProfile" && tail -8 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -721,7 +756,9 @@ export ANSIBLE_CONFIG="\$HOME/.ansible"
 
 EOF
 
-source "$myBashrc" && tail -6 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "ansible ~/.bashrc changes:"
+source "$myBashProfile" && tail -6 "$myBashrc"
 
 # Create a home for Ansible
 printf '%s\n' "  Creating the Ansible directory..."
@@ -749,7 +786,9 @@ cat << EOF >> "$myBashrc"
 
 EOF
 
-source "$myBashrc" && tail -5 "$myBashrc"
+# Source-in and Display changes
+printf '\n%s\n' "Docker ~/.bashrc changes:"
+source "$myBashProfile" && tail -5 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
