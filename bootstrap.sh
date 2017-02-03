@@ -14,52 +14,13 @@
 #------------------------------------------------------------------------------
 #    DATE: 2017/01/11
 #------------------------------------------------------------------------------
-#set -x
+set -x
 
 ###------------------------------------------------------------------------------
 ### VARIABLES
 ###------------------------------------------------------------------------------
 timePre="$(date +'%T')"
 source './my-vars.sh'
-
-# macOS Build
-declare myPath=''
-declare myMans=''
-declare configDir="$HOME/.config"
-declare adminDir="$configDir/admin"
-declare adminLogs="$adminDir/logs"
-declare backupDir="$adminDir/backup"
-declare termDir="$configDir/term"
-declare nvimDir="$configDir/nvim"
-declare sysShells='/etc/shells'
-declare hostRemote='github.com'
-declare termStuff="$myDownloads"
-declare solarizedGitRepo='git@github.com:altercation/solarized.git'
-declare myBashProfile="$HOME/.bash_profile"
-declare myBashrc="$HOME/.bashrc"
-declare myConfigs="$HOME/.config"
-declare sysPaths='/etc/paths'
-declare sysManPaths='/etc/manpaths'
-# Configure Vim
-declare knownHosts="$HOME/.ssh/known_hosts"
-declare vimSimpleTag='" vimSimple configuration'
-declare vimSimpleLocal="$myCode/vimsimple"
-declare vimSimpleGitRepo='https://github.com/todd-dsm/vimSimple.git'
-declare pymodConfig="$vimSimpleLocal/vim/bundle/python-mode/plugin/pymode.vim"
-declare jsonIndent="$vimSimpleLocal/vim/bundle/vim-json/indent/json.vim"
-declare jsonIndREGEX='" =================$'
-declare jsonAppendStr='autocmd filetype json set et ts=2 sw=2 sts=2'
-# Configure macOS
-declare dirScreenshot="$myPics/screens"
-declare linkScreens="$myDesktop/screens"
-
-# Test the last variable
-if [[ -z "$linkScreens" ]]; then
-    printf '%s\n' "Crap! something is jacked."
-    exit 1
-else
-    printf '\n%s\n' "Initial configs look good. Let's do this!"
-fi
 
 
 ###----------------------------------------------------------------------------
@@ -1125,7 +1086,7 @@ defaults read com.apple.TextEdit
 
 # Set Author Name
 printf '%s\n' "  Setting autor name..."
-defaults write com.apple.TextEdit author 'Todd E Thomas' # FIX
+defaults write com.apple.TextEdit author "$myFullName"
 # Use plain text not RichText
 printf '%s\n' "  Use plain text by default..."
 defaults write com.apple.TextEdit RichText -int 0

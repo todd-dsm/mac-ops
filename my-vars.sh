@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
 # -----------------------------------------------------------------------------
 # User-specific variables required before running the automation.
 # WARNING: YOU MUST SET THESE VARIABLES FIRST. DO NOT RUN bootstrap.sh WITHOUT
@@ -8,8 +9,10 @@
 # Are we testing or are we really doing this?
 export theENV='TEST'
 
+# What's your Full Name?
+export myFullName='Todd E Thomas'
+
 # What would you like to call your computer?
-#   If there isn't one just delete computer?
 export myMBPName='tbook'
 
 # Do you have an internal domain?
@@ -48,10 +51,9 @@ fi
 
 
 # Define the last "$USER" backed up. 2 options:
-# 1) If your user-name is the same as it was on the last install, skip this
-#    step. The automation will take care of everything else.
-# 2) If your user-name has changed since the last install then define what it
-#    was. We simply need to get stuff from the backup location.
+# 1) If theENV=TEST: $USER will always be 'vagrant'.
+# 2) If NOT TEST then set your user name to whatever you like.
+#    This will be used during rsync operations to restore your data.
 if [[ "$theENV" == 'TEST' ]]; then
     export lastUser="$USER"
 else
@@ -93,6 +95,44 @@ export myPics="$HOME/Pictures"
 # Downloads
 export myDownloads="$HOME/Downloads"
 
-# Define
-export myParam='myVal'
+# -----------------------------------------------------------------------------
+# This stuff never changes
+# -----------------------------------------------------------------------------
+# macOS Build
+declare myPath=''
+declare myMans=''
+declare configDir="$HOME/.config"
+declare adminDir="$configDir/admin"
+declare adminLogs="$adminDir/logs"
+declare backupDir="$adminDir/backup"
+declare termDir="$configDir/term"
+declare nvimDir="$configDir/nvim"
+declare sysShells='/etc/shells'
+declare hostRemote='github.com'
+declare termStuff="$myDownloads"
+declare solarizedGitRepo='git@github.com:altercation/solarized.git'
+declare myBashProfile="$HOME/.bash_profile"
+declare myBashrc="$HOME/.bashrc"
+declare myConfigs="$HOME/.config"
+declare sysPaths='/etc/paths'
+declare sysManPaths='/etc/manpaths'
+# Configure Vim
+declare knownHosts="$HOME/.ssh/known_hosts"
+declare vimSimpleTag='" vimSimple configuration'
+declare vimSimpleLocal="$myCode/vimsimple"
+declare vimSimpleGitRepo='https://github.com/todd-dsm/vimSimple.git'
+declare pymodConfig="$vimSimpleLocal/vim/bundle/python-mode/plugin/pymode.vim"
+declare jsonIndent="$vimSimpleLocal/vim/bundle/vim-json/indent/json.vim"
+declare jsonIndREGEX='" =================$'
+declare jsonAppendStr='autocmd filetype json set et ts=2 sw=2 sts=2'
+# Configure macOS
+declare dirScreenshot="$myPics/screens"
+declare linkScreens="$myDesktop/screens"
 
+# Test the last variable
+if [[ -z "$linkScreens" ]]; then
+    printf '%s\n' "Crap! something is jacked."
+    exit 1
+else
+    printf '\n%s\n' "Initial configs look good. Let's do this!"
+fi
