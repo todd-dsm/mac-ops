@@ -14,7 +14,7 @@
 #------------------------------------------------------------------------------
 #    DATE: 2017/01/11
 #------------------------------------------------------------------------------
-#set -x
+set -x
 
 ###------------------------------------------------------------------------------
 ### VARIABLES
@@ -190,7 +190,6 @@ fi
 printf '\n%s\n' "Installing font: Hack..."
 mkdir "$HOME/Library/Fonts"
 tar xzvf "$myDocs/system/Hack-v2_010-ttf.tgz" -C "$HOME/Library/Fonts"
-fc-cache -frv "$HOME/Library/Fonts"
 #brew tap caskroom/fonts
 #brew cask install font-hack
 
@@ -1158,7 +1157,8 @@ tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Cleaning up a bit..."
 sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
-
+printf '%s\n' "Refreshing the Fonts directory..."
+fc-cache -frv "$HOME/Library/Fonts"
 
 ###----------------------------------------------------------------------------
 ### Announcements
