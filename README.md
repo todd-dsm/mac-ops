@@ -1,8 +1,6 @@
 mac-ops
 =====
 
-**PLEASE DON'T USE THIS YET - IT'S NOT COMPLETE.**
-
 Automation to build a great MBP Desktop with a base configurtion for DevOps people.
 
 Before you can build anything, you first need the tools. `alias mac-ops='phase0';` Take a look at [phase1]
