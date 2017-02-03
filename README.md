@@ -49,10 +49,11 @@ cd mac-ops/
 ***
 
 ##Post-Game
- * Close all of your windows.
- * Reboot the system
+
  * Import your Terminal profile, if you have one.
  * Finish any outstanding System Preferences configurations.
+ * Close all of your windows.
+ * Reboot the system
 
 Then you're ready to start.
 
