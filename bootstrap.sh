@@ -14,7 +14,7 @@
 #------------------------------------------------------------------------------
 #    DATE: 2017/01/11
 #------------------------------------------------------------------------------
-set -x
+#set -x
 
 ###------------------------------------------------------------------------------
 ### VARIABLES
@@ -190,6 +190,7 @@ fi
 printf '\n%s\n' "Installing font: Hack..."
 mkdir "$HOME/Library/Fonts"
 tar xzvf "$myDocs/system/Hack-v2_010-ttf.tgz" -C "$HOME/Library/Fonts"
+fc-cache -frv "$HOME/Library/Fonts"
 #brew tap caskroom/fonts
 #brew cask install font-hack
 
@@ -436,7 +437,12 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  Python                                 ###
 ###############################################################################
-export PIP_CONFIG_FILE="\$HOME/.config/pip/pip.conf"
+export PIP_CONFIG_FILE="\$HOME/.config/python/pip.conf"
+# Setup autoenv to your tastes
+#export AUTOENV_AUTH_FILE="\$HOME/.config/python/autoenv_authorized"
+#export AUTOENV_ENV_FILENAME='.env'
+#export AUTOENV_LOWER_FIRST=''
+#source /usr/local/bin/activate.sh
 
 EOF
 
@@ -446,17 +452,26 @@ EOF
 ###---
 printf '%s\n' "Configuring pip..."
 printf '%s\n' "  Creating pip home..."
-if [[ ! -d "$myConfigs/pip" ]]; then
-    mkdir -p "$myConfigs/pip"
+if [[ ! -d "$myConfigs/python" ]]; then
+    mkdir -p "$myConfigs/python"
 fi
 
 printf '%s\n' "  Creating the pip config file..."
-cat << EOF >> "$HOME/.config/pip/pip.conf"
+cat << EOF >> "$myConfigs/python/pip.conf"
 # pip configuration
 [list]
 format=columns
 
 EOF
+
+###---
+### Configure autoenv
+###---
+printf '%s\n' "Configuring autoenv..."
+
+printf '%s\n' "  Creating the autoenv file..."
+touch "$myConfigs/python/autoenv_authorized"
+
 
 # Source-in and Display changes
 printf '\n%s\n' "python ~/.bashrc changes:"
@@ -611,21 +626,6 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 printf '\n%s\n' "The Real version of Vim:"
 vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
 
-# Nvim Configurations
-printf '%s\n' "  Saving default \$TERM details > ~/config/term/..."
-mkdir "$termDir"
-infocmp "$TERM" > "$termDir/$TERM.ti"
-infocmp "$TERM" | sed 's/kbs=^[hH]/kbs=\\177/' > "$termDir/$TERM-nvim.ti"
-
-printf '%s\n' "  Compiling terminfo for Neovim warning..."
-tic "$termDir/$TERM-nvim.ti"
-
-printf '%s\n' "  Linking to existing .vim directory..."
-ln -s "$vimSimpleLocal/vim" "$nvimDir"
-
-printf '%s\n' "  Linking to exiting .vimrc file..."
-ln -s "$vimSimpleLocal/vimrc" "$nvimDir/init.vim"
-
 
 ###----------------------------------------------------------------------------
 ### Amazon AWS CLI
@@ -755,7 +755,7 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 printf '\n%s\n' "Installing Ansible..."
 pip install --upgrade ansible
 
-printf '%s\n' "  Ansible Version Info:"
+printf '\n%s\n' "  Ansible Version Info:"
 ansible --version
 
 printf '\n%s\n' "Configuring Vagrant..."
@@ -776,6 +776,7 @@ printf '%s\n' "  Creating the Ansible directory..."
 mkdir -p "$HOME/.ansible/roles"
 touch "$HOME/.ansible/"{ansible.cfg,hosts}
 cp -pv 'sources/ansible/ansible.cfg' ~/.ansible/ansible.cfg
+cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
 
 
 ###----------------------------------------------------------------------------
@@ -879,6 +880,25 @@ ln -s "$vimSimpleLocal/vimrc" ~/.vimrc
 ln -s "$vimSimpleLocal/vim"   ~/.vim
 
 ls -dl ~/.vimrc ~/.vim
+
+
+###----------------------------------------------------------------------------
+### Nvim Configurations
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Neovim post-install configurations:"
+printf '%s\n' "  Saving default \$TERM details > ~/config/term/..."
+mkdir "$termDir"
+infocmp "$TERM" > "$termDir/$TERM.ti"
+infocmp "$TERM" | sed 's/kbs=^[hH]/kbs=\\177/' > "$termDir/$TERM-nvim.ti"
+
+printf '%s\n' "  Compiling terminfo for Neovim warning..."
+tic "$termDir/$TERM-nvim.ti"
+
+printf '%s\n' "  Linking to existing .vim directory..."
+ln -s "$vimSimpleLocal/vim" "$nvimDir"
+
+printf '%s\n' "  Linking to exiting .vimrc file..."
+ln -s "$vimSimpleLocal/vimrc" "$nvimDir/init.vim"
 
 
 ###----------------------------------------------------------------------------
