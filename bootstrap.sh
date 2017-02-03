@@ -63,7 +63,9 @@ getNewPaths() {
 ### Backup some files before we begin
 ###---
 printf '\n%s\n' "Backing up the /etc directory before we begin..."
-sudo rsync -aE /private/etc "$backupDir/" 2> /tmp/rsync-err-etc.out
+if [[ "$theENV" == 'TEST' ]]; then
+    sudo rsync -aE /private/etc "$backupDir/" 2> /tmp/rsync-err-etc.out
+fi
 
 ###---
 ### Add the Github key to the knownhosts file
