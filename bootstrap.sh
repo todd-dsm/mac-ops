@@ -229,8 +229,8 @@ fi
 printf '\n%s\n' "Installing font: Hack..."
 mkdir "$HOME/Library/Fonts"
 tar xzvf "$myDocs/system/Hack-v2_010-ttf.tgz" -C "$HOME/Library/Fonts"
-brew tap caskroom/fonts
-brew cask install font-hack
+#brew tap caskroom/fonts
+#brew cask install font-hack
 
 
 ###----------------------------------------------------------------------------
@@ -392,6 +392,37 @@ chown -R vagrant:staff "/Users/vagrant/Library/Application Support"/
 
 printf '%s\n' "  Installing VMware Fusion: 7..."
 brew install Caskroom/versions/vmware-fusion7
+
+###---
+### VirtualBox configurations
+###---
+printf '\n%s\n' "Configuring VirtualBox..."
+printf '%s\n' "  Setting the machinefolder property..."
+vboxmanage setproperty machinefolder "$HOME/vms/vbox"
+
+printf '\n%s\n' "Configuring VirtualBox..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                                VirtualBox                               ###
+###############################################################################
+export VBOX_USER_HOME="\$HOME/vms/vbox"
+
+EOF
+
+
+###---
+### VMware configurations
+###---
+printf '\n%s\n' "Configuring VMware..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                                  VMware                                 ###
+###############################################################################
+export VMWARE_STORAGE="\$HOME/vms/vmware"
+
+EOF
+
+tail -10 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -606,7 +637,6 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 export EDITOR='/usr/local/bin/vim'
 alias vi="\$EDITOR"
-alias vim="\$EDITOR"
 alias nim='/usr/local/bin/nvim'
 
 EOF
@@ -1163,7 +1193,7 @@ printf '\n%s\n' """
        a) Before using the 'aws' program any further:
             Check the value of AWS_PROFILE in ~/.bashrc
             This is very likely not the user name you want.
-       b) Edit ~/.bashrc and chage it to the right value.
+       b) Edit ~/.bashrc and change it to the correct value.
        c) Uncomment this line: 'export AWS_PROFILE='yourUser''
        d) Write the file and Quit: :wq
        e) Source-in the changes: source ~/.bashrc
