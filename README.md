@@ -32,17 +32,24 @@ If you need to backup first, check the [rsync-backups] page. The restore process
 ##Kick-off
 Once you're all backed-up, auto-magically configure the new macOS:
 
-1. Make sure you have your ssh keys restored from backup.
-2. Clone the repo down to your laptop, and
-3. Kick off the script:
+Make sure you have your ssh keys restored from backup.
 
-```sh
-git clone git@github.com:todd-dsm/mac-ops.git
+Clone the repo down to your laptop:
 
-cd mac-ops/
+`git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/`
 
-./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
-```
+***
+
+# CONFIGURE THE VARIABLES
+
+`vi my-vars.sh`
+
+***
+
+Kick off the script:
+
+`./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out`
+
 
 ***
 
