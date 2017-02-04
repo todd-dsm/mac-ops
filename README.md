@@ -15,11 +15,11 @@ Before jumping in, you should probably check the [wiki] first. This may not be f
 ***
 
 ##Pre-Game
-Assuming this is a fresh install prep the macOS by installing:
+Assuming this is a fresh macOS, run the [install prep] script to:
 
-* The latest updates,
-* Xcode CLI Tools, and
-* Saving some details about apps that are currently installed.
+* Get the latest OS Updates,
+* Install the Xcode CLI Tools, and
+* Save some details about apps that are currently installed.
 
 ```bash
 curl -fsSL https://goo.gl/j2y1Dn 2>&1 | bash | tee /tmp/install-prep.out
@@ -63,5 +63,6 @@ Kick off the script:
 Then you're ready to start.
 
 [phase1]:https://github.com/todd-dsm/process-ph1
+[install prep]:https://github.com/todd-dsm/mac-ops/wiki/Install-Prep
 [wiki]:https://github.com/todd-dsm/mac-ops/wiki
 [rsync-backups]:https://github.com/todd-dsm/rsync-backups
