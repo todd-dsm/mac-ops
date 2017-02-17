@@ -15,11 +15,11 @@ Before jumping in, you should probably check the [wiki] first. This may not be f
 ***
 
 ##Pre-Game
-Assuming this is a fresh install prep the macOS by installing:
+Assuming this is a fresh macOS, run the [install prep] script to:
 
-* The latest updates,
-* Xcode CLI Tools, and
-* Saving some details about apps that are currently installed.
+* Get the latest OS Updates,
+* Install the Xcode CLI Tools, and
+* Save some details about apps that are currently installed.
 
 ```bash
 curl -fsSL https://goo.gl/j2y1Dn 2>&1 | bash | tee /tmp/install-prep.out
@@ -32,17 +32,24 @@ If you need to backup first, check the [rsync-backups] page. The restore process
 ##Kick-off
 Once you're all backed-up, auto-magically configure the new macOS:
 
-1. Make sure you have your ssh keys restored from backup.
-2. Clone the repo down to your laptop, and
-3. Kick off the script:
+Make sure you have your ssh keys restored from backup.
 
-```sh
-git clone git@github.com:todd-dsm/mac-ops.git
+Clone the repo down to your laptop:
 
-cd mac-ops/
+`git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/`
 
-./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
-```
+***
+
+# CONFIGURE THE VARIABLES
+
+`vi my-vars.sh`
+
+***
+
+Kick off the script:
+
+`./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out`
+
 
 ***
 
@@ -56,5 +63,6 @@ cd mac-ops/
 Then you're ready to start.
 
 [phase1]:https://github.com/todd-dsm/process-ph1
+[install prep]:https://github.com/todd-dsm/mac-ops/wiki/Install-Prep
 [wiki]:https://github.com/todd-dsm/mac-ops/wiki
 [rsync-backups]:https://github.com/todd-dsm/rsync-backups
