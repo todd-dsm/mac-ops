@@ -62,8 +62,8 @@ getNewPaths() {
 ###----------------------------------------------------------------------------
 ### Backup some files before we begin
 ###---
-printf '\n%s\n' "Backing up the /etc directory before we begin..."
 if [[ "$theENV" == 'TEST' ]]; then
+    printf '\n%s\n' "Backing up the /etc directory before we begin..."
     sudo rsync -aE /private/etc "$backupDir/" 2> /tmp/rsync-err-etc.out
 fi
 
@@ -119,9 +119,11 @@ fi
 export TERM='xterm-256color'
 export HISTFILESIZE=
 export HISTSIZE=
-#export PROMPT_COMMAND='history -a'
-shopt -s histappend
-export PROMPT_COMMAND='history -a; history -c; history -r'
+export PROMPT_COMMAND="history -a; \$PROMPT_COMMAND"
+# If you want the last command ran immediately available to all currently open
+# shells then comment the one above and uncomment the two below.
+#shopt -s histappend
+#export PROMPT_COMMAND="history -a; history -c; history -r; \$PROMPT_COMMAND"
 export HISTCONTROL=ignoredups
 export HISTTIMEFORMAT="%a%l:%M %p  "
 export HISTIGNORE='ls:bg:fg:history'
@@ -345,16 +347,21 @@ source "$myBashProfile" && tail -38 "$myBashrc"
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing GUI (cask) Apps..."
 brew cask install \
-    gfxcardstatus atom android-file-transfer flux java virtualbox wireshark \
-    osxfuse
+    atom android-file-transfer flux java wireshark osxfuse \
+    virtualbox virtualbox-extension-pack
 
 printf '%s\n' "  Installing Google Chrome..."
 brew cask install google-chrome
-mkdir -p "$HOME/Library/Application\ Support/Google/Chrome"
-chown -R vagrant:staff "/Users/vagrant/Library/Application Support"/
+#mkdir -p "$HOME/Library/Application\ Support/Google/Chrome"
+#chown -R vagrant:staff "/Users/vagrant/Library/Application Support"/
 
+
+###---
+### Install the latest version of VMware Fusion
+### Using older versions of Fusion on current macOS never seems to work.
+###---
 printf '%s\n' "  Installing VMware Fusion: 7..."
-brew install Caskroom/versions/vmware-fusion7
+brew cask install vmware-fusion
 
 ###---
 ### VirtualBox configurations
@@ -408,6 +415,9 @@ sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin"   "$sysPaths"
 printf '%s\n' "  Installing tcpdump with options..."
 brew install homebrew/dupes/tcpdump --with-libpcap
 
+printf '%s\n' "  Installing tmux with options..."
+brew install tmux --with-utf8proc
+
 ### Include path for tcpdump
 printf '%s\n' "  Opening up /usr/local/sbin so we can see tcpdump..."
 sudo sed -i "\|/usr/bin|i /usr/local/sbin"             "$sysPaths"
@@ -430,7 +440,8 @@ brew install python python3
 
 printf '\n%s\n' "Upgrading Python Pip and setuptools..."
 pip  install --upgrade pip setuptools neovim
-pip3 install --upgrade pip setuptools wheel neovim
+pip3 install --upgrade pip setuptools wheel neovim \
+    ipython simplejson requests
 
 
 printf '\n%s\n' "Configuring Python..."
@@ -583,6 +594,30 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
+### nodejs and npm
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Installing the Node.js and npm..."
+brew reinstall node --with-full-icu
+
+# Create the code path
+#printf '\n%s\n' "  Creating the \$GOPATH directory..."
+#mkdir -p "$HOME/code/gocode"
+
+printf '\n%s\n' "  Configuring npm..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                                  npm                                    ###
+###############################################################################
+source /usr/local/etc/bash_completion.d/npm
+
+EOF
+
+# Source-in and Display changes
+printf '\n%s\n' "npm ~/.bashrc changes:"
+source "$myBashProfile" && tail -5 "$myBashrc"
+
+
+###----------------------------------------------------------------------------
 ### Vim: The Power and the Glory
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Upgrading to full-blown Vim..."
@@ -632,7 +667,7 @@ vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
 ### Amazon AWS CLI
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' "Installing the AWS CLI..."
-pip install awscli
+pip3 install awscli
 
 printf '%s\n' "  Installing some AWS CLI Utilitiese..."
 pip install --upgrade jmespath jmespath-terminal
@@ -646,6 +681,7 @@ cat << EOF >> "$myBashrc"
 ###                                 Amazon                                  ###
 ###############################################################################
 complete -C "\$(type -P aws_completer)" aws
+#export AWS_REGION='yourRegion'
 #export AWS_PROFILE='awsUser'
 export AWS_CONFIG_FILE="\$HOME/.aws/config"
 
@@ -653,6 +689,10 @@ EOF
 
 printf '%s\n' "  Setting the AWS User to your local account name..."
 sed -i "/AWS_PROFILE/ s/awsUser/$USER/g" "$myBashrc"
+
+printf '%s\n' "  Restoring AWS directory..."
+rsync -aEv "$myBackups/.aws" "$HOME/"
+sudo chown -R "$USER:staff" "$HOME/.aws"
 
 # Source-in and Display changes
 printf '\n%s\n' "aws ~/.bashrc changes:"
@@ -706,16 +746,19 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 ### HashiCorp: Packer
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Packer..."
-brew install packer
+brew install packer packer-completion
 
 printf '\n%s\n' "Configuring Packer..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  Packer                                 ###
 ###############################################################################
+source /usr/local/etc/bash_completion.d/packer
 export PACKER_HOME="\$HOME/vms/packer"
-export PACKER_CONFIG="\$PACKER_HOME"
-export PACKER_CACHE_DIR="\$PACKER_HOME/vms/packer/iso-cache/"
+# leave PACKER_CONFIG commented till you need it
+#export PACKER_CONFIG="\$PACKER_HOME"
+export PACKER_CACHE_DIR="\$PACKER_HOME/iso-cache"
+export PACKER_BUILD_DIR="\$PACKER_HOME/builds"
 export PACKER_LOG='yes'
 export PACKER_LOG_PATH='/tmp/packer.log'
 export PACKER_NO_COLOR='yes'
@@ -732,12 +775,14 @@ source "$myBashProfile" && tail -10 "$myBashrc"
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Vagrant..."
 brew cask install vagrant
+brew install vagrant-completion
 
 printf '\n%s\n' "Configuring Vagrant..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 Vagrant                                 ###
 ###############################################################################
+source /usr/local/etc/bash_completion.d/vagrant
 #export VAGRANT_LOG=debug
 export VAGRANT_HOME="\$HOME/vms/vagrant"
 export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
@@ -749,12 +794,26 @@ EOF
 printf '\n%s\n' "vagrant ~/.bashrc changes:"
 source "$myBashProfile" && tail -8 "$myBashrc"
 
+printf '\n%s\n' "Installing vagrant vmware-fusion license..."
+printf '%s\n'   "  Reparing plugins first..."
+vagrant plugin repair
+
+printf '%s\n'   "  Installing Fusion plugin..."
+vagrant plugin install vagrant-vmware-fusion
+
+printf '%s\n'   "  All plugins:"
+vagrant plugin list
+
+printf '%s\n'   "  Installing Vagrant license..."
+vagrant plugin license vagrant-vmware-fusion \
+    "$HOME/Documents/system/hashicorp/license-vagrant-vmware-fusion.lic"
+
 
 ###----------------------------------------------------------------------------
 ### Ansible
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Ansible..."
-pip install --upgrade ansible
+pip install --upgrade ansible boto
 
 printf '\n%s\n' "  Ansible Version Info:"
 ansible --version
@@ -898,7 +957,7 @@ tic "$termDir/$TERM-nvim.ti"
 printf '%s\n' "  Linking to existing .vim directory..."
 ln -s "$vimSimpleLocal/vim" "$nvimDir"
 
-printf '%s\n' "  Linking to exiting .vimrc file..."
+printf '%s\n' "  Linking to existing .vimrc file..."
 ln -s "$vimSimpleLocal/vimrc" "$nvimDir/init.vim"
 
 
@@ -1159,8 +1218,18 @@ tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Cleaning up a bit..."
 sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
-printf '%s\n' "Refreshing the Fonts directory..."
+
+printf '%s\n' "  Refreshing the Fonts directory..."
 fc-cache -frv "$HOME/Library/Fonts"
+
+printf '%s\n' "  Restoring the /etc/hosts file..."
+sudo cp "$sysBackups/etc/hosts" /etc/hosts
+sudo chown root:wheel /etc/hosts
+
+printf '%s\n' "  Ensure correct ownership of ~/.viminfo file..."
+if [[ -f ~/.viminfo ]]; then
+    sudo chown "$USER:staff" ~/.viminfo
+fi
 
 ###----------------------------------------------------------------------------
 ### Announcements

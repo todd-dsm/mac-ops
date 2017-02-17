@@ -40,7 +40,7 @@ fi
 
 # Define a path to your backup device. It's just a path. It can point to an NFS
 # share, a USB drive, whatever.
-export myBackupDev='/Volumes/mVault'
+export myBackupDev='/Volumes/storage'
 
 # Define a path to your latest backups
 if [[ "$theENV" == 'TEST' ]]; then
@@ -61,7 +61,8 @@ else
 fi
 
 # Define Restore SRC (source of the backups)
-export myBackups="$myBackupDev/$myBackupDir/$lastUser/current"
+export  myBackups="$myBackupDev/$myBackupDir/$lastUser/current"
+export sysBackups="$myBackupDev/$myBackupDir/system"
 
 # -----------------------------------------------------------------------------
 # Define some personal truths *if they are different*. This stuff doesn't
