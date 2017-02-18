@@ -1240,29 +1240,28 @@ printf '\n\n%s\n' """
 ###############################################################################
 """
 printf '\n%s\n' """
-    1) Setup the AWS Client profile for yourself; e.g.:
-       aws configure --profile myAWSUserName
-       a) Before using the 'aws' program any further:
-            Check the value of AWS_PROFILE in ~/.bashrc
-            This is very likely not the user name you want.
-       b) Edit ~/.bashrc and change it to the correct value.
-       c) Uncomment this line: 'export AWS_PROFILE='yourUser''
-       d) Write the file and Quit: :wq
-       e) Source-in the changes: source ~/.bashrc
-       f) Open the terminal and run this command:
-            aws iam get-user
+    1) The AWS client profile:
+            Use this guide to setup your AWS cli profile:
+            https://github.com/todd-dsm/mac-ops/wiki/Install-awscli
+            * If you already had this setup then these settings have already
+            been restored to ~/.aws/
 
-    2) We've added stuff to the Sidebar but still haven't figured out how to
+    2) Sidebar elements have been added but I still haven't figured out how to
        remove stuff; customize this to your tastes:
        Finder > Preferences: Sidebar.
 
-    3) You still have to open System Preferences and verify your settings.
+    3) You still have to open System Preferences and verify your settings. I
+       can't see any other way to set these preference than the manual way.
 
     4) Data Restoration:
        a) Check for any data restore errors by:
           less /tmp/rsycn-errors.out
        b) Check for any data that is not owned by you:
           less /tmp/find-out.log
+
+    That's basically it. Now get back to work :-)
+
+
 """
 
 
