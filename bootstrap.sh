@@ -441,7 +441,7 @@ brew install python python3
 printf '\n%s\n' "Upgrading Python Pip and setuptools..."
 pip  install --upgrade pip setuptools neovim
 pip3 install --upgrade pip setuptools wheel neovim \
-    ipython simplejson requests
+    ipython simplejson requests boto
 
 
 printf '\n%s\n' "Configuring Python..."
@@ -812,6 +812,7 @@ vagrant plugin license vagrant-vmware-fusion \
 ###----------------------------------------------------------------------------
 ### Ansible
 ###----------------------------------------------------------------------------
+# Boto is for some Ansible/AWS operations
 printf '\n%s\n' "Installing Ansible..."
 pip install --upgrade ansible boto
 
