@@ -673,7 +673,7 @@ printf '%s\n' "  Installing some AWS CLI Utilitiese..."
 pip install --upgrade jmespath jmespath-terminal
 
 brew tap jmespath/jmespath
-brew install jp
+brew install jp jq
 
 printf '\n%s\n' "Configuring the AWS CLI..."
 cat << EOF >> "$myBashrc"
