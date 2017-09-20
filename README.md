@@ -10,11 +10,13 @@ This is just my take on the Mac OS X setup. If you find value in it, please feel
 ***
 
 ##Documentation
+
 Before jumping in, you should probably check the [wiki] first. This may not be for you.
 
 ***
 
 ##Pre-Game
+
 Assuming this is a fresh macOS, run the [install prep] script to:
 
 * Get the latest OS Updates,
