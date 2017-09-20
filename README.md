@@ -18,7 +18,8 @@ Before jumping in, you should probably check the [wiki] first. This may not be f
 Assuming this is a fresh macOS, run the [install prep] script to:
 
 * Get the latest OS Updates,
-* Install the Xcode CLI Tools, and
+* Install the Xcode CLI Tools
+* Make sure you have a Github account then attach your public ssh key to the account, and
 * Save some details about apps that are currently installed.
 
 ```bash
