@@ -9,13 +9,13 @@ This is just my take on the Mac OS X setup. If you find value in it, please feel
 
 ***
 
-##Documentation
+## Documentation
 
 Before jumping in, you should probably check the [wiki] first. This may not be for you.
 
 ***
 
-##Pre-Game
+## Pre-Game
 
 Assuming this is a fresh macOS, run the [install prep] script to:
 
@@ -32,7 +32,7 @@ If you need to backup first, check the [rsync-backups] page. The restore process
 
 ***
 
-##Kick-off
+## Kick-off
 Once you're all backed-up, auto-magically configure the new macOS:
 
 Make sure you have your ssh keys restored from backup.
@@ -56,7 +56,7 @@ Kick off the script:
 
 ***
 
-##Post-Game
+## Post-Game
 
  * Import your Terminal profile, if you have one.
  * Finish any outstanding System Preferences configurations.
