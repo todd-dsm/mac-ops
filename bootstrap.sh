@@ -553,7 +553,7 @@ source "$myBashProfile" && tail -6 "$myBashrc"
 ### Bash
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Bash..."
-brew install bash shellcheck dash
+brew install bash shellcheck dash bash-completion@2
 
 # Configure GNU Bash for the system and current $USER
 printf '\n%s\n' "  Configuring Bash..."
