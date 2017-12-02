@@ -86,9 +86,12 @@ printf '\n%s\n' "Pulling Terminal stuff..."
 git clone "$solarizedGitRepo" "$termStuff/solarized"
 
 # Pull the settings back
-printf '\n%s\n' "Restoring Terminal (and other) settings..."
-rsync -aEv  "$myBackups/Documents/system" "$myDocs/" 2> /tmp/rsync-err-system.out
-
+if [[ ! -d "$myBackups" ]]; then
+    printf '\n%s\n' "There are no 'settings' to restore."
+else
+    printf '\n%s\n' "Restoring Terminal (and other) settings..."
+    rsync -aEv  "$myBackups/Documents/system" "$myDocs/" 2> /tmp/rsync-err-system.out
+fi
 
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
@@ -624,7 +627,7 @@ printf '\n%s\n' "Upgrading to full-blown Vim..."
 
 # Verify before install
 printf '\n%s\n' "Checking Apple's Vim..."
-vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
+vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 
 # Install Vim with support for:
 #   Use this version over the system one
@@ -660,7 +663,7 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 
 # Verify after install
 printf '\n%s\n' "The Real version of Vim:"
-vim --version | egrep --color 'VIM|Compiled|python|ruby|perl|tcl'
+vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 
 
 ###----------------------------------------------------------------------------
@@ -690,9 +693,14 @@ EOF
 printf '%s\n' "  Setting the AWS User to your local account name..."
 sed -i "/AWS_PROFILE/ s/awsUser/$USER/g" "$myBashrc"
 
-printf '%s\n' "  Restoring AWS directory..."
-rsync -aEv "$myBackups/.aws" "$HOME/"
-sudo chown -R "$USER:staff" "$HOME/.aws"
+# Restore the AWS configs if there are any
+if [[ ! -d "$myBackups" ]]; then
+    printf '%s\n' "There are no AWS settings to restore."
+else
+    printf '%s\n' "  Restoring AWS directory..."
+    rsync -aEv "$myBackups/.aws" "$HOME/"
+    sudo chown -R "$USER:staff" "$HOME/.aws"
+fi
 
 # Source-in and Display changes
 printf '\n%s\n' "aws ~/.bashrc changes:"
@@ -1210,8 +1218,12 @@ ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 ###----------------------------------------------------------------------------
 ### Restore Personal Data
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Restoring files..."
-tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
+if [[ ! -d "$myBackups" ]]; then
+    printf '\n%s\n' "There are no Documents to restore."
+else
+    printf '\n%s\n' "Restoring files..."
+    tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
+fi
 
 
 ###----------------------------------------------------------------------------

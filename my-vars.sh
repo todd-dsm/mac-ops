@@ -49,7 +49,6 @@ else
     export myBackupDir='pre_sierra'
 fi
 
-
 # Define the last "$USER" backed up. 2 options:
 # 1) If theENV=TEST: $USER will always be 'vagrant'.
 # 2) If NOT TEST then set your user name to whatever you like.
