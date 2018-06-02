@@ -3,7 +3,7 @@ mac-ops
 
 Automation to build a great MBP Desktop with a base configurtion for DevOps people. Before you can build anything, you first need the tools.
 
-This needs refactorign but its still better than starting from scratch. If you find value in it, please feel free to fork/use it.
+This needs refactoring but its still better than starting from scratch. If you find value in it, please feel free to fork/use it.
 
 ***
 
