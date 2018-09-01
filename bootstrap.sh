@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1090,SC1091,SC2059,SC2154,SC2116
+# shellcheck disable=SC1090,SC1091,SC2059,SC2154,SC2116,SC1117
+# FIXME: SC1117
 #------------------------------------------------------------------------------
 # PURPOSE:  A QnD script to configure a base environment so I can get back to
 #           work quickly. It will be replaced by Ansible automation as soon as
@@ -610,7 +611,7 @@ printHead "$USER's default shell:"
 dscl . -read "$HOME" UserShell
 
 printHead "Configuring $USER's shell..."
-sudo chpass -s "$(which bash)" "$USER"
+sudo chpass -s "$(command -v bash)" "$USER"
 
 printHead "$USER's new shell:"
 dscl . -read "$HOME" UserShell
@@ -1259,12 +1260,12 @@ ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 ###----------------------------------------------------------------------------
 ### Restore Personal Data
 ###----------------------------------------------------------------------------
-if [[ ! -d "$myBackups" ]]; then
-    printInfo "There are no Documents to restore."
-else
-    printInfo "Restoring files..."
-    tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
-fi
+#if [[ ! -d "$myBackups" ]]; then
+#    printInfo "There are no Documents to restore."
+#else
+#    printInfo "Restoring files..."
+#    tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
+#fi
 
 
 ###----------------------------------------------------------------------------

@@ -1,67 +1,76 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 # -----------------------------------------------------------------------------
+# EXEC: source my-vars.sh <test|live>
+# -----------------------------------------------------------------------------
 # User-specific variables required before running the automation.
 # WARNING: YOU MUST SET THESE VARIABLES FIRST. DO NOT RUN bootstrap.sh WITHOUT
 #          HAVING CONFIGURED THESE PARAMETERS.
 # -----------------------------------------------------------------------------
+# FIXME:
+# 1) restores are disabled for now; in a time pinch.
+# 2) add options for everything
+# -----------------------------------------------------------------------------
+#set -x
 
 # Are we testing or are we really doing this?
-export theENV='TEST'
+export theENV="$1"
 
 # What's your Full Name?
-export myFullName='Todd E Thomas'
+export myFullName='fName lName'
 
 # What would you like to call your computer?
-export myMBPName='tbook'
+export myMBPName='mbook'
 
 # Do you have an internal domain?
 #   If there isn't one just delete the value between the quotes.
-export myDomain='ptest'
+export myDomain=''
 
 # What's the TLD for the internal domain?
 #   If there isn't one just delete the value between the quotes.
-export myTLD='us'
+export myTLD=''
 
 # Altogether
 export myDomaiName="$myDomain.$myTLD"
 
 # Set the Domain Name and TLD to .local if there is nothing else
-if [[ -z "$myDomaiName" ]]; then
-    export myDomaiName='.local'
+if [[ "$myDomaiName" == '.' ]]; then
+    export myDomaiName='local'
 fi
 
 # Call it 'macos' if we're testing - whatever you want if we're live.
-if [[ "$theENV" == 'TEST' ]]; then
+if [[ "$theENV" == 'test' ]]; then
     export myHostName="macos.$myDomaiName"
 else
     export myHostName="$myMBPName.$myDomaiName"
 fi
 
+# ------------------------ BACKUP / RESTORES ----------------------------------
 # Define a path to your backup device. It's just a path. It can point to an NFS
 # share, a USB drive, whatever.
-export myBackupDev='/Volumes/storage'
+#export myBackupDev='/Volumes/storage'
 
 # Define a path to your latest backups
-if [[ "$theENV" == 'TEST' ]]; then
-    export myBackupDir='test'
-else
-    export myBackupDir='pre_sierra'
-fi
+#if [[ "$theENV" == 'test' ]]; then
+#    export myBackupDir='test'
+#else
+#    export myBackupDir='pre_sierra'
+#fi
 
 # Define the last "$USER" backed up. 2 options:
-# 1) If theENV=TEST: $USER will always be 'vagrant'.
-# 2) If NOT TEST then set your user name to whatever you like.
+# 1) If theENV=test: $USER will always be 'vagrant'.
+# 2) If NOT test then set your user name to whatever you like.
 #    This will be used during rsync operations to restore your data.
-if [[ "$theENV" == 'TEST' ]]; then
-    export lastUser="$USER"
-else
-    export lastUser="thomas"    # replace with your current user name
-fi
+#if [[ "$theENV" == 'test' ]]; then
+#    export lastUser="$USER"
+#else
+#    export lastUser="thomas"    # replace with your current user name
+#fi
 
 # Define Restore SRC (source of the backups)
-export  myBackups="$myBackupDev/$myBackupDir/$lastUser/current"
-export sysBackups="$myBackupDev/$myBackupDir/system"
+#export  myBackups="$myBackupDev/$myBackupDir/$lastUser/current"
+#export sysBackups="$myBackupDev/$myBackupDir/system"
+# ------------------------ BACKUP / RESTORES ----------------------------------
 
 # -----------------------------------------------------------------------------
 # Define some personal truths *if they are different*. This stuff doesn't
@@ -134,5 +143,10 @@ if [[ -z "$linkScreens" ]]; then
     printf '%s\n' "Crap! something is jacked."
     exit 1
 else
-    printf '\n%s\n' "Initial configs look good. Let's do this!"
+    printf '\n%s\n' """
+    Backup/Restores are temporarily disabled but...
+    Initial configs look good. Let's do this!
+    """
 fi
+
+#set +x
