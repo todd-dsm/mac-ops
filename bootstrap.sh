@@ -181,8 +181,7 @@ brew update
 printHead "Running 'brew doctor'..."
 brew doctor
 
-printHead "Tapping Homebrew binaries..."
-brew tap homebrew/binary
+printHead "Tapping Homebrew fonts..."
 brew tap caskroom/fonts
 
 printHead "Configuring Homebrew..."
@@ -321,16 +320,16 @@ source "$myBashProfile" && tail -16 "$myBashrc"
 ### Install GNU Tools and Languages
 ###----------------------------------------------------------------------------
 printReq "Installing and configuring additional GNU programs..."
-brew install homebrew/dupes/ed --with-default-names
+brew install ed --with-default-names
 brew install gnu-indent --with-default-names
 brew install findutils --with-default-names
 brew install gnu-which --with-default-names
 brew install wget --with-pcre
 brew install gnu-tar --with-default-names
 brew install gnu-time --with-default-names
-brew install homebrew/dupes/grep --with-default-names
+brew install grep --with-default-names
 brew install gnupg2 --with-readline --without-dirmngr
-brew install homebrew/dupes/gzip gawk homebrew/dupes/diffutils
+brew install gzip gawk diffutils
 
 printHead "Configuring grep and find..."
 cat << EOF >> "$myBashrc"
@@ -396,7 +395,7 @@ brew cask install google-chrome
 ### Install the latest version of VMware Fusion
 ### Using older versions of Fusion on current macOS never seems to work.
 ###---
-printHead "Installing VMware Fusion: 7..."
+printHead "Installing VMware Fusion..."
 brew cask install vmware-fusion
 
 ###---
@@ -438,19 +437,19 @@ printReq "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 brew install \
     git nmap rsync ssh-copy-id watch tree pstree psgrep                 \
-    sipcalc whatmask ipcalc dos2unix testdisk sshfs jid                 \
-    homebrew/dupes/openssh
+    sipcalc whatmask ipcalc dos2unix testdisk sshfs jid
+    #openssh
 
 ### Seperate installs for programs with options
 printHead "Installing tcl-tk with options..."
-brew install homebrew/dupes/tcl-tk --with-threads
+brew install tcl-tk
 
 ### Include path for tcl-tk
 printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
 sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
 
 printHead "Installing tcpdump with options..."
-brew install homebrew/dupes/tcpdump --with-libpcap
+brew install tcpdump --with-libpcap
 
 printHead "Installing tmux with options..."
 brew install tmux --with-utf8proc
