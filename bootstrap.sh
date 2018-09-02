@@ -390,8 +390,6 @@ brew cask install \
 
 printHead "Installing Google Chrome..."
 brew cask install google-chrome
-#mkdir -p "$HOME/Library/Application\ Support/Google/Chrome"
-#chown -R vagrant:staff "/Users/vagrant/Library/Application Support"/
 
 
 ###---
@@ -439,8 +437,8 @@ tail -10 "$myBashrc"
 printReq "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 brew install \
-    git nmap homebrew/dupes/rsync ssh-copy-id watch tree pstree psgrep  \
-    sipcalc whatmask ipcalc dos2unix testdisk homebrew/fuse/sshfs       \
+    git nmap rsync ssh-copy-id watch tree pstree psgrep                 \
+    sipcalc whatmask ipcalc dos2unix testdisk sshfs jid                 \
     homebrew/dupes/openssh
 
 ### Seperate installs for programs with options
@@ -475,7 +473,7 @@ printf '%s\n' """
     ####    ####    ####    ####    ####     ####     ####     ####     ####
     """
 
-brew install python python3
+brew install python python@2
 
 printHead "Upgrading Python Pip and setuptools..."
 pip  install --upgrade pip setuptools neovim
@@ -567,7 +565,7 @@ source "$myBashProfile" && tail -6 "$myBashrc"
 ### golang
 ###----------------------------------------------------------------------------
 printReq "Installing the Go Programming Language..."
-brew install go
+brew install go dep
 
 # Create the code path
 printHead "Creating the \$GOPATH directory..."
@@ -582,6 +580,10 @@ export GOPATH="\$HOME/code/gocode"
 alias mygo="cd \$GOPATH"
 
 EOF
+
+# make sure we can find local programs
+printHead "Opening up $GOPATH so we can see local go programs..."
+sudo sed -i "\|/usr/bin|i $GOPATH" "$sysPaths"
 
 # Source-in and Display changes
 printInfo "golang ~/.bashrc changes:"
@@ -624,6 +626,8 @@ export SHELL='/usr/local/bin/bash'
 export BASH_VERSION="\$(bash --version | head -1 | awk -F " " '{print \$4}')"
 # ShellCheck: Ignore: https://goo.gl/n9W5ly
 export SHELLCHECK_OPTS="-e SC2155"
+# use compleions for the latest bash
+source /usr/local/share/bash-completion/bash_completion
 
 EOF
 
@@ -919,20 +923,103 @@ source "$myBashProfile" && tail -5 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
-### Git is already installed; this is only configuration
+### Install the latest git with completions
 ###----------------------------------------------------------------------------
+printReq "Installing Docker, et al..."
+# Includes completion
+brew install git
+
 printReq "Configuring Git..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  GIT                                    ###
 ###############################################################################
 source /usr/local/etc/bash_completion.d/git-completion.bash
+source /usr/local/etc/bash_completion.d/git-prompt.sh
 
 EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
 source "$myBashProfile" && tail -5 "$myBashrc"
+
+
+###----------------------------------------------------------------------------
+### Install Kubernetes-related packages
+###----------------------------------------------------------------------------
+printReq "Installing Docker, et al..."
+# Includes completion
+brew helm kubectl minikube
+
+# install helper packages
+brew tap azure/draft && brew install draft
+
+printReq "Configuring Git..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                              KUBERNETES                                 ###
+###############################################################################
+source <(kubectl  completion bash)
+source <(helm     completion bash)
+source <(minikube completion bash)
+# --------------------------------------------------------------------------- #
+export HELM_HOME="\$HOME/.helm"
+localKubes="\$HOME/.kube/config"
+# testKubes="\$HOME/code/kubes/secrets/auth/kubes-config"
+# stagKubes="\$HOME/code/kubes/secrets/auth/kubes-config"
+# prodKubes="\$HOME/code/kubes/secrets/auth/kubes-config"
+#export KUBECONFIG="\$localKubes:\$testKubes:\$stagKubes:\$prodKubes"
+export KUBECONFIG="\$localKubes"
+#export KUBECONFIG_SAVED="\$KUBECONFIG"
+
+EOF
+
+# Source-in and Display changes
+printInfo "git ~/.bashrc changes:"
+source "$myBashProfile" && tail -15 "$myBashrc"
+
+
+###----------------------------------------------------------------------------
+### Install the CoreOS Operator SDK
+###----------------------------------------------------------------------------
+printReq "Installing the CoreOS Operator SDK..."
+mkdir -p "$GOPATH/src/github.com/operator-framework"
+cd "$GOPATH/src/github.com/operator-framework" || exit
+git clone https://github.com/operator-framework/operator-sdk
+cd operator-sdk || exit
+git checkout master
+make dep
+make all
+
+###----------------------------------------------------------------------------
+### Install Kontena Mortar
+###----------------------------------------------------------------------------
+printReq "Installing kontena/mortar..."
+gem install kontena-mortar
+
+
+###----------------------------------------------------------------------------
+### Install Google Cloud Platform client
+###----------------------------------------------------------------------------
+printReq "Installing the Google Cloud SDK..."
+# Includes completion
+brew cask install google-cloud-sdk
+
+
+printReq "Configuring the Google Cloud SDK..."
+cat << EOF >> "$myBashrc"
+###############################################################################
+###                        Google Cloud Platform                            ###
+###############################################################################
+export CLOUDSDK_COMPUTE_REGION='us-west2'
+source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc'
+source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc'
+
+EOF
+
+# Source-in and Display changes
+printInfo "git ~/.bashrc changes:"
+source "$myBashProfile" && tail -7 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
