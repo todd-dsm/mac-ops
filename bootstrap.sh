@@ -320,7 +320,7 @@ source "$myBashProfile" && tail -16 "$myBashrc"
 ### Install GNU Tools and Languages
 ###----------------------------------------------------------------------------
 printReq "Installing and configuring additional GNU programs..."
-brew install ed --with-default-names
+#brew install ed --with-default-names
 brew install gnu-indent --with-default-names
 brew install findutils --with-default-names
 brew install gnu-which --with-default-names
@@ -894,8 +894,7 @@ cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
 printReq "Installing Docker, et al..."
 # Includes completion
 brew cask install docker
-brew install \
-    docker-compose docker-compose-completion \
+brew install docker-compose
 
 
 # Create a vbox VM
@@ -948,7 +947,8 @@ source "$myBashProfile" && tail -5 "$myBashrc"
 ###----------------------------------------------------------------------------
 printReq "Installing Docker, et al..."
 # Includes completion
-brew helm kubectl minikube
+brew install kubernetes-helm kubernetes-cli
+brew cask install minikube
 
 # install helper packages
 brew tap azure/draft && brew install draft
