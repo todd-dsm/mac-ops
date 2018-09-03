@@ -125,6 +125,7 @@ else
     rsync -aEv  "$myBackups/Documents/system" "$myDocs/" 2> /tmp/rsync-err-system.out
 fi
 
+
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
@@ -168,6 +169,7 @@ EOF
 # Source-in and Display changes
 printInfo '\n%s\n' "System ~/.bashrc changes:"
 source "$myBashProfile" && tail -18 "$myBashrc"
+
 
 ###----------------------------------------------------------------------------
 ### Install Homebrew
@@ -251,7 +253,7 @@ brew install coreutils
 ###----------------------------------------------------------------------------
 declare pathGNU_CORE="$(brew --prefix coreutils)"
 
-# Set path for the GNU Coreutils
+# Set path for the GNU Coreutils, et al.
 sudo sed -i "\|/usr/local/bin|i $pathGNU_CORE/libexec/gnubin" "$sysPaths"
 
 # Set path for the GNU Coreutils Manuals
@@ -320,7 +322,6 @@ source "$myBashProfile" && tail -16 "$myBashrc"
 ### Install GNU Tools and Languages
 ###----------------------------------------------------------------------------
 printReq "Installing and configuring additional GNU programs..."
-#brew install ed --with-default-names
 brew install gnu-indent --with-default-names
 brew install findutils --with-default-names
 brew install gnu-which --with-default-names
@@ -328,7 +329,8 @@ brew install wget --with-pcre
 brew install gnu-tar --with-default-names
 brew install gnu-time --with-default-names
 brew install grep --with-default-names
-brew install gnupg2 --with-readline --without-dirmngr
+brew install gnupg --with-readline --with-encfs --with-gpg-zip \
+    --with-gpgsplit --with-large-secmem
 brew install gzip gawk diffutils
 
 printHead "Configuring grep and find..."
@@ -378,17 +380,20 @@ printInfo "grep/find ~/.bashrc changes:"
 source "$myBashProfile" && tail -38 "$myBashrc"
 
 
+### Open up ssl to the system
+printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
+sudo sed -i "\|/usr/bin|i /usr/local/opt/openssl/bin" "$sysPaths"
+
+
 ###----------------------------------------------------------------------------
 ### Install the Casks (GUI Apps)
 ###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
 brew cask install \
-    atom android-file-transfer flux java wireshark osxfuse \
-    virtualbox virtualbox-extension-pack
-
-printHead "Installing Google Chrome..."
-brew cask install google-chrome
+    google-chrome visual-studio-code intellij-idea-ce   \
+    virtualbox virtualbox-extension-pack                \
+    android-file-transfer java wireshark osxfuse
 
 
 ###---
@@ -436,8 +441,8 @@ tail -10 "$myBashrc"
 printReq "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 brew install \
-    git nmap rsync ssh-copy-id watch tree pstree psgrep                 \
-    sipcalc whatmask ipcalc dos2unix testdisk sshfs jid
+    git nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
+    sipcalc whatmask ipcalc dos2unix testdisk sshfs
     #openssh
 
 ### Seperate installs for programs with options
@@ -477,7 +482,7 @@ brew install python python@2
 printHead "Upgrading Python Pip and setuptools..."
 pip  install --upgrade pip setuptools neovim
 pip3 install --upgrade pip3 setuptools wheel neovim \
-    ipython simplejson requests boto
+    ipython simplejson requests boto Sphinx
 
 
 printHead "Configuring Python..."
@@ -493,7 +498,6 @@ export PIP_CONFIG_FILE="\$HOME/.config/python/pip.conf"
 #source /usr/local/bin/activate.sh
 
 EOF
-
 
 ###---
 ### Configure pip
@@ -519,7 +523,6 @@ printHead "Configuring autoenv..."
 
 printHead "Creating the autoenv file..."
 touch "$myConfigs/python/autoenv_authorized"
-
 
 # Source-in and Display changes
 printHead "python ~/.bashrc changes:"
@@ -561,6 +564,16 @@ source "$myBashProfile" && tail -6 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
+### Install Build Utilities
+###----------------------------------------------------------------------------
+printReq "Installing build utilities..."
+brew install make --with-default-names
+# cmake with completion requires (python) sphinx-doc
+brew install cmake --with-completion
+brew install automake
+
+
+###----------------------------------------------------------------------------
 ### golang
 ###----------------------------------------------------------------------------
 printReq "Installing the Go Programming Language..."
@@ -568,25 +581,33 @@ brew install go dep
 
 # Create the code path
 printHead "Creating the \$GOPATH directory..."
-mkdir -p "$HOME/code/gocode"
+export GOPATH="$HOME/go"
+mkdir -p "$GOPATH"
 
 printHead "Configuring Go..."
 cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                    Go                                   ###
 ###############################################################################
-export GOPATH="\$HOME/code/gocode"
+export GOPATH="\$HOME/go"
 alias mygo="cd \$GOPATH"
 
 EOF
 
-# make sure we can find local programs
-printHead "Opening up $GOPATH so we can see local go programs..."
-sudo sed -i "\|/usr/bin|i $GOPATH" "$sysPaths"
-
 # Source-in and Display changes
 printInfo "golang ~/.bashrc changes:"
 source "$myBashProfile" && tail -6 "$myBashrc"
+
+###---
+### Go bins
+### Until there is some consistency we'll move compiled go binaries elsewhere
+###---
+goBins='/opt/go-bins'
+printHead "Opening up $goBins so we can see local go programs..."
+sudo mkdir -p "$goBins"
+
+# Open go-bins up to the system
+sudo sed -i "\|/usr/bin|i $goBins" "$sysPaths"
 
 
 ###----------------------------------------------------------------------------
@@ -608,14 +629,17 @@ sudo sed -i "\|local|a /usr/local/bin/sh" "$sysShells"
 printHead "System Shells new:"
 grep '^\/' "$sysShells"
 
-printHead "$USER's default shell:"
-dscl . -read "$HOME" UserShell
+# Switch to GNU Bash
+currentShell="$(dscl . -read "$HOME" UserShell)"
 
-printHead "Configuring $USER's shell..."
-sudo chpass -s "$(command -v bash)" "$USER"
-
-printHead "$USER's new shell:"
-dscl . -read "$HOME" UserShell
+if [[ "${currentShell##*\ }" != "$(type -P bash)" ]]; then
+    printHead "$USER's shell is: ${currentShell##*\ }"
+    printHead "Changing default shell to GNU Bash"
+    sudo chpass -s "$(type -P bash)" "$USER"
+    dscl . -read "$HOME" UserShell
+else
+    printHead "Default shell is already GNU Bash"
+fi
 
 cat << EOF >> "$myBashrc"
 ###############################################################################
@@ -639,7 +663,7 @@ source "$myBashProfile" && tail -8 "$myBashrc"
 ### nodejs and npm
 ###----------------------------------------------------------------------------
 printReq "Installing the Node.js and npm..."
-brew reinstall node --with-full-icu
+brew install node --with-full-icu
 
 # Create the code path
 #printHead "Creating the \$GOPATH directory..."
@@ -671,16 +695,18 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 # Install Vim with support for:
 #   Use this version over the system one
 #   w/o NLS (National Language Support)
-#   +Python   (v2; default)
+#   +Python   (v3; default)
 #   +Ruby     (default)
 #   +Lua      (broke)
 #   +mzscheme (broke)
 
 printHead "Installing Vim..."
-brew install vim --with-override-system-vi --without-nls --with-python3 \
-#    --with-lua --with-mzscheme --with-tcl
+brew install luarocks
+brew install vim --with-override-system-vi --with-lua
+echo "ignore: Error: Vim will not link against both Luajit & Lua message"
 
-# We should evaluate Neovim
+
+# We should start getting serious about Neovim
 printHead "Installing Neovim..."
 brew install neovim/neovim/neovim
 
@@ -712,10 +738,10 @@ printReq "Installing the AWS CLI..."
 pip3 install awscli
 
 printHead "Installing some AWS CLI Utilitiese..."
-pip install --upgrade jmespath jmespath-terminal
+pip3 install --upgrade jmespath jmespath-terminal
 
 brew tap jmespath/jmespath
-brew install jp jq
+brew install jp jq jid
 
 printHead "Configuring the AWS CLI..."
 cat << EOF >> "$myBashrc"
@@ -849,12 +875,12 @@ vagrant plugin repair
 printInfo "Installing Fusion plugin..."
 vagrant plugin install vagrant-vmware-fusion
 
-printInfo "All plugins:"
+#printInfo "All plugins:"
 vagrant plugin list
 
-printInfo "Installing Vagrant license..."
-vagrant plugin license vagrant-vmware-fusion \
-    "$HOME/Documents/system/hashicorp/license-vagrant-vmware-fusion.lic"
+#printInfo "Installing Vagrant license..."
+#vagrant plugin license vagrant-vmware-fusion \
+#    "$HOME/Documents/system/hashicorp/license-vagrant-vmware-fusion.lic"
 
 
 ###----------------------------------------------------------------------------
@@ -862,7 +888,7 @@ vagrant plugin license vagrant-vmware-fusion \
 ###----------------------------------------------------------------------------
 # Boto is for some Ansible/AWS operations
 printReq "Installing Ansible..."
-pip install --upgrade ansible boto
+pip3 install --upgrade ansible boto
 
 printHead "Ansible Version Info:"
 ansible --version
@@ -894,7 +920,8 @@ cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
 printReq "Installing Docker, et al..."
 # Includes completion
 brew cask install docker
-brew install docker-compose
+brew install docker-compose docker-completion docker-clean \
+    docker-credential-helper
 
 
 # Create a vbox VM
@@ -977,6 +1004,11 @@ EOF
 printInfo "git ~/.bashrc changes:"
 source "$myBashProfile" && tail -15 "$myBashrc"
 
+###----------------------------------------------------------------------------
+### Install Kontena Mortar
+###----------------------------------------------------------------------------
+printReq "Installing kontena/mortar..."
+gem install kontena-mortar
 
 ###----------------------------------------------------------------------------
 ### Install the CoreOS Operator SDK
@@ -990,12 +1022,23 @@ git checkout master
 make dep
 make all
 
-###----------------------------------------------------------------------------
-### Install Kontena Mortar
-###----------------------------------------------------------------------------
-printReq "Installing kontena/mortar..."
-gem install kontena-mortar
+# move binary to $goBins
+mv "$GOPATH/bin/operator-sdk" "$goBins"
 
+###----------------------------------------------------------------------------
+### Install confd https://github.com/kelseyhightower/confd
+###----------------------------------------------------------------------------
+printReq "Installing confd..."
+mkdir -p "$GOPATH/src/github.com/kelseyhightower"
+confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
+
+git clone https://github.com/kelseyhightower/confd.git "$confdDir"
+cd  "$confdDir" || exit
+make
+cd || exit
+
+# move binary to $goBins
+mv "$confdDir/bin/confd" "$goBins"
 
 ###----------------------------------------------------------------------------
 ### Install Google Cloud Platform client
