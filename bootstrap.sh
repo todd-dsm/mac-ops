@@ -329,8 +329,6 @@ brew install wget --with-pcre
 brew install gnu-tar --with-default-names
 brew install gnu-time --with-default-names
 brew install grep --with-default-names
-brew install gnupg --with-readline --with-encfs --with-gpg-zip \
-    --with-gpgsplit --with-large-secmem
 brew install gzip gawk diffutils
 
 printHead "Configuring grep and find..."
@@ -395,6 +393,9 @@ brew cask install \
     virtualbox virtualbox-extension-pack                \
     android-file-transfer java wireshark osxfuse
 
+### Install GNU Privacy Guard
+brew install gnupg --with-readline --with-encfs --with-gpg-zip \
+    --with-gpgsplit --with-large-secmem
 
 ###---
 ### Install the latest version of VMware Fusion
@@ -1023,7 +1024,7 @@ make dep
 make all
 
 # move binary to $goBins
-mv "$GOPATH/bin/operator-sdk" "$goBins"
+sudo mv "$GOPATH/bin/operator-sdk" "$goBins"
 
 ###----------------------------------------------------------------------------
 ### Install confd https://github.com/kelseyhightower/confd
@@ -1038,7 +1039,7 @@ make
 cd || exit
 
 # move binary to $goBins
-mv "$confdDir/bin/confd" "$goBins"
+sudo mv "$confdDir/bin/confd" "$goBins"
 
 ###----------------------------------------------------------------------------
 ### Install Google Cloud Platform client
