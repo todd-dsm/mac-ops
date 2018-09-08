@@ -21,8 +21,8 @@ set -x
 ### VARIABLES
 ###------------------------------------------------------------------------------
 timePre="$(date +'%T')"
+myGroup="$(id -g)"
 source './my-vars.sh'
-
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
@@ -770,7 +770,7 @@ if [[ ! -d "$myBackups" ]]; then
 else
     printInfo "Restoring AWS directory..."
     rsync -aEv "$myBackups/.aws" "$HOME/"
-    sudo chown -R "$USER:staff" "$HOME/.aws"
+    sudo chown -R "$USER:$myGroup" "$HOME/.aws"
 fi
 
 # Source-in and Display changes
@@ -1418,7 +1418,7 @@ sudo chown root:wheel /etc/hosts
 
 printInfo "Ensure correct ownership of ~/.viminfo file..."
 if [[ -f ~/.viminfo ]]; then
-    sudo chown "$USER:staff" ~/.viminfo
+    sudo chown "$USER:$myGroup" ~/.viminfo
 fi
 
 ###----------------------------------------------------------------------------
