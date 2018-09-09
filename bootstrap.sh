@@ -754,6 +754,12 @@ git clone git@github.com:awslabs/awscli-aliases.git /tmp/awscli-aliases
 mkdir -p "$HOME/.aws/cli"
 cp /tmp/awscli-aliases/alias "$HOME/.aws/cli/alias"
 
+# install amazon-ecr-credential-helper
+go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-Login
+# take it home
+if [[ -f "$HOME/go/bin/docker-credential-ecr-login" ]]; then
+    sudo mv "$HOME/go/bin/docker-credential-ecr-login" "$goBins"
+fi
 
 printHead "Configuring the AWS CLI..."
 cat << EOF >> "$myBashrc"
@@ -808,7 +814,34 @@ source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 ### HashiCorp: Terraform
 ###----------------------------------------------------------------------------
 printHead "Installing Terraform..."
-brew install terraform terraform-inventory graphviz
+brew install terraform terraform-inventory graphviz terragrunt
+
+# add typhoon support: https://typhoon.psdn.io/cl/google-cloud/#terraform-setup
+go get -u github.com/coreos/terraform-provider-ct
+# take it home
+if [[ -f "$HOME/go/bin/terraform-provider-ct" ]]; then
+    sudo mv "$HOME/go/bin/terraform-provider-ct" "$goBins"
+fi
+
+# configure terraform
+cat << EOF >> ~/.terraformrc
+# NOTE WELL: The URL declared in here is subject to change at any time, which
+#            will cause module installation to fail. It is not recommended to
+#            leave the following permanently in the CLI config, since real
+#            network discovery is required to ensure that Terraform will
+#            automatically adopt any future changes to the module API URL.
+host "registry.terraform.io" {
+  services = {
+    "modules.v1" = "https://registry.terraform.io/v1/modules/"
+  }
+}
+
+providers {
+  ct = '/opt/go-bins/terraform-provider-ct'
+}
+
+EOF
+
 
 printHead "Configuring Terraform..."
 cat << EOF >> "$myBashrc"
