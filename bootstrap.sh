@@ -208,7 +208,6 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                Homebrew                                 ###
 ###############################################################################
-#source /usr/local/etc/bash_completion.d/brew
 
 EOF
 
@@ -664,11 +663,9 @@ cat << EOF >> "$myBashrc"
 ###                                   Bash                                  ###
 ###############################################################################
 export SHELL='/usr/local/bin/bash'
-export BASH_VERSION="\$(bash --version | head -1 | awk -F " " '{print \$4}')"
+#export BASH_VERSION="\$(bash --version | head -1 | awk -F " " '{print \$4}')"
 # ShellCheck: Ignore: https://goo.gl/n9W5ly
 export SHELLCHECK_OPTS="-e SC2155"
-# use compleions for the latest bash
-#source /usr/local/share/bash-completion/bash_completion
 
 EOF
 
@@ -693,7 +690,6 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  npm                                    ###
 ###############################################################################
-#source /usr/local/etc/bash_completion.d/npm
 
 EOF
 
@@ -890,9 +886,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  Packer                                 ###
 ###############################################################################
-#source /usr/local/etc/bash_completion.d/packer
 export PACKER_HOME="\$HOME/vms/packer"
-# leave PACKER_CONFIG commented till you need it
 #export PACKER_CONFIG="\$PACKER_HOME"
 export PACKER_CACHE_DIR="\$PACKER_HOME/iso-cache"
 export PACKER_BUILD_DIR="\$PACKER_HOME/builds"
@@ -919,7 +913,6 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 Vagrant                                 ###
 ###############################################################################
-#source /usr/local/etc/bash_completion.d/vagrant
 #export VAGRANT_LOG=debug
 export VAGRANT_HOME="\$HOME/vms/vagrant"
 export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
@@ -998,10 +991,6 @@ cat << EOF >> "$myBashrc"
 ###                                 DOCKER                                  ###
 ###############################################################################
 # command-completions for docker, et al.
-#source /usr/local/etc/bash_completion.d/docker
-#source /usr/local/etc/bash_completion.d/docker-compose
-#source /usr/local/etc/bash_completion.d/docker-machine.bash
-#source /usr/local/etc/bash_completion.d/docker-machine-wrapper.bash
 #eval "\$(docker-machine env default)"
 
 EOF
@@ -1023,8 +1012,6 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  GIT                                    ###
 ###############################################################################
-#source /usr/local/etc/bash_completion.d/git-completion.bash
-#source /usr/local/etc/bash_completion.d/git-prompt.sh
 
 EOF
 
@@ -1125,8 +1112,6 @@ if [[ -d "\$gcloudCompsDir" ]]; then
     done <<< "\$(find "\$gcloudCompsDir" -maxdepth 1 -type f -name '*bash.inc')"
 fi
 # --------------------------------------------------------------------------- #
-#source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc'
-#source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc'
 
 EOF
 
