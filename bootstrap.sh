@@ -149,9 +149,21 @@ EOF
 printHead "Configuring $myBashrc ..."
 cat << EOF >> "$myBashrc"
 # shellcheck disable=SC2148,SC1090,SC1091,SC2012,SC2139
-declare sysBashrc='/etc/bashrc'
+sysBashrc='/etc/bashrc'
+bashComps='/usr/local/share/bash-completion/bash_completion'
+bashCompsDir='/usr/local/etc/bash_completion.d'
 if [[ -f "\$sysBashrc" ]]; then
-    . "\$sysBashrc"
+    source "\$sysBashrc"
+    # enable bash completions
+    if [ -f "\$bashComps" ]; then
+        source "\$bashComps"
+        if [[ -d "\$bashCompsDir" ]]; then
+            while read -r compFile; do
+                #printf '%s\n' "  \${compFile##*/}"
+                source "\$compFile"
+            done <<< "\$(find "\$bashCompsDir" -type l)"
+        fi
+    fi
 fi
 
 ###############################################################################
@@ -196,7 +208,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                Homebrew                                 ###
 ###############################################################################
-source /usr/local/etc/bash_completion.d/brew
+#source /usr/local/etc/bash_completion.d/brew
 
 EOF
 
@@ -656,7 +668,7 @@ export BASH_VERSION="\$(bash --version | head -1 | awk -F " " '{print \$4}')"
 # ShellCheck: Ignore: https://goo.gl/n9W5ly
 export SHELLCHECK_OPTS="-e SC2155"
 # use compleions for the latest bash
-source /usr/local/share/bash-completion/bash_completion
+#source /usr/local/share/bash-completion/bash_completion
 
 EOF
 
@@ -681,7 +693,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  npm                                    ###
 ###############################################################################
-source /usr/local/etc/bash_completion.d/npm
+#source /usr/local/etc/bash_completion.d/npm
 
 EOF
 
@@ -690,7 +702,7 @@ printInfo "npm ~/.bashrc changes:"
 source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
 
 ###---
-### install packages
+### install yarn packages
 ###---
 # yeoman
 yarn add yo
@@ -878,7 +890,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  Packer                                 ###
 ###############################################################################
-source /usr/local/etc/bash_completion.d/packer
+#source /usr/local/etc/bash_completion.d/packer
 export PACKER_HOME="\$HOME/vms/packer"
 # leave PACKER_CONFIG commented till you need it
 #export PACKER_CONFIG="\$PACKER_HOME"
@@ -907,7 +919,7 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                 Vagrant                                 ###
 ###############################################################################
-source /usr/local/etc/bash_completion.d/vagrant
+#source /usr/local/etc/bash_completion.d/vagrant
 #export VAGRANT_LOG=debug
 export VAGRANT_HOME="\$HOME/vms/vagrant"
 export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
@@ -986,8 +998,8 @@ cat << EOF >> "$myBashrc"
 ###                                 DOCKER                                  ###
 ###############################################################################
 # command-completions for docker, et al.
-source /usr/local/etc/bash_completion.d/docker
-source /usr/local/etc/bash_completion.d/docker-compose
+#source /usr/local/etc/bash_completion.d/docker
+#source /usr/local/etc/bash_completion.d/docker-compose
 #source /usr/local/etc/bash_completion.d/docker-machine.bash
 #source /usr/local/etc/bash_completion.d/docker-machine-wrapper.bash
 #eval "\$(docker-machine env default)"
@@ -1011,8 +1023,8 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                                  GIT                                    ###
 ###############################################################################
-source /usr/local/etc/bash_completion.d/git-completion.bash
-source /usr/local/etc/bash_completion.d/git-prompt.sh
+#source /usr/local/etc/bash_completion.d/git-completion.bash
+#source /usr/local/etc/bash_completion.d/git-prompt.sh
 
 EOF
 
@@ -1105,9 +1117,16 @@ cat << EOF >> "$myBashrc"
 ###############################################################################
 ###                        Google Cloud Platform                            ###
 ###############################################################################
-export CLOUDSDK_COMPUTE_REGION='us-west2'
-source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc'
-source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc'
+gcloudCompsDir='/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk'
+if [[ -d "\$gcloudCompsDir" ]]; then
+    while read -r compFile; do
+        #printf '%s\n' "  \${compFile##*/}"
+        source "\$compFile"
+    done <<< "\$(find "\$gcloudCompsDir" -maxdepth 1 -type f -name '*bash.inc')"
+fi
+# --------------------------------------------------------------------------- #
+#source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc'
+#source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.bash.inc'
 
 EOF
 
