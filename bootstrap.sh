@@ -1203,21 +1203,21 @@ ln -s "$vimSimpleLocal/vimrc" "$nvimDir/init.vim"
 ###---
 printReq "Configuring the System:"
 
-###---
-###  Set the hostname(s)
-###---
-printHead "Configuring the hostname(s)..."
-### Configure the network hostname
-printInfo "Configuring network hostname..."
-sudo scutil --set ComputerName "$myHostName"
-
-### Configure the Terminal hostname
-printInfo "Configuring Terminal hostname..."
-sudo scutil --set HostName "${myHostName%%.*}"
-
-### Configure the AirDrop hostname
-printInfo "Configuring AirDrop hostname..."
-sudo scutil --set LocalHostName "${myHostName%%.*}"
+####---
+####  Set the hostname(s)
+####---
+#printHead "Configuring the hostname(s)..."
+#### Configure the network hostname
+#printInfo "Configuring network hostname..."
+#sudo scutil --set ComputerName "$myHostName"
+#
+#### Configure the Terminal hostname
+#printInfo "Configuring Terminal hostname..."
+#sudo scutil --set HostName "${myHostName%%.*}"
+#
+#### Configure the AirDrop hostname
+#printInfo "Configuring AirDrop hostname..."
+#sudo scutil --set LocalHostName "${myHostName%%.*}"
 
 ###---
 ### Storage
@@ -1457,6 +1457,9 @@ ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 ### Some light housework
 ###----------------------------------------------------------------------------
 printReq "Cleaning up a bit..."
+brew cleanup
+
+# move this garbage to log directory for posterity
 sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 
 printInfo "Refreshing the Fonts directory..."
