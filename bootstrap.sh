@@ -671,9 +671,10 @@ source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 printReq "Installing the Node.js and npm..."
 brew install node --with-full-icu
 
-# Create the code path
-#printHead "Creating the \$GOPATH directory..."
-#mkdir -p "$HOME/code/gocode"
+# install/configure yarn
+brew install yarn
+yarn global add yarn
+
 
 printHead "Configuring npm..."
 cat << EOF >> "$myBashrc"
@@ -687,6 +688,12 @@ EOF
 # Source-in and Display changes
 printInfo "npm ~/.bashrc changes:"
 source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
+
+###---
+### install packages
+###---
+# yeoman
+yarn add yo
 
 
 ###----------------------------------------------------------------------------
