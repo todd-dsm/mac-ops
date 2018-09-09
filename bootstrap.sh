@@ -398,7 +398,7 @@ brew cask install \
     virtualbox virtualbox-extension-pack                \
     android-file-transfer java wireshark osxfuse
 
-### Install GNU Privacy Guard
+### Install GNU Privacy Guard: gpg-agent
 brew install gnupg --with-readline --with-encfs --with-gpg-zip \
     --with-gpgsplit --with-large-secmem
 
@@ -662,7 +662,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "bash ~/.bashrc changes:"
-source "$myBashProfile" && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -686,7 +686,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "npm ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -729,7 +729,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "vim ~/.bashrc changes:"
-source "$myBashProfile" && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 
 
 # Verify after install
@@ -748,6 +748,12 @@ pip3 install --upgrade jmespath jmespath-terminal
 
 brew tap jmespath/jmespath
 brew install jp jq jid
+
+# install aws aliases: https://github.com/awslabs/awscli-aliases
+git clone git@github.com:awslabs/awscli-aliases.git /tmp/awscli-aliases
+mkdir -p "$HOME/.aws/cli"
+cp /tmp/awscli-aliases/alias "$HOME/.aws/cli/alias"
+
 
 printHead "Configuring the AWS CLI..."
 cat << EOF >> "$myBashrc"
@@ -775,7 +781,7 @@ fi
 
 # Source-in and Display changes
 printInfo "aws ~/.bashrc changes:"
-source "$myBashProfile" && tail -7 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -7 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -795,7 +801,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "token ~/.bashrc changes:"
-source "$myBashProfile" && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -818,7 +824,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "terraform ~/.bashrc changes:"
-source "$myBashProfile" && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -846,7 +852,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "packer ~/.bashrc changes:"
-source "$myBashProfile" && tail -10 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -10 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -871,7 +877,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "vagrant ~/.bashrc changes:"
-source "$myBashProfile" && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 
 # Handle Licensing
 printHead "Installing vagrant vmware-fusion license..."
@@ -910,7 +916,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "ansible ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
 
 # Create a home for Ansible
 printInfo "Creating the Ansible directory..."
@@ -950,7 +956,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "Docker ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -972,7 +978,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -1008,7 +1014,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" && tail -15 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -15 "$myBashrc"
 
 ###----------------------------------------------------------------------------
 ### Install Kontena Mortar
@@ -1067,7 +1073,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" && tail -7 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -7 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
