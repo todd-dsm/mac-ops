@@ -852,7 +852,7 @@ host "registry.terraform.io" {
 }
 
 providers {
-  ct = '/opt/go-bins/terraform-provider-ct'
+  ct = "/opt/go-bins/terraform-provider-ct"
 }
 
 EOF
