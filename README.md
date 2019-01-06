@@ -43,7 +43,7 @@ Clone the repo down to your laptop:
 
 # CONFIGURE THE VARIABLES
 
-`vi my-vars.sh`
+`vi my-vars.env`
 
 ***
 
