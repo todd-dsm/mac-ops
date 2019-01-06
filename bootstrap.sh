@@ -526,7 +526,7 @@ if [[ ! -d "$myConfigs/python" ]]; then
 fi
 
 printHead "Creating the pip config file..."
-cat << EOF >> "$myConfigs/python/pip.conf"
+cat << EOF > "$myConfigs/python/pip.conf"
 # pip configuration
 [list]
 format=columns
@@ -729,7 +729,7 @@ echo "ignore: Error: Vim will not link against both Luajit & Lua message"
 
 # We should start getting serious about Neovim
 printHead "Installing Neovim..."
-brew install neovim/neovim/neovim
+brew install neovim
 
 printHead "Configuring Vim..."
 cat << EOF >> "$myBashrc"
@@ -829,7 +829,7 @@ source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 ### HashiCorp: Terraform
 ###----------------------------------------------------------------------------
 printHead "Installing Terraform..."
-brew install terraform terraform-inventory graphviz terragrunt
+brew install terraform graphviz terragrunt
 
 # add typhoon support: https://typhoon.psdn.io/cl/google-cloud/#terraform-setup
 go get -u github.com/coreos/terraform-provider-ct
@@ -869,10 +869,12 @@ export TF_LOG='DEBUG'
 export TF_LOG_PATH='/tmp/terraform.log'
 
 EOF
+terraform -install-autocomplete
+
 
 # Source-in and Display changes
 printInfo "terraform ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -9 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
@@ -1117,7 +1119,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -7 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -11 "$myBashrc"
 
 
 ###----------------------------------------------------------------------------
