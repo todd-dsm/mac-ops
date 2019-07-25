@@ -730,10 +730,10 @@ printInfo "npm ~/.bashrc changes:"
 source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
 
 ###---
-### install yarn packages
+### install yeoman
 ###---
 # yeoman
-#yarn add yo
+npm install -g yo
 
 
 ###----------------------------------------------------------------------------
