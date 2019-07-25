@@ -192,7 +192,12 @@ source "$myBashProfile" && tail -18 "$myBashrc"
 ### Install Homebrew
 ###----------------------------------------------------------------------------
 printReq "Installing Homebrew..."
-yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+if ! type -P brew; then
+    yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+else
+    printInfo '\n%s\n' "Homebrew is already installed, bro."
+fi
+
 
 printHead "Updating Homebrew..."
 brew update
@@ -259,7 +264,17 @@ brew cask install font-hack
 printReq "Let's get open..."
 
 printHead "Installing sed - the stream editor..."
-brew install gnu-sed --with-default-names
+brew install gnu-sed
+
+# let's use this immediately
+pathGNU_SED="$(brew --prefix gnu-sed)"
+export PATH="$pathGNU_SED:$PATH"
+
+# Set path for GNU sed
+sudo sed -i "\|/usr/local/bin|i $pathGNU_SED/libexec/gnubin" "$sysPaths"
+
+# Set path for GNU sed Manuals
+sudo sed -i "\|/usr/share/man|i $pathGNU_SED/libexec/gnuman" "$sysManPaths"
 
 printHead "Installing GNU Coreutils..."
 brew install coreutils
@@ -267,9 +282,8 @@ brew install coreutils
 ###----------------------------------------------------------------------------
 ### Set new Variables
 ###----------------------------------------------------------------------------
-declare pathGNU_CORE="$(brew --prefix coreutils)"
-
 # Set path for the GNU Coreutils, et al.
+pathGNU_CORE="$(brew --prefix coreutils)"
 sudo sed -i "\|/usr/local/bin|i $pathGNU_CORE/libexec/gnubin" "$sysPaths"
 
 # Set path for the GNU Coreutils Manuals
@@ -338,14 +352,23 @@ source "$myBashProfile" && tail -16 "$myBashrc"
 ### Install GNU Tools and Languages
 ###----------------------------------------------------------------------------
 printReq "Installing and configuring additional GNU programs..."
-brew install gnu-indent --with-default-names
-brew install findutils --with-default-names
-brew install gnu-which --with-default-names
-brew install wget --with-pcre
-brew install gnu-tar --with-default-names
-brew install gnu-time --with-default-names
-brew install grep --with-default-names
+brew install gnu-indent
+brew install findutils
+brew install gnu-which
+brew install wget
+brew install gnu-tar
+brew install gnu-time
+brew install grep
 brew install gzip gawk diffutils
+
+
+# Set path for the GNU find
+pathGNU_FIND="$(brew --prefix findutils)"
+sudo sed -i "\|/usr/local/bin|i $pathGNU_FIND/libexec/gnubin" "$sysPaths"
+
+# Set path for the GNU find Manuals
+sudo sed -i "\|/usr/share/man|i $pathGNU_FIND/libexec/gnuman" "$sysManPaths"
+
 
 printHead "Configuring grep and find..."
 cat << EOF >> "$myBashrc"
@@ -410,8 +433,8 @@ brew cask install \
     android-file-transfer java wireshark osxfuse
 
 ### Install GNU Privacy Guard: gpg-agent
-brew install gnupg --with-readline --with-encfs --with-gpg-zip \
-    --with-gpgsplit --with-large-secmem
+brew install gnupg
+
 
 ###---
 ### Install the latest version of VMware Fusion
@@ -471,10 +494,10 @@ printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
 sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
 
 printHead "Installing tcpdump with options..."
-brew install tcpdump --with-libpcap
+brew install tcpdump
 
 printHead "Installing tmux with options..."
-brew install tmux --with-utf8proc
+brew install tmux
 
 ### Include path for tcpdump
 printHead "Opening up /usr/local/sbin so we can see tcpdump..."
@@ -584,9 +607,18 @@ source "$myBashProfile" && tail -6 "$myBashrc"
 ### Install Build Utilities
 ###----------------------------------------------------------------------------
 printReq "Installing build utilities..."
-brew install make --with-default-names
+brew install make
+
+# Set path for the GNU make
+pathGNU_MAKE="$(brew --prefix make)"
+sudo sed -i "\|/usr/local/bin|i $pathGNU_MAKE/libexec/gnubin" "$sysPaths"
+
+# Set path for the GNU Coreutils Manuals
+sudo sed -i "\|/usr/share/man|i $pathGNU_MAKE/libexec/gnuman" "$sysManPaths"
+
+
 # cmake with completion requires (python) sphinx-doc
-brew install cmake --with-completion
+brew install cmake
 brew install automake
 
 
@@ -678,7 +710,7 @@ source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 ### nodejs and npm
 ###----------------------------------------------------------------------------
 printReq "Installing the Node.js and npm..."
-brew install node --with-full-icu
+brew install node
 
 # install/configure yarn
 brew install yarn
@@ -701,7 +733,7 @@ source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
 ### install yarn packages
 ###---
 # yeoman
-yarn add yo
+#yarn add yo
 
 
 ###----------------------------------------------------------------------------
@@ -723,7 +755,7 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 
 printHead "Installing Vim..."
 brew install luarocks
-brew install vim --with-override-system-vi --with-lua
+brew install vim
 echo "ignore: Error: Vim will not link against both Luajit & Lua message"
 
 
@@ -828,15 +860,25 @@ source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
 ###----------------------------------------------------------------------------
 ### HashiCorp: Terraform
 ###----------------------------------------------------------------------------
+### we're not quite ready to refactor for the new version; sticking with 11.x
+### for now. Decide which line to comment.
+###----------------------------------------------------------------------------
 printHead "Installing Terraform..."
-brew install terraform graphviz terragrunt
+#brew install terraform graphviz
+
+# latest version <12
+brew install 'terraform@0.11' graphviz
+pathTF='/usr/local/opt/terraform@0.11/bin'
+
+# Set path for Terraform 11.x
+sudo sed -i "\|/usr/local/bin|i $pathTF" "$sysPaths"
 
 # add typhoon support: https://typhoon.psdn.io/cl/google-cloud/#terraform-setup
-go get -u github.com/coreos/terraform-provider-ct
+#go get -u github.com/coreos/terraform-provider-ct
 # take it home
-if [[ -f "$HOME/go/bin/terraform-provider-ct" ]]; then
-    sudo mv "$HOME/go/bin/terraform-provider-ct" "$goBins"
-fi
+#if [[ -f "$HOME/go/bin/terraform-provider-ct" ]]; then
+#    sudo mv "$HOME/go/bin/terraform-provider-ct" "$goBins"
+#fi
 
 # configure terraform
 cat << EOF >> ~/.terraformrc
