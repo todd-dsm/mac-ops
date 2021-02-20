@@ -27,7 +27,7 @@ source './my-vars.env'
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
 ###----------------------------------------------------------------------------
-### Print stuff of secondary importance: Requirements
+### Print stuff of greatest importance: Requirements
 ###---
 printReq() {
     theReq="$1"
@@ -146,8 +146,8 @@ fi
 EOF
 
 
-printHead "Configuring $myBashrc ..."
-cat << EOF >> "$myBashrc"
+printHead "Configuring $myShellrc ..."
+cat << EOF >> "$myShellrc"
 # shellcheck disable=SC2148,SC1090,SC1091,SC2012,SC2139
 sysBashrc='/etc/bashrc'
 bashComps='/usr/local/share/bash-completion/bash_completion'
@@ -185,7 +185,7 @@ EOF
 
 # Source-in and Display changes
 printInfo '\n%s\n' "System ~/.bashrc changes:"
-source "$myBashProfile" && tail -18 "$myBashrc"
+source "$myBashProfile" && tail -18 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -201,10 +201,10 @@ printHead "Running 'brew doctor'..."
 brew doctor
 
 printHead "Tapping Homebrew fonts..."
-brew tap caskroom/fonts
+brew tap homebrew/cask-fonts
 
 printHead "Configuring Homebrew..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                Homebrew                                 ###
 ###############################################################################
@@ -213,7 +213,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "homebrew ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myBashrc"
+source "$myBashProfile" && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -237,20 +237,10 @@ fi
 
 ###----------------------------------------------------------------------------
 ### Install the font: Hack
-### Hack is a solid font for programmers; version 2.010 is the golden-age.
-### If you want the latest version then:
-###   *delete the mkdir and tar lines
-###   *uncomment the brew lines.
+### https://github.com/Homebrew/homebrew-cask-fonts
 ###----------------------------------------------------------------------------
 printHead "Installing font: Hack..."
-brew tap caskroom/fonts
-brew cask install font-hack
-#if [[ ! -d "$myDocs/system/Hack-v2_010-ttf.tgz" ]]; then
-#    printInfo "Download Hack when you can"
-#else
-#    mkdir "$HOME/Library/Fonts"
-#    tar xzvf "$myDocs/system/Hack-v2_010-ttf.tgz" -C "$HOME/Library/Fonts"
-#fi
+brew install font-hack
 
 
 ###----------------------------------------------------------------------------
@@ -310,7 +300,7 @@ fi
 
 ### Configure coreutils
 printHead "Configuring GNU Coreutils..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                coreutils                                ###
 ###############################################################################
@@ -331,7 +321,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "coreutils ~/.bashrc changes:"
-source "$myBashProfile" && tail -16 "$myBashrc"
+source "$myBashProfile" && tail -16 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -348,7 +338,7 @@ brew install grep --with-default-names
 brew install gzip gawk diffutils
 
 printHead "Configuring grep and find..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                   grep                                  ###
 ###############################################################################
@@ -391,7 +381,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "grep/find ~/.bashrc changes:"
-source "$myBashProfile" && tail -38 "$myBashrc"
+source "$myBashProfile" && tail -38 "$myShellrc"
 
 
 ### Open up ssl to the system
@@ -404,7 +394,7 @@ sudo sed -i "\|/usr/bin|i /usr/local/opt/openssl/bin" "$sysPaths"
 ###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
-brew cask install \
+brew install --cask \
     google-chrome visual-studio-code intellij-idea-ce   \
     virtualbox virtualbox-extension-pack                \
     android-file-transfer java wireshark osxfuse
@@ -418,7 +408,7 @@ brew install gnupg --with-readline --with-encfs --with-gpg-zip \
 ### Using older versions of Fusion on current macOS never seems to work.
 ###---
 printHead "Installing VMware Fusion..."
-brew cask install vmware-fusion
+brew install --cask vmware-fusion
 
 ###---
 ### VirtualBox configurations
@@ -428,7 +418,7 @@ printInfo "Setting the machinefolder property..."
 vboxmanage setproperty machinefolder "$HOME/vms/vbox"
 
 printHead "Setting VirtualBox environment variables..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                VirtualBox                               ###
 ###############################################################################
@@ -441,7 +431,7 @@ EOF
 ### VMware configurations
 ###---
 printHead "Configuring VMware..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                  VMware                                 ###
 ###############################################################################
@@ -449,7 +439,7 @@ export VMWARE_STORAGE="\$HOME/vms/vmware"
 
 EOF
 
-tail -10 "$myBashrc"
+tail -10 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -503,7 +493,7 @@ pip3 install --upgrade pip3 setuptools wheel neovim \
 
 
 printHead "Configuring Python..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                  Python                                 ###
 ###############################################################################
@@ -543,7 +533,7 @@ touch "$myConfigs/python/autoenv_authorized"
 
 # Source-in and Display changes
 printHead "python ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myBashrc"
+source "$myBashProfile" && tail -5 "$myShellrc"
 
 printInfo "Testing pip config..."
 pip list
@@ -566,7 +556,7 @@ gem install neovim
 
 
 printHead "Configuring Ruby..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                   Ruby                                  ###
 ###############################################################################
@@ -577,7 +567,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "ruby ~/.bashrc changes:"
-source "$myBashProfile" && tail -6 "$myBashrc"
+source "$myBashProfile" && tail -6 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -602,7 +592,7 @@ export GOPATH="$HOME/go"
 mkdir -p "$GOPATH"
 
 printHead "Configuring Go..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                    Go                                   ###
 ###############################################################################
@@ -613,7 +603,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "golang ~/.bashrc changes:"
-source "$myBashProfile" && tail -6 "$myBashrc"
+source "$myBashProfile" && tail -6 "$myShellrc"
 
 ###---
 ### Go bins
@@ -658,7 +648,7 @@ else
     printHead "Default shell is already GNU Bash"
 fi
 
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                   Bash                                  ###
 ###############################################################################
@@ -671,7 +661,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "bash ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -686,7 +676,7 @@ yarn global add yarn
 
 
 printHead "Configuring npm..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                  npm                                    ###
 ###############################################################################
@@ -695,7 +685,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "npm ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 ###---
 ### install yarn packages
@@ -732,7 +722,7 @@ printHead "Installing Neovim..."
 brew install neovim
 
 printHead "Configuring Vim..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                   Vim                                   ###
 ###############################################################################
@@ -744,7 +734,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "vim ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 # Verify after install
@@ -777,7 +767,7 @@ if [[ -f "$HOME/go/bin/docker-credential-ecr-login" ]]; then
 fi
 
 printHead "Configuring the AWS CLI..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                 Amazon                                  ###
 ###############################################################################
@@ -789,7 +779,7 @@ export AWS_CONFIG_FILE="\$HOME/.aws/config"
 EOF
 
 printHead "Setting the AWS User to your local account name..."
-sed -i "/AWS_PROFILE/ s/awsUser/$USER/g" "$myBashrc"
+sed -i "/AWS_PROFILE/ s/awsUser/$USER/g" "$myShellrc"
 
 # Restore the AWS configs if there are any
 if [[ ! -d "$myBackups" ]]; then
@@ -802,14 +792,14 @@ fi
 
 # Source-in and Display changes
 printInfo "aws ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -7 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -7 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Add a space for common remote access tokens
 ###----------------------------------------------------------------------------
 printReq "Configuring Access Tokens for Remote services..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                             Remote Access                               ###
 ###############################################################################
@@ -822,7 +812,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "token ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -859,7 +849,7 @@ EOF
 
 
 printHead "Configuring Terraform..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                Terraform                                ###
 ###############################################################################
@@ -874,7 +864,7 @@ terraform -install-autocomplete
 
 # Source-in and Display changes
 printInfo "terraform ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -9 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -9 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -884,7 +874,7 @@ printReq "Installing Packer..."
 brew install packer packer-completion
 
 printHead "Configuring Packer..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                  Packer                                 ###
 ###############################################################################
@@ -900,18 +890,18 @@ EOF
 
 # Source-in and Display changes
 printInfo "packer ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -10 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -10 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### HashiCorp: Vagrant
 ###----------------------------------------------------------------------------
 printReq "Installing Vagrant..."
-brew cask install vagrant
+brew install --cask vagrant
 brew install vagrant-completion
 
 printHead "Configuring Vagrant..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                 Vagrant                                 ###
 ###############################################################################
@@ -924,7 +914,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "vagrant ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 # Handle Licensing
 printHead "Installing vagrant vmware-fusion license..."
@@ -953,7 +943,7 @@ printHead "Ansible Version Info:"
 ansible --version
 
 printHead "Configuring Vagrant..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                 Ansible                                 ###
 ###############################################################################
@@ -963,7 +953,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "ansible ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 # Create a home for Ansible
 printInfo "Creating the Ansible directory..."
@@ -978,7 +968,7 @@ cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
 ###----------------------------------------------------------------------------
 printReq "Installing Docker, et al..."
 # Includes completion
-brew cask install docker
+brew install --cask docker
 brew install docker-compose docker-completion docker-clean \
     docker-credential-helper
 
@@ -988,7 +978,7 @@ brew install docker-compose docker-completion docker-clean \
 #docker-machine create --driver virtualbox default
 
 printHead "Configuring Docker..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                 DOCKER                                  ###
 ###############################################################################
@@ -999,7 +989,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "Docker ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -1010,7 +1000,7 @@ printReq "Installing Docker, et al..."
 brew install git
 
 printReq "Configuring Git..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                                  GIT                                    ###
 ###############################################################################
@@ -1019,7 +1009,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -1028,13 +1018,13 @@ source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
 printReq "Installing Docker, et al..."
 # Includes completion
 brew install kubernetes-helm kubernetes-cli
-brew cask install minikube
+brew install --cask minikube
 
 # install helper packages
 brew tap azure/draft && brew install draft
 
 printReq "Configuring Git..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                              KUBERNETES                                 ###
 ###############################################################################
@@ -1055,7 +1045,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -15 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -15 "$myShellrc"
 
 ###----------------------------------------------------------------------------
 ### Install Kontena Mortar
@@ -1098,11 +1088,11 @@ sudo mv "$confdDir/bin/confd" "$goBins"
 ###----------------------------------------------------------------------------
 printReq "Installing the Google Cloud SDK..."
 # Includes completion
-brew cask install google-cloud-sdk
+brew install --cask google-cloud-sdk
 
 
 printReq "Configuring the Google Cloud SDK..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                        Google Cloud Platform                            ###
 ###############################################################################
@@ -1119,14 +1109,14 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -11 "$myBashrc"
+source "$myBashProfile" > /dev/null 2>&1 && tail -11 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Post-configuration Steps
 ###----------------------------------------------------------------------------
 printReq "Securing ~/.bashrc ..."
-chmod 600 "$myBashrc"
+chmod 600 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
