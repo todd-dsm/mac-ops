@@ -231,7 +231,6 @@ printReq "Let's get open..."
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
 
-
 # Read list of programs from a file
 while read -r gnuProgram; do
     # install program
@@ -263,13 +262,13 @@ for myProg in "${gnuProgs[@]}"; do
 done
 
 # Move system manpaths down 1 line
-sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
+#sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
 
 
 ###---
 #### Verify the new paths have been set
 ###---
-#getNewPaths
+getNewPaths
 
 
 exit
