@@ -224,7 +224,6 @@ printHead "Installing font: Hack..."
 brew tap homebrew/cask-fonts
 brew install font-hack
 
-exit 0
 ###----------------------------------------------------------------------------
 ### Let's Get Open: GNU Coreutils
 ###----------------------------------------------------------------------------
@@ -256,6 +255,8 @@ sudo sed -i -n '2{h;n;G};p' "$sysManPaths"
 ###---
 getNewPaths
 
+
+exit
 ###----------------------------------------------------------------------------
 ### PATHs
 ###   * System:  /usr/bin:/bin:/usr/sbin:/sbin
