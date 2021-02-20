@@ -60,7 +60,7 @@ printInfo() {
 ### Print Requirement
 ###---
 getNewPaths() {
-    PATH=''
+    declare PATH=''
     ### Construct new paths
     printReq "Constructing the \$PATH environment variable..."
     while IFS= read -r binPath; do
@@ -225,27 +225,42 @@ brew tap homebrew/cask-fonts
 brew install font-hack
 
 ###----------------------------------------------------------------------------
-### Let's Get Open: GNU Coreutils
+### Let's Get Open: Install GNU Programs
 ###----------------------------------------------------------------------------
 printReq "Let's get open..."
+paramsFile="${sourceDir}/gnu-programs.list"
+gnuProgs=()
 
-printHead "Installing sed - the stream editor..."
-brew install gnu-sed
 
-printHead "Installing GNU Coreutils..."
-brew install coreutils
+# Read list of programs from a file
+while read -r gnuProgram; do
+    # install program
+    brew install "$gnuProgram"
+    # send name to gnuProgs array
+    gnuProgs+=("$gnuProgram")
+done < "$paramsFile"
 
-###----------------------------------------------------------------------------
-### Set new Variables
-###----------------------------------------------------------------------------
-pathGNU_CORE="$(brew --prefix coreutils)"
+
+###---
+### Add paths for all elements in the gnuProgs array
+###---
 gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
 
-# Set path for the GNU Coreutils, et al.
-sudo "$gnuSed" -i "\|/usr/local/bin|i $pathGNU_CORE/libexec/gnubin" "$sysPaths"
+printf '\n\n%s\n' "Adding paths for new GNU programs..."
+for myProg in "${gnuProgs[@]}"; do
+    gnuPath="$(brew --prefix "$myProg")"
+    printf '%s\n' "Adding: $gnuPath"
+    sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
+done
 
-# Set path for the GNU Coreutils Manuals
-sudo "$gnuSed" -i "\|/usr/share/man|i $pathGNU_CORE/libexec/gnuman" "$sysManPaths"
+
+### Add manpaths for the GNU Manuals
+printf '\n\n%s\n' "Adding paths for new GNU manuals..."
+for myProg in "${gnuProgs[@]}"; do
+    gnuPath="$(brew --prefix "$myProg")"
+    printf '%s\n' "Adding: $gnuPath"
+    sudo "$gnuSed" -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
+done
 
 # Move system manpaths down 1 line
 sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
