@@ -137,83 +137,64 @@ fi
 printReq "Configuring base shell options..."
 
 printHead "Configuring $myShellProfile ..."
-cat << EOF >> "$myShellProfile"
-# URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
-if [ -f ~/.bashrc ]; then
-	. ~/.bashrc
-fi
-
-EOF
+touch "$myShellProfile"
 
 
-printHead "Configuring $myShellrc ..."
-cat << EOF >> "$myShellrc"
-# shellcheck disable=SC2148,SC1090,SC1091,SC2012,SC2139
-sysBashrc='/etc/bashrc'
-bashComps='/usr/local/share/bash-completion/bash_completion'
-bashCompsDir='/usr/local/etc/bash_completion.d'
-if [[ -f "\$sysBashrc" ]]; then
-    source "\$sysBashrc"
-    # enable bash completions
-    if [ -f "\$bashComps" ]; then
-        source "\$bashComps"
-        if [[ -d "\$bashCompsDir" ]]; then
-            while read -r compFile; do
-                #printf '%s\n' "  \${compFile##*/}"
-                source "\$compFile"
-            done <<< "\$(find "\$bashCompsDir" -type l)"
-        fi
-    fi
-fi
-
-###############################################################################
-###                                  System                                 ###
-###############################################################################
-export TERM='xterm-256color'
-export HISTFILESIZE=
-export HISTSIZE=
-export PROMPT_COMMAND="history -a; \$PROMPT_COMMAND"
-# If you want the last command ran immediately available to all currently open
-# shells then comment the one above and uncomment the two below.
-#shopt -s histappend
-#export PROMPT_COMMAND="history -a; history -c; history -r; \$PROMPT_COMMAND"
-export HISTCONTROL=ignoredups
-export HISTTIMEFORMAT="%a%l:%M %p  "
-export HISTIGNORE='ls:bg:fg:history'
-
-EOF
-
-# Source-in and Display changes
-printInfo '\n%s\n' "System ~/.bashrc changes:"
-source "$myShellProfile" && tail -18 "$myShellrc"
+#printHead "Configuring $myShellrc ..."
+#cat << EOF >> "$myShellrc"
+## shellcheck disable=SC2148,SC1090,SC1091,SC2012,SC2139
+#sysBashrc='/etc/bashrc'
+#bashComps='/usr/local/share/bash-completion/bash_completion'
+#bashCompsDir='/usr/local/etc/bash_completion.d'
+#if [[ -f "\$sysBashrc" ]]; then
+#    source "\$sysBashrc"
+#    # enable bash completions
+#    if [ -f "\$bashComps" ]; then
+#        source "\$bashComps"
+#        if [[ -d "\$bashCompsDir" ]]; then
+#            while read -r compFile; do
+#                #printf '%s\n' "  \${compFile##*/}"
+#                source "\$compFile"
+#            done <<< "\$(find "\$bashCompsDir" -type l)"
+#        fi
+#    fi
+#fi
+#
+################################################################################
+####                                  System                                 ###
+################################################################################
+#export TERM='xterm-256color'
+#export HISTFILESIZE=
+#export HISTSIZE=
+#export PROMPT_COMMAND="history -a; \$PROMPT_COMMAND"
+## If you want the last command ran immediately available to all currently open
+## shells then comment the one above and uncomment the two below.
+##shopt -s histappend
+##export PROMPT_COMMAND="history -a; history -c; history -r; \$PROMPT_COMMAND"
+#export HISTCONTROL=ignoredups
+#export HISTTIMEFORMAT="%a%l:%M %p  "
+#export HISTIGNORE='ls:bg:fg:history'
+#
+#EOF
+#
+## Source-in and Display changes
+#printInfo '\n%s\n' "System ~/.bashrc changes:"
+#source "$myShellProfile" && tail -18 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
 printReq "Installing Homebrew..."
-yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+if ! type -P brew; then
+    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+    printInfo "Homebrew is already installed."
+fi
 
-printHead "Updating Homebrew..."
-brew update
 
 printHead "Running 'brew doctor'..."
 brew doctor
-
-printHead "Tapping Homebrew fonts..."
-brew tap homebrew/cask-fonts
-
-printHead "Configuring Homebrew..."
-cat << EOF >> "$myShellrc"
-###############################################################################
-###                                Homebrew                                 ###
-###############################################################################
-
-EOF
-
-# Source-in and Display changes
-printInfo "homebrew ~/.bashrc changes:"
-source "$myShellProfile" && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -240,9 +221,10 @@ fi
 ### https://github.com/Homebrew/homebrew-cask-fonts
 ###----------------------------------------------------------------------------
 printHead "Installing font: Hack..."
+brew tap homebrew/cask-fonts
 brew install font-hack
 
-
+exit 0
 ###----------------------------------------------------------------------------
 ### Let's Get Open: GNU Coreutils
 ###----------------------------------------------------------------------------
