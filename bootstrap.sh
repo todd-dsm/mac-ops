@@ -228,9 +228,10 @@ brew install font-hack
 ### Let's Get Open: GNU Coreutils
 ###----------------------------------------------------------------------------
 printReq "Let's get open..."
+getNewPaths
 
 printHead "Installing sed - the stream editor..."
-brew install gnu-sed --with-default-names
+brew install gnu-sed
 
 printHead "Installing GNU Coreutils..."
 brew install coreutils
