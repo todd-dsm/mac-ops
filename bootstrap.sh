@@ -60,15 +60,15 @@ printInfo() {
 ### Print Requirement
 ###---
 getNewPaths() {
-    declare PATH=''
+    PATH=''
     ### Construct new paths
     printReq "Constructing the \$PATH environment variable..."
     while IFS= read -r binPath; do
         printHead "Adding: $binPath"
         if [[ -z "$myPath" ]]; then
-           declare "myPath=$binPath"
+           "myPath=$binPath"
        else
-           declare myPath="$myPath:$binPath"
+           myPath="$myPath:$binPath"
         fi
     done < "$sysPaths"
 
@@ -80,9 +80,9 @@ getNewPaths() {
     while IFS= read -r manPath; do
         printHead "Adding: $manPath"
         if [[ -z "$myMans" ]]; then
-           declare "myMans=$manPath"
+           "myMans=$manPath"
        else
-           declare myMans="$myMans:$manPath"
+           myMans="$myMans:$manPath"
         fi
     done < "$sysManPaths"
 
@@ -239,16 +239,17 @@ brew install coreutils
 ###----------------------------------------------------------------------------
 ### Set new Variables
 ###----------------------------------------------------------------------------
-declare pathGNU_CORE="$(brew --prefix coreutils)"
+pathGNU_CORE="$(brew --prefix coreutils)"
+gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
 
 # Set path for the GNU Coreutils, et al.
-sudo sed -i "\|/usr/local/bin|i $pathGNU_CORE/libexec/gnubin" "$sysPaths"
+sudo "$gnuSed" -i "\|/usr/local/bin|i $pathGNU_CORE/libexec/gnubin" "$sysPaths"
 
 # Set path for the GNU Coreutils Manuals
-sudo sed -i "\|/usr/share/man|i $pathGNU_CORE/libexec/gnuman" "$sysManPaths"
+sudo "$gnuSed" -i "\|/usr/share/man|i $pathGNU_CORE/libexec/gnuman" "$sysManPaths"
 
 # Move system manpaths down 1 line
-sudo sed -i -n '2{h;n;G};p' "$sysManPaths"
+sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
 
 
 ###---
@@ -1488,7 +1489,7 @@ printf '\n%s\n' """
 ### Quick and Dirty duration
 ###----------------------------------------------------------------------------
 # we can't read /etc/paths until the next login; set date location
-declare gnuDate='/usr/local/opt/coreutils/libexec/gnubin/date'
+gnuDate='/usr/local/opt/coreutils/libexec/gnubin/date'
 timePost=$("$gnuDate" +'%T')
 ### Convert time to a duration
 startTime=$("$gnuDate" -u -d "$timePre" +"%s")
