@@ -136,8 +136,8 @@ fi
 ###----------------------------------------------------------------------------
 printReq "Configuring base shell options..."
 
-printHead "Configuring $myBashProfile ..."
-cat << EOF >> "$myBashProfile"
+printHead "Configuring $myShellProfile ..."
+cat << EOF >> "$myShellProfile"
 # URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
 if [ -f ~/.bashrc ]; then
 	. ~/.bashrc
@@ -185,7 +185,7 @@ EOF
 
 # Source-in and Display changes
 printInfo '\n%s\n' "System ~/.bashrc changes:"
-source "$myBashProfile" && tail -18 "$myShellrc"
+source "$myShellProfile" && tail -18 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "homebrew ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myShellrc"
+source "$myShellProfile" && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -321,7 +321,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "coreutils ~/.bashrc changes:"
-source "$myBashProfile" && tail -16 "$myShellrc"
+source "$myShellProfile" && tail -16 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -381,7 +381,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "grep/find ~/.bashrc changes:"
-source "$myBashProfile" && tail -38 "$myShellrc"
+source "$myShellProfile" && tail -38 "$myShellrc"
 
 
 ### Open up ssl to the system
@@ -533,7 +533,7 @@ touch "$myConfigs/python/autoenv_authorized"
 
 # Source-in and Display changes
 printHead "python ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myShellrc"
+source "$myShellProfile" && tail -5 "$myShellrc"
 
 printInfo "Testing pip config..."
 pip list
@@ -567,7 +567,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "ruby ~/.bashrc changes:"
-source "$myBashProfile" && tail -6 "$myShellrc"
+source "$myShellProfile" && tail -6 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -603,7 +603,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "golang ~/.bashrc changes:"
-source "$myBashProfile" && tail -6 "$myShellrc"
+source "$myShellProfile" && tail -6 "$myShellrc"
 
 ###---
 ### Go bins
@@ -661,7 +661,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "bash ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -685,7 +685,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "npm ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 ###---
 ### install yarn packages
@@ -734,7 +734,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "vim ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 # Verify after install
@@ -792,7 +792,7 @@ fi
 
 # Source-in and Display changes
 printInfo "aws ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -7 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -7 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -812,7 +812,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "token ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -864,7 +864,7 @@ terraform -install-autocomplete
 
 # Source-in and Display changes
 printInfo "terraform ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -9 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -9 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -890,7 +890,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "packer ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -10 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -10 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -914,7 +914,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "vagrant ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 # Handle Licensing
 printHead "Installing vagrant vmware-fusion license..."
@@ -953,7 +953,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "ansible ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 # Create a home for Ansible
 printInfo "Creating the Ansible directory..."
@@ -989,7 +989,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "Docker ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -1009,7 +1009,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -1045,7 +1045,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -15 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -15 "$myShellrc"
 
 ###----------------------------------------------------------------------------
 ### Install Kontena Mortar
@@ -1109,7 +1109,7 @@ EOF
 
 # Source-in and Display changes
 printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -11 "$myShellrc"
+source "$myShellProfile" > /dev/null 2>&1 && tail -11 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
