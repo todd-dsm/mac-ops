@@ -228,7 +228,6 @@ brew install font-hack
 ### Let's Get Open: GNU Coreutils
 ###----------------------------------------------------------------------------
 printReq "Let's get open..."
-getNewPaths
 
 printHead "Installing sed - the stream editor..."
 brew install gnu-sed
@@ -255,7 +254,7 @@ sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
 ###---
 #### Verify the new paths have been set
 ###---
-getNewPaths
+#getNewPaths
 
 
 exit
