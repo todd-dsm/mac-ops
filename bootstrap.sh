@@ -374,27 +374,15 @@ EOF
 #printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
 #sudo sed -i "\|/usr/bin|i /usr/local/opt/openssl/bin" "$sysPaths"
 
-exit
+
 ###----------------------------------------------------------------------------
 ### Install the Casks (GUI Apps)
 ###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
 brew install --cask \
-    google-chrome visual-studio-code intellij-idea-ce   \
-    virtualbox virtualbox-extension-pack                \
-    android-file-transfer java wireshark osxfuse
-
-### Install GNU Privacy Guard: gpg-agent
-brew install gnupg --with-readline --with-encfs --with-gpg-zip \
-    --with-gpgsplit --with-large-secmem
-
-###---
-### Install the latest version of VMware Fusion
-### Using older versions of Fusion on current macOS never seems to work.
-###---
-printHead "Installing VMware Fusion..."
-brew install --cask vmware-fusion
+    google-chrome visual-studio-code intellij-idea-ce
+    virtualbox virtualbox-extension-pack wireshark
 
 ###---
 ### VirtualBox configurations
@@ -414,10 +402,17 @@ EOF
 
 
 ###---
+### Install the latest version of VMware Fusion
+### Using older versions of Fusion on current macOS never seems to work.
+###---
+printHead "Installing VMware Fusion..."
+brew install --cask vmware-fusion
+
+###---
 ### VMware configurations
 ###---
 printHead "Configuring VMware..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                  VMware                                 ###
 ###############################################################################
@@ -425,7 +420,7 @@ export VMWARE_STORAGE="\$HOME/vms/vmware"
 
 EOF
 
-tail -10 "$myShellrc"
+#tail -10 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -439,24 +434,24 @@ brew install \
     #openssh
 
 ### Seperate installs for programs with options
-printHead "Installing tcl-tk with options..."
-brew install tcl-tk
+#printHead "Installing tcl-tk with options..."
+#brew install tcl-tk
 
 ### Include path for tcl-tk
-printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
-sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
+#printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
+#sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
 
 printHead "Installing tcpdump with options..."
-brew install tcpdump --with-libpcap
+brew install tcpdump
 
 printHead "Installing tmux with options..."
-brew install tmux --with-utf8proc
+brew install tmux
 
 ### Include path for tcpdump
-printHead "Opening up /usr/local/sbin so we can see tcpdump..."
-sudo sed -i "\|/usr/bin|i /usr/local/sbin" "$sysPaths"
+#printHead "Opening up /usr/local/sbin so we can see tcpdump..."
+#sudo sed -i "\|/usr/bin|i /usr/sbin/tcpdump" "$sysPaths"
 
-
+exit
 ###----------------------------------------------------------------------------
 ### PYTHON
 ###----------------------------------------------------------------------------
