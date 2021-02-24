@@ -93,11 +93,6 @@ getNewPaths() {
 ###----------------------------------------------------------------------------
 ### The Setup
 ###----------------------------------------------------------------------------
-### Enable the script
-###---
-curl -Ls https://goo.gl/C91diQ | bash
-
-###---
 ### Add the Github key to the knownhosts file
 ###---
 printReq  "Checking to see if we have the Github public key..."
@@ -134,12 +129,12 @@ fi
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
-printReq "Configuring base shell options..."
-
-printHead "Configuring $myShellProfile ..."
-touch "$myShellProfile"
-
-
+#printReq "Configuring base shell options..."
+#
+#printHead "Configuring $myShellProfile ..."
+#touch "$myShellProfile"
+#
+#
 #printHead "Configuring $myShellrc ..."
 #cat << EOF >> "$myShellrc"
 ## shellcheck disable=SC2148,SC1090,SC1091,SC2012,SC2139
@@ -185,16 +180,16 @@ touch "$myShellProfile"
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
-printReq "Installing Homebrew..."
-if ! type -P brew; then
-    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-else
-    printInfo "Homebrew is already installed."
-fi
-
-
-printHead "Running 'brew doctor'..."
-brew doctor
+#printReq "Installing Homebrew..."
+#if ! type -P brew; then
+#    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#else
+#    printInfo "Homebrew is already installed."
+#fi
+#
+#
+#printHead "Running 'brew doctor'..."
+#brew doctor
 
 
 ###----------------------------------------------------------------------------
@@ -265,13 +260,6 @@ done
 #sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
 
 
-###---
-#### Verify the new paths have been set
-###---
-getNewPaths
-
-
-exit
 ###----------------------------------------------------------------------------
 ### PATHs
 ###   * System:  /usr/bin:/bin:/usr/sbin:/sbin
@@ -296,9 +284,9 @@ else
 fi
 
 
-### Configure coreutils
+### Configure coreutils                                FIX LATER WITH ALIASES
 printHead "Configuring GNU Coreutils..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                coreutils                                ###
 ###############################################################################
@@ -318,25 +306,25 @@ alias hist='history | cut -c 21-'
 EOF
 
 # Source-in and Display changes
-printInfo "coreutils ~/.bashrc changes:"
-source "$myShellProfile" && tail -16 "$myShellrc"
+#printInfo "coreutils ~/.bashrc changes:"
+#source "$myShellProfile" && tail -16 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Install GNU Tools and Languages
 ###----------------------------------------------------------------------------
-printReq "Installing and configuring additional GNU programs..."
-brew install gnu-indent --with-default-names
-brew install findutils --with-default-names
-brew install gnu-which --with-default-names
-brew install wget --with-pcre
-brew install gnu-tar --with-default-names
-brew install gnu-time --with-default-names
-brew install grep --with-default-names
-brew install gzip gawk diffutils
+#printReq "Installing and configuring additional GNU programs..."
+#brew install gnu-indent --with-default-names
+#brew install findutils --with-default-names
+#brew install gnu-which --with-default-names
+#brew install wget --with-pcre
+#brew install gnu-tar --with-default-names
+#brew install gnu-time --with-default-names
+#brew install grep --with-default-names
+#brew install gzip gawk diffutils
 
 printHead "Configuring grep and find..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                   grep                                  ###
 ###############################################################################
@@ -377,16 +365,16 @@ alias findmy=findMyStuff
 
 EOF
 
-# Source-in and Display changes
-printInfo "grep/find ~/.bashrc changes:"
-source "$myShellProfile" && tail -38 "$myShellrc"
+## Source-in and Display changes
+#printInfo "grep/find ~/.bashrc changes:"
+#source "$myShellProfile" && tail -38 "$myShellrc"
 
 
 ### Open up ssl to the system
-printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
-sudo sed -i "\|/usr/bin|i /usr/local/opt/openssl/bin" "$sysPaths"
+#printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
+#sudo sed -i "\|/usr/bin|i /usr/local/opt/openssl/bin" "$sysPaths"
 
-
+exit
 ###----------------------------------------------------------------------------
 ### Install the Casks (GUI Apps)
 ###----------------------------------------------------------------------------
@@ -416,7 +404,7 @@ printInfo "Setting the machinefolder property..."
 vboxmanage setproperty machinefolder "$HOME/vms/vbox"
 
 printHead "Setting VirtualBox environment variables..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                VirtualBox                               ###
 ###############################################################################
@@ -618,48 +606,47 @@ sudo sed -i "\|/usr/bin|i $goBins" "$sysPaths"
 ###----------------------------------------------------------------------------
 ### Bash
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Bash..."
-brew install bash shellcheck dash bash-completion@2
-
-# Configure GNU Bash for the system and current $USER
-printReq "Configuring Bash..."
-
-printHead "Creating a softlink from sh to dash..."
-ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
-
-printHead "System Shells default:"
-grep '^\/' "$sysShells"
-sudo sed -i "\|^.*bash$|i /usr/local/bin/bash" "$sysShells"
-sudo sed -i "\|local|a /usr/local/bin/sh" "$sysShells"
-printHead "System Shells new:"
-grep '^\/' "$sysShells"
-
-# Switch to GNU Bash
-currentShell="$(dscl . -read "$HOME" UserShell)"
-
-if [[ "${currentShell##*\ }" != "$(type -P bash)" ]]; then
-    printHead "$USER's shell is: ${currentShell##*\ }"
-    printHead "Changing default shell to GNU Bash"
-    sudo chpass -s "$(type -P bash)" "$USER"
-    dscl . -read "$HOME" UserShell
-else
-    printHead "Default shell is already GNU Bash"
-fi
-
-cat << EOF >> "$myShellrc"
-###############################################################################
-###                                   Bash                                  ###
-###############################################################################
-export SHELL='/usr/local/bin/bash'
-#export BASH_VERSION="\$(bash --version | head -1 | awk -F " " '{print \$4}')"
-# ShellCheck: Ignore: https://goo.gl/n9W5ly
-export SHELLCHECK_OPTS="-e SC2155"
-
-EOF
-
-# Source-in and Display changes
-printInfo "bash ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+#printf '\n%s\n' "Installing Bash..."
+#brew install bash shellcheck dash bash-completion@2
+#
+## Configure GNU Bash for the system and current $USER
+#printReq "Configuring Bash..."
+#
+#printHead "Creating a softlink from sh to dash..."
+#ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
+#
+#printHead "System Shells default:"
+#grep '^\/' "$sysShells"
+#sudo sed -i "\|^.*bash$|i /usr/local/bin/bash" "$sysShells"
+#sudo sed -i "\|local|a /usr/local/bin/sh" "$sysShells"
+#printHead "System Shells new:"
+#grep '^\/' "$sysShells"
+#
+## Switch to GNU Bash
+#currentShell="$(dscl . -read "$HOME" UserShell)"
+#
+#if [[ "${currentShell##*\ }" != "$(type -P bash)" ]]; then
+#    printHead "$USER's shell is: ${currentShell##*\ }"
+#    printHead "Changing default shell to GNU Bash"
+#    sudo chpass -s "$(type -P bash)" "$USER"
+#    dscl . -read "$HOME" UserShell
+#else
+#    printHead "Default shell is already GNU Bash"
+#fi
+#
+#cat << EOF >> "$myShellExt"
+################################################################################
+####                                   Bash                                  ###
+################################################################################
+#export SHELL='/usr/local/bin/bash'
+## ShellCheck: Ignore: https://goo.gl/n9W5ly
+#export SHELLCHECK_OPTS="-e SC2155"
+#
+#EOF
+#
+## Source-in and Display changes
+#printInfo "bash ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -789,8 +776,8 @@ else
 fi
 
 # Source-in and Display changes
-printInfo "aws ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -7 "$myShellrc"
+#printInfo "aws ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -7 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -819,50 +806,23 @@ source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 printHead "Installing Terraform..."
 brew install terraform graphviz terragrunt
 
-# add typhoon support: https://typhoon.psdn.io/cl/google-cloud/#terraform-setup
-go get -u github.com/coreos/terraform-provider-ct
-# take it home
-if [[ -f "$HOME/go/bin/terraform-provider-ct" ]]; then
-    sudo mv "$HOME/go/bin/terraform-provider-ct" "$goBins"
-fi
-
-# configure terraform
-cat << EOF >> ~/.terraformrc
-# NOTE WELL: The URL declared in here is subject to change at any time, which
-#            will cause module installation to fail. It is not recommended to
-#            leave the following permanently in the CLI config, since real
-#            network discovery is required to ensure that Terraform will
-#            automatically adopt any future changes to the module API URL.
-host "registry.terraform.io" {
-  services = {
-    "modules.v1" = "https://registry.terraform.io/v1/modules/"
-  }
-}
-
-providers {
-  ct = "/opt/go-bins/terraform-provider-ct"
-}
-
-EOF
-
-
 printHead "Configuring Terraform..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                Terraform                                ###
 ###############################################################################
-alias tf='/usr/local/bin/terraform'
+alias tf="\$(type -P terraform)"
+complete -C tf tf
 export TF_VAR_AWS_PROFILE="\$AWS_PROFILE"
 export TF_LOG='DEBUG'
 export TF_LOG_PATH='/tmp/terraform.log'
 
 EOF
-terraform -install-autocomplete
 
 
 # Source-in and Display changes
-printInfo "terraform ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -9 "$myShellrc"
+#printInfo "terraform ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -9 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -872,12 +832,12 @@ printReq "Installing Packer..."
 brew install packer packer-completion
 
 printHead "Configuring Packer..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                  Packer                                 ###
 ###############################################################################
 export PACKER_HOME="\$HOME/vms/packer"
-#export PACKER_CONFIG="\$PACKER_HOME"
+export PACKER_CONFIG="\$PACKER_HOME"
 export PACKER_CACHE_DIR="\$PACKER_HOME/iso-cache"
 export PACKER_BUILD_DIR="\$PACKER_HOME/builds"
 export PACKER_LOG='yes'
@@ -887,43 +847,43 @@ export PACKER_NO_COLOR='yes'
 EOF
 
 # Source-in and Display changes
-printInfo "packer ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -10 "$myShellrc"
+#printInfo "packer ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -10 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### HashiCorp: Vagrant
 ###----------------------------------------------------------------------------
-printReq "Installing Vagrant..."
-brew install --cask vagrant
-brew install vagrant-completion
-
-printHead "Configuring Vagrant..."
-cat << EOF >> "$myShellrc"
-###############################################################################
-###                                 Vagrant                                 ###
-###############################################################################
-#export VAGRANT_LOG=debug
-export VAGRANT_HOME="\$HOME/vms/vagrant"
-export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
-export VAGRANT_DEFAULT_PROVIDER='virtualbox'
-
-EOF
-
+#printReq "Installing Vagrant..."
+#brew install --cask vagrant
+#brew install vagrant-completion
+#
+#printHead "Configuring Vagrant..."
+#cat << EOF >> "$myShellrc"
+################################################################################
+####                                 Vagrant                                 ###
+################################################################################
+##export VAGRANT_LOG=debug
+#export VAGRANT_HOME="\$HOME/vms/vagrant"
+#export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
+#export VAGRANT_DEFAULT_PROVIDER='virtualbox'
+#
+#EOF
+#
 # Source-in and Display changes
-printInfo "vagrant ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+#printInfo "vagrant ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 # Handle Licensing
-printHead "Installing vagrant vmware-fusion license..."
-printInfo "Reparing plugins first..."
-vagrant plugin repair
+#printHead "Installing vagrant vmware-fusion license..."
+#printInfo "Reparing plugins first..."
+#vagrant plugin repair
 
-printInfo "Installing Fusion plugin..."
-vagrant plugin install vagrant-vmware-fusion
+#printInfo "Installing Fusion plugin..."
+#vagrant plugin install vagrant-vmware-fusion
 
 #printInfo "All plugins:"
-vagrant plugin list
+#vagrant plugin list
 
 #printInfo "Installing Vagrant license..."
 #vagrant plugin license vagrant-vmware-fusion \
@@ -941,7 +901,7 @@ printHead "Ansible Version Info:"
 ansible --version
 
 printHead "Configuring Vagrant..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                 Ansible                                 ###
 ###############################################################################
@@ -976,7 +936,7 @@ brew install docker-compose docker-completion docker-clean \
 #docker-machine create --driver virtualbox default
 
 printHead "Configuring Docker..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                 DOCKER                                  ###
 ###############################################################################
@@ -986,8 +946,8 @@ cat << EOF >> "$myShellrc"
 EOF
 
 # Source-in and Display changes
-printInfo "Docker ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
+#printInfo "Docker ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -998,18 +958,40 @@ printReq "Installing Docker, et al..."
 brew install git
 
 printReq "Configuring Git..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myGitConfig"
 ###############################################################################
 ###                                  GIT                                    ###
 ###############################################################################
+[user]
+	name = Todd E Thomas
+	email = todd.dsm@gmail.com
+[core]
+	editor = vim
+	pager = cat
+	excludesfile = ~/.gitignore
+[color]
+	ui = true
+[push]
+	default = matching
+[alias]
+	rlog = log --reverse
+[pull]
+	rebase = false
+EOF
 
+cat << EOF >> "$myGitIgnore"
+# macOS Stuff
+.DS_Store
+# Ignore IDE Garbage
+**/.idea/*
+**/.vscode/*
 EOF
 
 # Source-in and Display changes
-printInfo "git ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
+#printInfo "git ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
-
+exit
 ###----------------------------------------------------------------------------
 ### Install Kubernetes-related packages
 ###----------------------------------------------------------------------------

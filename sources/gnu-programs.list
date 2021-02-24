@@ -1,2 +1,13 @@
 gnu-sed
 coreutils
+gnu-indent
+findutils
+gnu-which
+wget
+gnu-tar
+gnu-time
+grep
+gzip
+gawk
+diffutils
+gettext

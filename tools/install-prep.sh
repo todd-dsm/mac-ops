@@ -21,6 +21,9 @@ set -x
 ### VARIABLES
 ###----------------------------------------------------------------------------
 # ENV Stuff
+configDir="${HOME}/.config"
+myShellDir="${configDir}/shell"
+myShellExt="${myShellDir}/mystuff.env"
 # Xcode CLI Tools
 distPlcholder='/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
 
@@ -74,6 +77,80 @@ softwareupdate -i "$cliTools" --verbose
 ### Do some light cleaning
 ###---
 rm "$distPlcholder"
+
+
+###----------------------------------------------------------------------------
+### Set some foundational basics
+###----------------------------------------------------------------------------
+### Enable the script
+###---
+curl -Ls https://goo.gl/C91diQ | bash
+
+
+###----------------------------------------------------------------------------
+### Install Homebrew
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Installing Homebrew..."
+if ! type -P brew; then
+    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+    printInfo "Homebrew is already installed."
+fi
+
+printf '\n%s\n' "Running 'brew doctor'..."
+brew doctor
+
+
+###----------------------------------------------------------------------------
+### Install Bash
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Installing Bash..."
+brew install bash shellcheck dash bash-completion@2
+
+# Configure GNU Bash for the system and current $USER
+printf '\n%s\n' "Configuring Bash..."
+
+if [[ ! -f "$myShellDir" ]]; then
+    mkdir -p "$myShellDir"
+    touch "$myShellExt"
+fi
+
+printf '\n%s\n' "Creating a softlink from sh to dash..."
+ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
+
+#printHead "System Shells default:"
+#grep '^\/' "$sysShells"
+#sudo sed -i "\|^.*bash$|i /usr/local/bin/bash" "$sysShells"
+#sudo sed -i "\|local|a /usr/local/bin/sh" "$sysShells"
+#printHead "System Shells new:"
+#grep '^\/' "$sysShells"
+
+# Switch to GNU Bash
+#currentShell="$(dscl . -read "$HOME" UserShell)"
+
+#if [[ "${currentShell##*\ }" != "$(type -P bash)" ]]; then
+#    printHead "$USER's shell is: ${currentShell##*\ }"
+#    printHead "Changing default shell to GNU Bash"
+#    sudo chpass -s "$(type -P bash)" "$USER"
+#    dscl . -read "$HOME" UserShell
+#else
+#    printHead "Default shell is already GNU Bash"
+#fi
+
+cat << EOF >> "$myShellExt"
+###############################################################################
+###                                   Bash                                  ###
+###############################################################################
+export SHELL='/usr/local/bin/bash'
+# ShellCheck: Ignore: https://goo.gl/n9W5ly
+export SHELLCHECK_OPTS="-e SC2155"
+
+EOF
+
+# Source-in and Display changes
+#printInfo "bash ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+
 
 
 ###----------------------------------------------------------------------------
