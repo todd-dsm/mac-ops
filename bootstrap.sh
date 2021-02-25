@@ -381,7 +381,7 @@ EOF
 printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
 brew install --cask \
-    google-chrome visual-studio-code intellij-idea-ce
+    google-chrome visual-studio-code intellij-idea-ce  \
     virtualbox virtualbox-extension-pack wireshark
 
 ###---
@@ -430,8 +430,8 @@ printReq "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 brew install \
     git nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
-    sipcalc whatmask ipcalc dos2unix testdisk sshfs
-    #openssh
+    sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux
+    #openssh sshfs
 
 ### Seperate installs for programs with options
 #printHead "Installing tcl-tk with options..."
@@ -441,11 +441,11 @@ brew install \
 #printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
 #sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
 
-printHead "Installing tcpdump with options..."
-brew install tcpdump
+#printHead "Installing tcpdump with options..."
+#brew install tcpdump
 
-printHead "Installing tmux with options..."
-brew install tmux
+#printHead "Installing tmux with options..."
+#brew install tmux
 
 ### Include path for tcpdump
 #printHead "Opening up /usr/local/sbin so we can see tcpdump..."
@@ -456,22 +456,15 @@ exit
 ### PYTHON
 ###----------------------------------------------------------------------------
 printReq "Installing Python..."
-printf '%s\n' """
-    ####    ####    ####    ####    ####     ####     ####     ####     ####
-
-        You can safely ignore the message 'echo export PATH' message from
-                  the installer. THIS IS NOT NECESSARY.
-
-    ####    ####    ####    ####    ####     ####     ####     ####     ####
-    """
-
-brew install python python@2
+brew install python
 
 printHead "Upgrading Python Pip and setuptools..."
 pip  install --upgrade pip setuptools neovim
-pip3 install --upgrade pip3 setuptools wheel neovim \
-    ipython simplejson requests boto Sphinx
+pip3 install --upgrade pip setuptools wheel
+pip3 install --upgrade ipython simplejson requests boto Sphinx
 
+printHead "Configuring the path..."
+sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
 
 printHead "Configuring Python..."
 cat << EOF >> "$myShellrc"
@@ -513,11 +506,11 @@ printHead "Creating the autoenv file..."
 touch "$myConfigs/python/autoenv_authorized"
 
 # Source-in and Display changes
-printHead "python ~/.bashrc changes:"
-source "$myShellProfile" && tail -5 "$myShellrc"
+#printHead "python ~/.bashrc changes:"
+#source "$myShellProfile" && tail -5 "$myShellrc"
 
 printInfo "Testing pip config..."
-pip list
+pip3 list
 
 
 ###----------------------------------------------------------------------------
@@ -532,8 +525,8 @@ brew install ruby chruby
 printHead "Updating all Gems..."
 gem update "$(gem list | cut -d' ' -f1)"
 
-printHead "Installing new Gems to test..."
-gem install neovim
+printHead "Configuring the path..."
+sudo "$gnuSed" -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
 
 
 printHead "Configuring Ruby..."
@@ -547,18 +540,16 @@ cat << EOF >> "$myShellrc"
 EOF
 
 # Source-in and Display changes
-printInfo "ruby ~/.bashrc changes:"
-source "$myShellProfile" && tail -6 "$myShellrc"
+#printInfo "ruby ~/.bashrc changes:"
+#source "$myShellProfile" && tail -6 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Install Build Utilities
 ###----------------------------------------------------------------------------
 printReq "Installing build utilities..."
-brew install make --with-default-names
 # cmake with completion requires (python) sphinx-doc
-brew install cmake --with-completion
-brew install automake
+brew install cmake bazel
 
 
 ###----------------------------------------------------------------------------
@@ -583,8 +574,8 @@ alias mygo="cd \$GOPATH"
 EOF
 
 # Source-in and Display changes
-printInfo "golang ~/.bashrc changes:"
-source "$myShellProfile" && tail -6 "$myShellrc"
+#printInfo "golang ~/.bashrc changes:"
+#source "$myShellProfile" && tail -6 "$myShellrc"
 
 ###---
 ### Go bins
@@ -648,7 +639,7 @@ sudo sed -i "\|/usr/bin|i $goBins" "$sysPaths"
 ### nodejs and npm
 ###----------------------------------------------------------------------------
 printReq "Installing the Node.js and npm..."
-brew install node --with-full-icu
+brew install node
 
 # install/configure yarn
 brew install yarn
@@ -664,8 +655,8 @@ cat << EOF >> "$myShellrc"
 EOF
 
 # Source-in and Display changes
-printInfo "npm ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
+#printInfo "npm ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 ###---
 ### install yarn packages
@@ -693,13 +684,9 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 
 printHead "Installing Vim..."
 brew install luarocks
-brew install vim --with-override-system-vi --with-lua
+brew install vim neovim
 echo "ignore: Error: Vim will not link against both Luajit & Lua message"
 
-
-# We should start getting serious about Neovim
-printHead "Installing Neovim..."
-brew install neovim
 
 printHead "Configuring Vim..."
 cat << EOF >> "$myShellrc"
@@ -713,8 +700,8 @@ alias nim='/usr/local/bin/nvim'
 EOF
 
 # Source-in and Display changes
-printInfo "vim ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+#printInfo "vim ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 # Verify after install
@@ -725,12 +712,8 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 ###----------------------------------------------------------------------------
 ### Amazon AWS CLI
 ###----------------------------------------------------------------------------
-printReq "Installing the AWS CLI..."
-pip3 install awscli
-
-printHead "Installing some AWS CLI Utilitiese..."
-pip3 install --upgrade jmespath jmespath-terminal
-
+printReq "Installing the AWS CLI and some Utilities..."
+pip3 install awscli jmespath jmespath-terminal
 brew tap jmespath/jmespath
 brew install jp jq jid
 
@@ -759,7 +742,7 @@ export AWS_CONFIG_FILE="\$HOME/.aws/config"
 EOF
 
 printHead "Setting the AWS User to your local account name..."
-sed -i "/AWS_PROFILE/ s/awsUser/$USER/g" "$myShellrc"
+sed -i "/AWS_PROFILE/ s/awsUser/$USER/g" "$myShellExt"
 
 # Restore the AWS configs if there are any
 if [[ ! -d "$myBackups" ]]; then
@@ -791,15 +774,16 @@ export HOMEBREW_GITHUB_API_TOKEN=''
 EOF
 
 # Source-in and Display changes
-printInfo "token ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+#printInfo "token ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### HashiCorp: Terraform
 ###----------------------------------------------------------------------------
 printHead "Installing Terraform..."
-brew install terraform graphviz terragrunt
+brew install hashicorp/tap/terraform
+brew install graphviz terragrunt
 
 printHead "Configuring Terraform..."
 cat << EOF >> "$myShellExt"
@@ -824,7 +808,8 @@ EOF
 ### HashiCorp: Packer
 ###----------------------------------------------------------------------------
 printReq "Installing Packer..."
-brew install packer packer-completion
+brew install hashicorp/tap/packer
+brew install packer-completion
 
 printHead "Configuring Packer..."
 cat << EOF >> "$myShellExt"
@@ -890,7 +875,7 @@ EOF
 ###----------------------------------------------------------------------------
 # Boto is for some Ansible/AWS operations
 printReq "Installing Ansible..."
-pip3 install --upgrade ansible boto
+sudo -H python -m pip install ansible paramiko
 
 printHead "Ansible Version Info:"
 ansible --version
@@ -905,8 +890,8 @@ export ANSIBLE_CONFIG="\$HOME/.ansible"
 EOF
 
 # Source-in and Display changes
-printInfo "ansible ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
+#printInfo "ansible ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 # Create a home for Ansible
 printInfo "Creating the Ansible directory..."
@@ -990,37 +975,53 @@ exit
 ###----------------------------------------------------------------------------
 ### Install Kubernetes-related packages
 ###----------------------------------------------------------------------------
-printReq "Installing Docker, et al..."
+printReq "Installing Kubernetes-related packages, et al..."
 # Includes completion
-brew install kubernetes-helm kubernetes-cli
-brew install --cask minikube
+brew install kubernetes-cli kubernetes-helm kind
 
 # install helper packages
-brew tap azure/draft && brew install draft
+#brew tap azure/draft && brew install draft
+
+# Install ktx; clone the ktx repo
+git clone https://github.com/heptiolabs/ktx /tmp/ktx
+cd /tmp/ktx || exit
+
+# Install the bash function
+cp ktx "${HOME}/.ktx"
+
+# Add this to your "${HOME}/".bash_profile (or similar)
+source "${HOME}/.ktx"
+
+# Install the auto-completion
+cp ktx-completion.sh "${HOME}/.ktx-completion.sh"
+
+# Add this to your "${HOME}/".bash_profile (or similar)
+source "${HOME}/.ktx-completion.sh"
+
+# Reload your shell
+#exec bash
+
 
 printReq "Configuring Git..."
 cat << EOF >> "$myShellrc"
 ###############################################################################
 ###                              KUBERNETES                                 ###
 ###############################################################################
-source <(kubectl  completion bash)
-source <(helm     completion bash)
-source <(minikube completion bash)
+#alias kube='/usr/local/bin/kubectl'
+#source <(kubectl completion bash | sed 's/kubectl/kube/g')
+#source "\${HOME}/.ktx-completion.sh"
+#source "\${HOME}/.ktx"
+#source <(kubectl completion bash)
+#source <(minikube completion bash)
 # --------------------------------------------------------------------------- #
 export HELM_HOME="\$HOME/.helm"
-localKubes="\$HOME/.kube/config"
-# testKubes="\$HOME/code/kubes/secrets/auth/kubes-config"
-# stagKubes="\$HOME/code/kubes/secrets/auth/kubes-config"
-# prodKubes="\$HOME/code/kubes/secrets/auth/kubes-config"
-#export KUBECONFIG="\$localKubes:\$testKubes:\$stagKubes:\$prodKubes"
-export KUBECONFIG="\$localKubes"
-#export KUBECONFIG_SAVED="\$KUBECONFIG"
+#source <(helm     completion bash)
 
 EOF
 
 # Source-in and Display changes
-printInfo "git ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -15 "$myShellrc"
+#printInfo "git ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -15 "$myShellrc"
 
 ###----------------------------------------------------------------------------
 ### Install Kontena Mortar
@@ -1067,7 +1068,7 @@ brew install --cask google-cloud-sdk
 
 
 printReq "Configuring the Google Cloud SDK..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                        Google Cloud Platform                            ###
 ###############################################################################
@@ -1083,15 +1084,15 @@ fi
 EOF
 
 # Source-in and Display changes
-printInfo "git ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -11 "$myShellrc"
+#printInfo "git ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -11 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Post-configuration Steps
 ###----------------------------------------------------------------------------
 printReq "Securing ~/.bashrc ..."
-chmod 600 "$myShellrc"
+chmod 600 "$myShellExt"
 
 
 ###----------------------------------------------------------------------------
@@ -1196,6 +1197,7 @@ defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
 ###---
 ### Disable smart quotes and dashes system-wide
+### REF: https://apple.stackexchange.com/a/334572/34436
 ###---
 printHead "Disabling smart quotes and dashes system-wide:"
 ### Disable smart quotes
@@ -1290,9 +1292,10 @@ defaults write com.apple.airplay showInMenuBarIfPresent -bool false
 
 ###---
 ### Display Date/Time formatted: 'EEE MMM d  h:mm a'
+### This is now a default
 ###---
-printInfo "Display Day HH:MM AM format..."
-defaults write com.apple.menuextra.clock 'DateFormat' -string 'EEE MMM d  h:mm a'
+#printInfo "Display Day HH:MM AM format..."
+#defaults write com.apple.menuextra.clock 'DateFormat' -string 'EEE MMM d  h:mm a'
 
 ###---
 ### Network Shares
@@ -1383,10 +1386,10 @@ defaults write com.apple.TextEdit NSFixedPitchFontSize -int 14
 printInfo "New Windows will open at H:45 x W:100..."
 defaults write com.apple.TextEdit WidthInChars -int 100
 defaults write com.apple.TextEdit HeightInChars -int 45
-# Disable SmartDashes and SmartQuotes
-printInfo "Disabling SmartDashes and SmartQuotes..."
-defaults write com.apple.TextEdit SmartDashes -int 0
-defaults write com.apple.TextEdit SmartQuotes -int 0
+# Disable SmartDashes and SmartQuotes (defaut)
+#printInfo "Disabling SmartDashes and SmartQuotes..."
+#defaults write com.apple.TextEdit SmartDashes -int 0
+#defaults write com.apple.TextEdit SmartQuotes -int 0
 
 printInfo "TextEdit Preferences: after:"
 defaults read com.apple.TextEdit
@@ -1430,7 +1433,12 @@ brew cleanup
 sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 
 printInfo "Refreshing the Fonts directory..."
-fc-cache -frv "$HOME/Library/Fonts"
+#fc-cache -frv "$HOME/Library/Fonts"
+atsutil server -ping
+sudo atsutil databases -remove
+atsutil server -shutdown
+atsutil server -ping
+
 
 printInfo "Restoring the /etc/hosts file..."
 sudo cp "$sysBackups/etc/hosts" /etc/hosts
