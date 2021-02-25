@@ -1,13 +1,15 @@
 gnu-sed
+grep
 gawk
 bash
 findutils
 coreutils
 gnu-which
 wget
+make
+automake
 gnu-tar
 gnu-time
-grep
 gzip
 gnupg
 diffutils
