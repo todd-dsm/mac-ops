@@ -50,8 +50,7 @@ printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
 ### Update the OS
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Updating macOS..."
-softwareupdate -i -a
-
+softwareupdate --all --install --force
 
 
 ###----------------------------------------------------------------------------
