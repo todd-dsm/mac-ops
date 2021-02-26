@@ -643,7 +643,7 @@ EOF
 ### install yarn packages
 ###---
 # yeoman
-yarn add yo
+#yarn add yo
 
 
 ###----------------------------------------------------------------------------
@@ -952,7 +952,7 @@ EOF
 #printInfo "git ~/.bashrc changes:"
 #source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
-exit
+
 ###----------------------------------------------------------------------------
 ### Install Kubernetes-related packages
 ###----------------------------------------------------------------------------
