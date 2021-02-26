@@ -248,6 +248,9 @@ for myProg in "${gnuProgs[@]}"; do
 done
 
 
+# Move system manpaths down 1 line
+sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
+
 ### Add manpaths for the GNU Manuals
 printf '\n\n%s\n' "Adding paths for new GNU manuals..."
 for myProg in "${gnuProgs[@]}"; do
@@ -255,9 +258,6 @@ for myProg in "${gnuProgs[@]}"; do
     printf '%s\n' "Adding: $gnuPath"
     sudo "$gnuSed" -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
 done
-
-# Move system manpaths down 1 line
-#sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
 
 
 ###----------------------------------------------------------------------------
@@ -304,24 +304,6 @@ alias unzip='/usr/local/bin/gunzip'
 alias hist='history | cut -c 21-'
 
 EOF
-
-# Source-in and Display changes
-#printInfo "coreutils ~/.bashrc changes:"
-#source "$myShellProfile" && tail -16 "$myShellrc"
-
-
-###----------------------------------------------------------------------------
-### Install GNU Tools and Languages
-###----------------------------------------------------------------------------
-#printReq "Installing and configuring additional GNU programs..."
-#brew install gnu-indent --with-default-names
-#brew install findutils --with-default-names
-#brew install gnu-which --with-default-names
-#brew install wget --with-pcre
-#brew install gnu-tar --with-default-names
-#brew install gnu-time --with-default-names
-#brew install grep --with-default-names
-#brew install gzip gawk diffutils
 
 printHead "Configuring grep and find..."
 cat << EOF >> "$myShellExt"
@@ -459,7 +441,6 @@ printReq "Installing Python..."
 brew install python
 
 printHead "Upgrading Python Pip and setuptools..."
-pip  install --upgrade pip setuptools neovim
 pip3 install --upgrade pip setuptools wheel
 pip3 install --upgrade ipython simplejson requests boto Sphinx
 
@@ -467,7 +448,7 @@ printHead "Configuring the path..."
 sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
 
 printHead "Configuring Python..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                  Python                                 ###
 ###############################################################################
@@ -530,7 +511,7 @@ sudo "$gnuSed" -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
 
 
 printHead "Configuring Ruby..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                   Ruby                                  ###
 ###############################################################################
@@ -564,7 +545,7 @@ export GOPATH="$HOME/go"
 mkdir -p "$GOPATH"
 
 printHead "Configuring Go..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                    Go                                   ###
 ###############################################################################
@@ -647,7 +628,7 @@ yarn global add yarn
 
 
 printHead "Configuring npm..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                  npm                                    ###
 ###############################################################################
@@ -689,7 +670,7 @@ echo "ignore: Error: Vim will not link against both Luajit & Lua message"
 
 
 printHead "Configuring Vim..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                   Vim                                   ###
 ###############################################################################
@@ -730,7 +711,7 @@ if [[ -f "$HOME/go/bin/docker-credential-ecr-login" ]]; then
 fi
 
 printHead "Configuring the AWS CLI..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                 Amazon                                  ###
 ###############################################################################
@@ -762,7 +743,7 @@ fi
 ### Add a space for common remote access tokens
 ###----------------------------------------------------------------------------
 printReq "Configuring Access Tokens for Remote services..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                             Remote Access                               ###
 ###############################################################################
@@ -1003,7 +984,7 @@ source "${HOME}/.ktx-completion.sh"
 
 
 printReq "Configuring Git..."
-cat << EOF >> "$myShellrc"
+cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                              KUBERNETES                                 ###
 ###############################################################################
