@@ -486,12 +486,12 @@ EOF
 ###---
 printReq "Configuring pip..."
 printHead "Creating pip home..."
-if [[ ! -d "$myConfigs/python" ]]; then
-    mkdir -p "$myConfigs/python"
+if [[ ! -d "$configDir/python" ]]; then
+    mkdir -p "$configDir/python"
 fi
 
 printHead "Creating the pip config file..."
-cat << EOF > "$myConfigs/python/pip.conf"
+cat << EOF > "$configDir/python/pip.conf"
 # pip configuration
 [list]
 format=columns
@@ -504,7 +504,7 @@ EOF
 printHead "Configuring autoenv..."
 
 printHead "Creating the autoenv file..."
-touch "$myConfigs/python/autoenv_authorized"
+touch "$configDir/python/autoenv_authorized"
 
 # Source-in and Display changes
 #printHead "python ~/.bashrc changes:"
@@ -877,6 +877,8 @@ EOF
 # Boto is for some Ansible/AWS operations
 printReq "Installing Ansible..."
 #sudo -H python -m pip install ansible paramiko
+ansible --version
+ansible --version
 pip3 install --upgrade ansible paramiko
 
 printHead "Ansible Version Info:"
