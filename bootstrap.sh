@@ -451,7 +451,7 @@ brew install \
 #printHead "Opening up /usr/local/sbin so we can see tcpdump..."
 #sudo sed -i "\|/usr/bin|i /usr/sbin/tcpdump" "$sysPaths"
 
-exit
+
 ###----------------------------------------------------------------------------
 ### PYTHON
 ###----------------------------------------------------------------------------
