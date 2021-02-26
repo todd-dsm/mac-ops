@@ -435,6 +435,26 @@ brew install \
 
 
 ###----------------------------------------------------------------------------
+### RUST
+###----------------------------------------------------------------------------
+printReq "Installing Rust..."
+brew install rust
+
+printHead "Configuring the path..."
+sudo "$gnuSed" -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"
+
+
+printHead "Configuring Rust..."
+cat << EOF >> "$myShellExt"
+###############################################################################
+###                                   Rust                                  ###
+###############################################################################
+#source $HOME/.cargo/env
+
+EOF
+
+
+###----------------------------------------------------------------------------
 ### PYTHON
 ###----------------------------------------------------------------------------
 printReq "Installing Python..."
@@ -856,7 +876,8 @@ EOF
 ###----------------------------------------------------------------------------
 # Boto is for some Ansible/AWS operations
 printReq "Installing Ansible..."
-sudo -H python -m pip install ansible paramiko
+#sudo -H python -m pip install ansible paramiko
+pip3 install --upgrade ansible paramiko
 
 printHead "Ansible Version Info:"
 ansible --version
