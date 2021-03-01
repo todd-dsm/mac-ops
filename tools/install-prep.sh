@@ -5,7 +5,7 @@
 # -----------------------------------------------------------------------------
 #  PREREQS: none
 # -----------------------------------------------------------------------------
-#  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | bash | tee /tmp/install-prep.out
+#  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | zsh | tee /tmp/install-prep.out
 # -----------------------------------------------------------------------------
 #     TODO: 1)
 #           2)
@@ -14,7 +14,7 @@
 #   AUTHOR: todd-dsm
 # -----------------------------------------------------------------------------
 set -x
-echo "$0 yo"
+
 
 ###----------------------------------------------------------------------------
 ### VARIABLES
@@ -51,53 +51,53 @@ printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Updating macOS..."
 #softwareupdate --all --install --force
-#
-#
-####----------------------------------------------------------------------------
-#### Install the Xcode CLI Tools
-####----------------------------------------------------------------------------
-#### create the placeholder file that's checked by CLI updates' .dist code
-####---
-#touch "$distPlcholder"
-#
-####---
-#### Find the CLI Tools update; resolves to:
-#### 'Command Line Tools (macOS Sierra version 10.12) for Xcode-8.2'
-####---
-#cliTools="$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 |   \
-#    awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
-#
-####---
-#### Install the package
-####---
-#softwareupdate -i "$cliTools" --verbose
-#
-####---
-#### Do some light cleaning
-####---
-#rm "$distPlcholder"
-#
-#
-####----------------------------------------------------------------------------
-#### Set some foundational basics
-####----------------------------------------------------------------------------
-#### Enable the script
-####---
-#curl -Ls https://goo.gl/C91diQ | bash
-#
-#
-####----------------------------------------------------------------------------
-#### Install Homebrew
-####----------------------------------------------------------------------------
-#printf '\n%s\n' "Installing Homebrew..."
-#if ! type -P brew; then
-#    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-#else
-#    printf '\n%s\n' "Homebrew is already installed."
-#fi
-#
-#printf '\n%s\n' "Running 'brew doctor'..."
-#brew doctor
+
+
+###----------------------------------------------------------------------------
+### Install the Xcode CLI Tools
+###----------------------------------------------------------------------------
+### create the placeholder file that's checked by CLI updates' .dist code
+###---
+touch "$distPlcholder"
+
+###---
+### Find the CLI Tools update; resolves to:
+### 'Command Line Tools (macOS Sierra version 10.12) for Xcode-8.2'
+###---
+cliTools="$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 |   \
+    awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
+
+###---
+### Install the package
+###---
+softwareupdate -i "$cliTools" --verbose
+
+###---
+### Do some light cleaning
+###---
+rm "$distPlcholder"
+
+
+###----------------------------------------------------------------------------
+### Set some foundational basics
+###----------------------------------------------------------------------------
+### Enable the script
+###---
+curl -Ls https://goo.gl/C91diQ | zsh
+
+
+###----------------------------------------------------------------------------
+### Install Homebrew
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Installing Homebrew..."
+if ! type -P brew; then
+    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+    printf '\n%s\n' "Homebrew is already installed."
+fi
+
+printf '\n%s\n' "Running 'brew doctor'..."
+brew doctor
 
 
 ###----------------------------------------------------------------------------
@@ -129,25 +129,6 @@ fi
 printf '\n%s\n' "Creating a softlink from sh to dash..."
 ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
 
-#printHead "System Shells default:"
-#grep '^\/' "$sysShells"
-#sudo sed -i "\|^.*bash$|i /usr/local/bin/bash" "$sysShells"
-#sudo sed -i "\|local|a /usr/local/bin/sh" "$sysShells"
-#printHead "System Shells new:"
-#grep '^\/' "$sysShells"
-
-# Switch to GNU Bash
-#currentShell="$(dscl . -read "$HOME" UserShell)"
-
-#if [[ "${currentShell##*\ }" != "$(type -P bash)" ]]; then
-#    printHead "$USER's shell is: ${currentShell##*\ }"
-#    printHead "Changing default shell to GNU Bash"
-#    sudo chpass -s "$(type -P bash)" "$USER"
-#    dscl . -read "$HOME" UserShell
-#else
-#    printHead "Default shell is already GNU Bash"
-#fi
-
 cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   ZSH                                   ###
@@ -163,11 +144,6 @@ cat << EOF >> "$myBashExt"
 export SHELLCHECK_OPTS="-e SC2155"
 
 EOF
-
-# Source-in and Display changes
-#printInfo "bash ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
-
 
 
 ###----------------------------------------------------------------------------
@@ -219,8 +195,6 @@ fi
 printf '%s\n\n' "  \$HOME dot directories to a list..."
 find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
     sed "s|^$HOME/||" > "$adminLogs/apps-home-dot-dirs-$stage-install.log"
-
-
 
 
 ###----------------------------------------------------------------------------
