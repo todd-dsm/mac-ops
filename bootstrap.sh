@@ -21,7 +21,7 @@ set -x
 : "${1?  Wheres my environment, bro!}"
 theENV="$1"
 
-if [[ "$theENV" == 'TEST' ]]; then
+if [[ "$theENV" == 'test' ]]; then
     # We're either testing or we aint
     echo "THIS IS ONLY A TEST"
     sleep 3s
@@ -113,10 +113,10 @@ else
     printHead "We have the Github key, all good."
 fi
 
-####---
-## Backup some files before we begin
 ###---
-if [[ "$theENV" == 'TEST' ]]; then
+### Backup some files before we begin
+###---
+if [[ "$theENV" == 'test' ]]; then
     printReq "Backing up the /etc directory before we begin..."
     sudo rsync -aE /private/etc "$backupDir/" 2> /tmp/rsync-err-etc.out
 fi
@@ -1407,14 +1407,14 @@ ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 ###----------------------------------------------------------------------------
 ### Restore Personal Data
 ###----------------------------------------------------------------------------
-if [[ "$dataRestore" == true ]]; then
-    if [[ ! -d "$myBackups" ]]; then
-        printInfo "There are no Documents to restore."
-    else
-        printInfo "Restoring files..."
-        tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
-    fi
-fi
+#if [[ "$dataRestore" == true ]]; then
+#    if [[ ! -d "$myBackups" ]]; then
+#        printInfo "There are no Documents to restore."
+#    else
+#        printInfo "Restoring files..."
+#        tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
+#    fi
+#fi
 
 
 ###----------------------------------------------------------------------------
@@ -1427,13 +1427,12 @@ brew cleanup
 sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 
 printInfo "Refreshing the Fonts directory..."
-#fc-cache -frv "$HOME/Library/Fonts"
 atsutil server -ping
 sudo atsutil databases -remove
 atsutil server -shutdown
 atsutil server -ping
 
-
+# FIXME
 printInfo "Restoring the /etc/hosts file..."
 if [[ ! -f "$sysBackups/etc/hosts" ]]; then
     printInfo "Can't find $sysBackups/etc/hosts"
