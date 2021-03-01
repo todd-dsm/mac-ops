@@ -1,4 +1,5 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
+# shellcheck disable=SC1071
 #  PURPOSE: Get updates, Xcode CLI Tools, and some package details without pain.
 #           For use with a new macOS install.
 # -----------------------------------------------------------------------------
@@ -12,8 +13,6 @@
 # -----------------------------------------------------------------------------
 #   AUTHOR: todd-dsm
 # -----------------------------------------------------------------------------
-#  CREATED: 2017/01/27
-# -----------------------------------------------------------------------------
 set -x
 
 
@@ -23,7 +22,7 @@ set -x
 # ENV Stuff
 configDir="${HOME}/.config"
 myShellDir="${configDir}/shell"
-myShellExt="${myShellDir}/mystuff.env"
+myBashExt="${myShellDir}/mystuff.env"
 myZSHExt="${myShellDir}/myzshstuff.env"
 # Xcode CLI Tools
 distPlcholder='/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
@@ -108,6 +107,7 @@ printf '\n%s\n' "Installing Bash and zsh-completions..."
 brew install bash shellcheck dash bash-completion@2 zsh-completions
 
 # Fix zsh compinit: insecure directories message
+autoload -Uz compaudit
 compaudit | xargs chmod g-w
 
 # Rebuilding 'zcompdump' wont hurt
@@ -122,7 +122,7 @@ printf '\n%s\n' "Configuring Bash..."
 
 if [[ ! -f "$myShellDir" ]]; then
     mkdir -p "$myShellDir"
-    touch "$myShellExt"
+    touch "$myBashExt"
     touch "$myZSHExt"
 fi
 
@@ -152,16 +152,10 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   ZSH                                   ###
 ###############################################################################
-fpath=(
-     $(brew --prefix)/share/zsh-completions
-    "\${fpath[@]}"
-)
-autoload -U +X bashcompinit && bashcompinit
-autoload -Uz compinit && compinit
 
 EOF
 
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myBashExt"
 ###############################################################################
 ###                                   Bash                                  ###
 ###############################################################################

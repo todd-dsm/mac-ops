@@ -252,7 +252,7 @@ fi
 
 ### Configure coreutils                                FIX LATER WITH ALIASES
 printHead "Configuring GNU Coreutils..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myBashExt"
 ###############################################################################
 ###                                coreutils                                ###
 ###############################################################################
@@ -273,7 +273,7 @@ alias hist='history | cut -c 8-'
 EOF
 
 printHead "Configuring grep and find..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myBashExt"
 ###############################################################################
 ###                                   grep                                  ###
 ###############################################################################
@@ -616,7 +616,7 @@ sudo "$gnuSed" -i "\|/usr/bin|i $goBins" "$sysPaths"
 #    printHead "Default shell is already GNU Bash"
 #fi
 #
-#cat << EOF >> "$myShellExt"
+#cat << EOF >> "$myBashExt"
 ################################################################################
 ####                                   Bash                                  ###
 ################################################################################
@@ -1002,7 +1002,7 @@ source "${HOME}/.ktx-completion.sh"
 
 
 printReq "Configuring Git..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myBashExt"
 ###############################################################################
 ###                              KUBERNETES                                 ###
 ###############################################################################
