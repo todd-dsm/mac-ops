@@ -51,64 +51,71 @@ printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
 ### Update the OS
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Updating macOS..."
-softwareupdate --all --install --force
+#softwareupdate --all --install --force
+#
+#
+####----------------------------------------------------------------------------
+#### Install the Xcode CLI Tools
+####----------------------------------------------------------------------------
+#### create the placeholder file that's checked by CLI updates' .dist code
+####---
+#touch "$distPlcholder"
+#
+####---
+#### Find the CLI Tools update; resolves to:
+#### 'Command Line Tools (macOS Sierra version 10.12) for Xcode-8.2'
+####---
+#cliTools="$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 |   \
+#    awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
+#
+####---
+#### Install the package
+####---
+#softwareupdate -i "$cliTools" --verbose
+#
+####---
+#### Do some light cleaning
+####---
+#rm "$distPlcholder"
+#
+#
+####----------------------------------------------------------------------------
+#### Set some foundational basics
+####----------------------------------------------------------------------------
+#### Enable the script
+####---
+#curl -Ls https://goo.gl/C91diQ | bash
+#
+#
+####----------------------------------------------------------------------------
+#### Install Homebrew
+####----------------------------------------------------------------------------
+#printf '\n%s\n' "Installing Homebrew..."
+#if ! type -P brew; then
+#    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#else
+#    printf '\n%s\n' "Homebrew is already installed."
+#fi
+#
+#printf '\n%s\n' "Running 'brew doctor'..."
+#brew doctor
 
 
 ###----------------------------------------------------------------------------
-### Install the Xcode CLI Tools
+### Installing and Configuring Shells
 ###----------------------------------------------------------------------------
-### create the placeholder file that's checked by CLI updates' .dist code
-###---
-touch "$distPlcholder"
-
-###---
-### Find the CLI Tools update; resolves to:
-### 'Command Line Tools (macOS Sierra version 10.12) for Xcode-8.2'
-###---
-cliTools="$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 |   \
-    awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
-
-###---
-### Install the package
-###---
-softwareupdate -i "$cliTools" --verbose
-
-###---
-### Do some light cleaning
-###---
-rm "$distPlcholder"
-
-
-###----------------------------------------------------------------------------
-### Set some foundational basics
-###----------------------------------------------------------------------------
-### Enable the script
-###---
-curl -Ls https://goo.gl/C91diQ | bash
-
-
-###----------------------------------------------------------------------------
-### Install Homebrew
-###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Homebrew..."
-if ! type -P brew; then
-    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-else
-    printInfo "Homebrew is already installed."
-fi
-
-printf '\n%s\n' "Running 'brew doctor'..."
-brew doctor
-
-
-###----------------------------------------------------------------------------
-### Install Bash
-###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Bash..."
+printf '\n%s\n' "Installing Bash and zsh-completions..."
 brew install bash shellcheck dash bash-completion@2 zsh-completions
 
 # Fix zsh compinit: insecure directories message
 compaudit | xargs chmod g-w
+
+# Rebuilding 'zcompdump' wont hurt
+if [[ -f ~/.zcompdump ]]; then
+    rm -f ~/.zcompdump
+    compinit
+fi
+
 
 # Configure GNU Bash for the system and current $USER
 printf '\n%s\n' "Configuring Bash..."
@@ -145,6 +152,10 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   ZSH                                   ###
 ###############################################################################
+fpath=(
+     $(brew --prefix)/share/zsh-completions
+    "\${fpath[@]}"
+)
 autoload -U +X bashcompinit && bashcompinit
 autoload -Uz compinit && compinit
 
