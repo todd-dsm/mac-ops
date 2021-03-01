@@ -24,13 +24,14 @@ set -x
 configDir="${HOME}/.config"
 myShellDir="${configDir}/shell"
 myShellExt="${myShellDir}/mystuff.env"
+myZSHExt="${myShellDir}/myzshstuff.env"
 # Xcode CLI Tools
 distPlcholder='/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
 
 # admin app install details
-stage="pre"
-declare adminDir="$HOME/.config/admin"
-declare adminLogs="$adminDir/logs"
+stage='pre'
+adminDir="$HOME/.config/admin"
+adminLogs="$adminDir/logs"
 
 
 ###----------------------------------------------------------------------------
@@ -104,7 +105,10 @@ brew doctor
 ### Install Bash
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Bash..."
-brew install bash shellcheck dash bash-completion@2
+brew install bash shellcheck dash bash-completion@2 zsh-completions
+
+# Fix zsh compinit: insecure directories message
+compaudit | xargs chmod g-w
 
 # Configure GNU Bash for the system and current $USER
 printf '\n%s\n' "Configuring Bash..."
@@ -112,6 +116,7 @@ printf '\n%s\n' "Configuring Bash..."
 if [[ ! -f "$myShellDir" ]]; then
     mkdir -p "$myShellDir"
     touch "$myShellExt"
+    touch "$myZSHExt"
 fi
 
 printf '\n%s\n' "Creating a softlink from sh to dash..."
@@ -136,11 +141,19 @@ ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
 #    printHead "Default shell is already GNU Bash"
 #fi
 
+cat << EOF >> "$myZSHExt"
+###############################################################################
+###                                   ZSH                                   ###
+###############################################################################
+autoload -U +X bashcompinit && bashcompinit
+autoload -Uz compinit && compinit
+
+EOF
+
 cat << EOF >> "$myShellExt"
 ###############################################################################
 ###                                   Bash                                  ###
 ###############################################################################
-export SHELL='/usr/local/bin/bash'
 # ShellCheck: Ignore: https://goo.gl/n9W5ly
 export SHELLCHECK_OPTS="-e SC2155"
 
@@ -210,6 +223,8 @@ find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' """
 	You are now prepped for the mac-ops process.
+
+    It might be a good idea to reboot.
 """
 
 

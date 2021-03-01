@@ -6,23 +6,33 @@
 #           work quickly. It will be replaced by Ansible automation as soon as
 #           possible between laptop upgrades.
 #------------------------------------------------------------------------------
-# EXECUTE:  ./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
+# EXECUTE:  ./bootstrap.sh TEST 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
 #------------------------------------------------------------------------------
 # PREREQS: 1) ssh keys must be on the new system for Github clones
 #          2)
 #------------------------------------------------------------------------------
-#  AUTHOR: todd_dsm
-#------------------------------------------------------------------------------
-#    DATE: 2017/01/11
+#  AUTHOR: todd-dsm
 #------------------------------------------------------------------------------
 set -x
 
 ###------------------------------------------------------------------------------
 ### VARIABLES
 ###------------------------------------------------------------------------------
+: "${1?  Wheres my environment, bro!}"
+theENV="$1"
+
+if [[ "$theENV" == 'TEST' ]]; then
+    # We're either testing or we aint
+    echo "THIS IS ONLY A TEST"
+    sleep 3s
+else
+    echo "We are preparing to going live..."
+    sleep 3s
+fi
+
+source './my-vars.env' "$theENV"
 timePre="$(date +'%T')"
 myGroup="$(id -g)"
-source './my-vars.env'
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
@@ -126,35 +136,6 @@ else
 fi
 
 
-###----------------------------------------------------------------------------
-### Configure the Shell: base options
-###----------------------------------------------------------------------------
-#printReq "Configuring base shell options..."
-#
-#printHead "Configuring $myShellProfile ..."
-#touch "$myShellProfile"
-#
-#
-#printHead "Configuring $myShellrc ..."
-#cat << EOF >> "$myShellrc"
-## shellcheck disable=SC2148,SC1090,SC1091,SC2012,SC2139
-#sysBashrc='/etc/bashrc'
-#bashComps='/usr/local/share/bash-completion/bash_completion'
-#bashCompsDir='/usr/local/etc/bash_completion.d'
-#if [[ -f "\$sysBashrc" ]]; then
-#    source "\$sysBashrc"
-#    # enable bash completions
-#    if [ -f "\$bashComps" ]; then
-#        source "\$bashComps"
-#        if [[ -d "\$bashCompsDir" ]]; then
-#            while read -r compFile; do
-#                #printf '%s\n' "  \${compFile##*/}"
-#                source "\$compFile"
-#            done <<< "\$(find "\$bashCompsDir" -type l)"
-#        fi
-#    fi
-#fi
-#
 ################################################################################
 ####                                  System                                 ###
 ################################################################################
@@ -175,21 +156,6 @@ fi
 ## Source-in and Display changes
 #printInfo '\n%s\n' "System ~/.bashrc changes:"
 #source "$myShellProfile" && tail -18 "$myShellrc"
-
-
-###----------------------------------------------------------------------------
-### Install Homebrew
-###----------------------------------------------------------------------------
-#printReq "Installing Homebrew..."
-#if ! type -P brew; then
-#    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-#else
-#    printInfo "Homebrew is already installed."
-#fi
-#
-#
-#printHead "Running 'brew doctor'..."
-#brew doctor
 
 
 ###----------------------------------------------------------------------------
@@ -301,7 +267,8 @@ alias mv='mv -v'
 # FIX: alias for GNU zip/unzip do not work
 alias zip='/usr/local/bin/gzip'
 alias unzip='/usr/local/bin/gunzip'
-alias hist='history | cut -c 21-'
+#alias hist='history | cut -c 21-'
+alias hist='history | cut -c 8-'
 
 EOF
 
@@ -358,6 +325,34 @@ EOF
 
 
 ###----------------------------------------------------------------------------
+### Configure the Shell: base options
+###----------------------------------------------------------------------------
+printReq "Configuring base ZSH shell options..."
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+# Bounce the default theme
+sed -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
+
+# Default to NO THEME
+"$gnuSed" -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
+
+# source-in personal zsh configs
+"$gnuSed" -i "|^#\ ZSH_CUSTOM| s|^#\ ||g" "$myShellrc"
+"$gnuSed" -i "/^ZSH_CUSTOM/ s|/path/to/new-custom-folder|$myZSHExt|g" "$myShellrc"
+
+
+
+cat << EOF >> "$myShellrc"
+
+###############################################################################
+###                            OLD BASH SETTINGS                            ###
+###############################################################################
+source "\$HOME/.config/shell/mystuff.env"
+EOF
+
+
+
+###----------------------------------------------------------------------------
 ### Install the Casks (GUI Apps)
 ###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
@@ -374,7 +369,7 @@ printInfo "Setting the machinefolder property..."
 vboxmanage setproperty machinefolder "$HOME/vms/vbox"
 
 printHead "Setting VirtualBox environment variables..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                VirtualBox                               ###
 ###############################################################################
@@ -394,7 +389,7 @@ brew install --cask vmware-fusion
 ### VMware configurations
 ###---
 printHead "Configuring VMware..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  VMware                                 ###
 ###############################################################################
@@ -445,7 +440,7 @@ sudo "$gnuSed" -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"
 
 
 printHead "Configuring Rust..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Rust                                  ###
 ###############################################################################
@@ -468,7 +463,7 @@ printHead "Configuring the path..."
 sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
 
 printHead "Configuring Python..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  Python                                 ###
 ###############################################################################
@@ -531,7 +526,7 @@ sudo "$gnuSed" -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
 
 
 printHead "Configuring Ruby..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Ruby                                  ###
 ###############################################################################
@@ -565,7 +560,7 @@ export GOPATH="$HOME/go"
 mkdir -p "$GOPATH"
 
 printHead "Configuring Go..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                    Go                                   ###
 ###############################################################################
@@ -587,7 +582,7 @@ printHead "Opening up $goBins so we can see local go programs..."
 sudo mkdir -p "$goBins"
 
 # Open go-bins up to the system
-sudo sed -i "\|/usr/bin|i $goBins" "$sysPaths"
+sudo "$gnuSed" -i "\|/usr/bin|i $goBins" "$sysPaths"
 
 
 ###----------------------------------------------------------------------------
@@ -648,7 +643,7 @@ yarn global add yarn
 
 
 printHead "Configuring npm..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  npm                                    ###
 ###############################################################################
@@ -684,19 +679,18 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 #   +mzscheme (broke)
 
 printHead "Installing Vim..."
-brew install luarocks
+#brew install luarocks
 brew install vim neovim
 echo "ignore: Error: Vim will not link against both Luajit & Lua message"
 
 
 printHead "Configuring Vim..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Vim                                   ###
 ###############################################################################
-export EDITOR='/usr/local/bin/vim'
-alias vi="\$EDITOR"
-alias nim='/usr/local/bin/nvim'
+export EDITOR="$(whence -p vim)"
+alias -g vi="\$EDITOR"
 
 EOF
 
@@ -731,11 +725,12 @@ if [[ -f "$HOME/go/bin/docker-credential-ecr-login" ]]; then
 fi
 
 printHead "Configuring the AWS CLI..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 Amazon                                  ###
 ###############################################################################
-complete -C "\$(type -P aws_completer)" aws
+source /usr/local/bin/aws_zsh_completer.sh
+#complete -C "\$(type -P aws_completer)" aws
 #export AWS_REGION='yourRegion'
 #export AWS_PROFILE='awsUser'
 export AWS_CONFIG_FILE="\$HOME/.aws/config"
@@ -743,7 +738,7 @@ export AWS_CONFIG_FILE="\$HOME/.aws/config"
 EOF
 
 printHead "Setting the AWS User to your local account name..."
-sed -i "/AWS_PROFILE/ s/awsUser/$USER/g" "$myShellExt"
+"$gnuSed" -i "/AWS_PROFILE/ s/awsUser/${USER}/g" "$myZSHExt"
 
 # Restore the AWS configs if there are any
 if [[ ! -d "$myBackups" ]]; then
@@ -763,7 +758,7 @@ fi
 ### Add a space for common remote access tokens
 ###----------------------------------------------------------------------------
 printReq "Configuring Access Tokens for Remote services..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                             Remote Access                               ###
 ###############################################################################
@@ -787,14 +782,14 @@ brew install hashicorp/tap/terraform
 brew install graphviz terragrunt
 
 printHead "Configuring Terraform..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                Terraform                                ###
 ###############################################################################
-alias tf="\$(type -P terraform)"
-complete -C tf tf
+alias tf="\$(whence -p terraform)"
+complete -o nospace -C /usr/local/bin/terraform tf
 export TF_VAR_AWS_PROFILE="\$AWS_PROFILE"
-export TF_LOG='DEBUG'
+export TF_LOG='TRACE'
 export TF_LOG_PATH='/tmp/terraform.log'
 
 EOF
@@ -813,7 +808,7 @@ brew install hashicorp/tap/packer
 brew install packer-completion
 
 printHead "Configuring Packer..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  Packer                                 ###
 ###############################################################################
@@ -885,7 +880,7 @@ printHead "Ansible Version Info:"
 ansible --version
 
 printHead "Configuring Vagrant..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 Ansible                                 ###
 ###############################################################################
@@ -920,7 +915,7 @@ brew install docker-compose docker-completion docker-clean \
 #docker-machine create --driver virtualbox default
 
 printHead "Configuring Docker..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 DOCKER                                  ###
 ###############################################################################
@@ -979,7 +974,7 @@ EOF
 ###----------------------------------------------------------------------------
 ### Install Kubernetes-related packages
 ###----------------------------------------------------------------------------
-printReq "Installing Kubernetes-related packages, et al..."
+printReq "Installing Kubernetes-related packages..."
 # Includes completion
 brew install kubernetes-cli kubernetes-helm kind
 
@@ -1027,11 +1022,6 @@ EOF
 #printInfo "git ~/.bashrc changes:"
 #source "$myShellProfile" > /dev/null 2>&1 && tail -15 "$myShellrc"
 
-###----------------------------------------------------------------------------
-### Install Kontena Mortar
-###----------------------------------------------------------------------------
-printReq "Installing kontena/mortar..."
-gem install kontena-mortar
 
 ###----------------------------------------------------------------------------
 ### Install the CoreOS Operator SDK
@@ -1062,6 +1052,7 @@ cd || exit
 
 # move binary to $goBins
 sudo mv "$confdDir/bin/confd" "$goBins"
+cd - || exit
 
 ###----------------------------------------------------------------------------
 ### Install Google Cloud Platform client
@@ -1072,17 +1063,12 @@ brew install --cask google-cloud-sdk
 
 
 printReq "Configuring the Google Cloud SDK..."
-cat << EOF >> "$myShellExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                        Google Cloud Platform                            ###
 ###############################################################################
-gcloudCompsDir='/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk'
-if [[ -d "\$gcloudCompsDir" ]]; then
-    while read -r compFile; do
-        #printf '%s\n' "  \${compFile##*/}"
-        source "\$compFile"
-    done <<< "\$(find "\$gcloudCompsDir" -maxdepth 1 -type f -name '*bash.inc')"
-fi
+source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
+source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
 # --------------------------------------------------------------------------- #
 
 EOF
@@ -1095,8 +1081,8 @@ EOF
 ###----------------------------------------------------------------------------
 ### Post-configuration Steps
 ###----------------------------------------------------------------------------
-printReq "Securing ~/.bashrc ..."
-chmod 600 "$myShellExt"
+printReq "Securing $myShellrc..."
+chmod 600 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -1178,18 +1164,20 @@ printReq "Configuring the System:"
 ####---
 ####  Set the hostname(s)
 ####---
-#printHead "Configuring the hostname(s)..."
-#### Configure the network hostname
-#printInfo "Configuring network hostname..."
-#sudo scutil --set ComputerName "$myHostName"
-#
-#### Configure the Terminal hostname
-#printInfo "Configuring Terminal hostname..."
-#sudo scutil --set HostName "${myHostName%%.*}"
-#
-#### Configure the AirDrop hostname
-#printInfo "Configuring AirDrop hostname..."
-#sudo scutil --set LocalHostName "${myHostName%%.*}"
+if [[ "$myMBPisFor" == 'personal' ]]; then
+    printHead "Configuring the hostname(s)..."
+    ### Configure the network hostname
+    printInfo "Configuring network hostname..."
+    sudo scutil --set ComputerName "$myHostName"
+
+    ### Configure the Terminal hostname
+    printInfo "Configuring Terminal hostname..."
+    sudo scutil --set HostName "${myHostName%%.*}"
+
+    ### Configure the AirDrop hostname
+    printInfo "Configuring AirDrop hostname..."
+    sudo scutil --set LocalHostName "${myHostName%%.*}"
+fi
 
 ###---
 ### Storage
@@ -1409,7 +1397,7 @@ defaults read com.apple.TextEdit
 ###----------------------------------------------------------------------------
 ### Save installed package and library details AFTER the install
 ###----------------------------------------------------------------------------
-printReq "Saving some pre-install app/lib details..."
+printReq "Saving some post-install app/lib details..."
 tools/admin-app-details.sh post
 
 ### Create a link to the log file
@@ -1419,12 +1407,14 @@ ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 ###----------------------------------------------------------------------------
 ### Restore Personal Data
 ###----------------------------------------------------------------------------
-#if [[ ! -d "$myBackups" ]]; then
-#    printInfo "There are no Documents to restore."
-#else
-#    printInfo "Restoring files..."
-#    tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
-#fi
+if [[ "$dataRestore" == true ]]; then
+    if [[ ! -d "$myBackups" ]]; then
+        printInfo "There are no Documents to restore."
+    else
+        printInfo "Restoring files..."
+        tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
+    fi
+fi
 
 
 ###----------------------------------------------------------------------------
@@ -1445,8 +1435,13 @@ atsutil server -ping
 
 
 printInfo "Restoring the /etc/hosts file..."
-sudo cp "$sysBackups/etc/hosts" /etc/hosts
-sudo chown root:wheel /etc/hosts
+if [[ ! -f "$sysBackups/etc/hosts" ]]; then
+    printInfo "Can't find $sysBackups/etc/hosts"
+else
+    printInfo "Restoring the /etc/hosts file..."
+    sudo cp "$sysBackups/etc/hosts" /etc/hosts
+    sudo chown root:wheel /etc/hosts
+fi
 
 printInfo "Ensure correct ownership of ~/.viminfo file..."
 if [[ -f ~/.viminfo ]]; then
