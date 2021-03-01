@@ -103,8 +103,8 @@ printf '\n%s\n' "Updating macOS..."
 ###----------------------------------------------------------------------------
 ### Installing and Configuring Shells
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Bash and zsh-completions..."
-brew install bash shellcheck dash bash-completion@2 zsh-completions
+printf '\n%s\n' "Installing Bash, et al..."
+brew install bash shellcheck dash bash-completion@2
 
 # Fix zsh compinit: insecure directories message
 autoload -Uz compaudit
