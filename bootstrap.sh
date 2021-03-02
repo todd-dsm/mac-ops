@@ -325,34 +325,6 @@ EOF
 
 
 ###----------------------------------------------------------------------------
-### Configure the Shell: base options
-###----------------------------------------------------------------------------
-printReq "Configuring base ZSH shell options..."
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# Bounce the default theme
-sed -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
-
-# Default to NO THEME
-"$gnuSed" -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
-
-# source-in personal zsh configs
-"$gnuSed" -i "|^#\ ZSH_CUSTOM| s|^#\ ||g" "$myShellrc"
-"$gnuSed" -i "/^ZSH_CUSTOM/ s|/path/to/new-custom-folder|$myZSHExt|g" "$myShellrc"
-
-
-
-cat << EOF >> "$myShellrc"
-
-###############################################################################
-###                            OLD BASH SETTINGS                            ###
-###############################################################################
-source "\$HOME/.config/shell/mystuff.env"
-EOF
-
-
-
-###----------------------------------------------------------------------------
 ### Install the Casks (GUI Apps)
 ###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
@@ -1479,6 +1451,31 @@ printf '\n%s\n' """
 
 
 """
+
+
+###----------------------------------------------------------------------------
+### Configure the Shell: base options
+###----------------------------------------------------------------------------
+printReq "Pulling the latest Oh My Zsh..."
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+# Bounce the default theme
+sed -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
+
+# Default to NO THEME
+"$gnuSed" -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
+
+# source-in personal zsh configs
+"$gnuSed" -i "|^#\ ZSH_CUSTOM| s|^#\ ||g" "$myShellrc"
+"$gnuSed" -i "/^ZSH_CUSTOM/ s|/path/to/new-custom-folder|$myZSHExt|g" "$myShellrc"
+
+cat << EOF >> "$myShellrc"
+
+###############################################################################
+###                            OLD BASH SETTINGS                            ###
+###############################################################################
+source "\$HOME/.config/shell/mystuff.env"
+EOF
 
 
 ###----------------------------------------------------------------------------
