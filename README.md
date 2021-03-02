@@ -51,7 +51,9 @@ Clone the repo down to your laptop:
 
 Kick off the script:
 
-`./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out`
+`./bootstrap.sh TEST 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out`
+
+*NOTE: remove the argument "TEST" when you're ready.*
 
 ***
 

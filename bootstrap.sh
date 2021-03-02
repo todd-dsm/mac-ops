@@ -21,7 +21,7 @@ set -x
 : "${1?  Wheres my environment, bro!}"
 theENV="$1"
 
-if [[ "$theENV" == 'test' ]]; then
+if [[ "$theENV" == 'TEST' ]]; then
     # We're either testing or we aint
     echo "THIS IS ONLY A TEST"
     sleep 3s
@@ -116,7 +116,7 @@ fi
 ###---
 ### Backup some files before we begin
 ###---
-if [[ "$theENV" == 'test' ]]; then
+if [[ "$theENV" == 'TEST' ]]; then
     printReq "Backing up the /etc directory before we begin..."
     sudo rsync -aE /private/etc "$backupDir/" 2> /tmp/rsync-err-etc.out
 fi
