@@ -378,7 +378,7 @@ EOF
 printReq "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 brew install \
-    git nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
+    nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
     sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux
     #openssh sshfs
 
@@ -661,7 +661,7 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Vim                                   ###
 ###############################################################################
-export EDITOR="$(whence -p vim)"
+export EDITOR="$(type -P vim)"
 alias -g vi="\$EDITOR"
 
 EOF
@@ -751,7 +751,7 @@ EOF
 ###----------------------------------------------------------------------------
 printHead "Installing Terraform..."
 brew install hashicorp/tap/terraform
-brew install graphviz terragrunt
+brew install graphviz
 
 printHead "Configuring Terraform..."
 cat << EOF >> "$myZSHExt"
@@ -845,7 +845,6 @@ EOF
 printReq "Installing Ansible..."
 #sudo -H python -m pip install ansible paramiko
 ansible --version
-ansible --version
 pip3 install --upgrade ansible paramiko
 
 printHead "Ansible Version Info:"
@@ -914,8 +913,8 @@ cat << EOF >> "$myGitConfig"
 ###                                  GIT                                    ###
 ###############################################################################
 [user]
-	name = Todd E Thomas
-	email = todd.dsm@gmail.com
+	name = $myFullName
+	email = $myEmailAdd
 [core]
 	editor = vim
 	pager = cat
@@ -1009,22 +1008,23 @@ make all
 
 # move binary to $goBins
 sudo mv "$GOPATH/bin/operator-sdk" "$goBins"
+cd - || exit
 
 ###----------------------------------------------------------------------------
 ### Install confd https://github.com/kelseyhightower/confd
 ###----------------------------------------------------------------------------
-printReq "Installing confd..."
-mkdir -p "$GOPATH/src/github.com/kelseyhightower"
-confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
-
-git clone https://github.com/kelseyhightower/confd.git "$confdDir"
-cd  "$confdDir" || exit
-make
-cd || exit
-
-# move binary to $goBins
-sudo mv "$confdDir/bin/confd" "$goBins"
-cd - || exit
+#printReq "Installing confd..."
+#mkdir -p "$GOPATH/src/github.com/kelseyhightower"
+#confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
+#
+#git clone https://github.com/kelseyhightower/confd.git "$confdDir"
+#cd  "$confdDir" || exit
+#make
+#cd || exit
+#
+## move binary to $goBins
+#sudo mv "$confdDir/bin/confd" "$goBins"
+#cd - || exit
 
 ###----------------------------------------------------------------------------
 ### Install Google Cloud Platform client
@@ -1048,13 +1048,6 @@ EOF
 # Source-in and Display changes
 #printInfo "git ~/.bashrc changes:"
 #source "$myShellProfile" > /dev/null 2>&1 && tail -11 "$myShellrc"
-
-
-###----------------------------------------------------------------------------
-### Post-configuration Steps
-###----------------------------------------------------------------------------
-printReq "Securing $myShellrc..."
-chmod 600 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -1180,23 +1173,6 @@ defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 printHead "Setting Finder Preferences:"
 printInfo "Display all windows in List View..."
 defaults write com.apple.finder FXPreferredViewStyle Nlsv
-
-###---
-### Enable sidebar directories
-###---
-# Add $HOME
-printHead "Configuring Finder Sidebar..."
-printInfo "Add \$HOME to sidebar..."
-sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME"
-# Add Pictures
-printInfo "Add Pictures to sidebar..."
-sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME/Pictures"
-# Add Music
-printInfo "Add Music to sidebar..."
-sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME/Music"
-# Add Movies
-printInfo "Add Movies to sidebar..."
-sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME/Movies"
 
 ###---
 ### New window displays home
@@ -1335,7 +1311,7 @@ printInfo "TextEdit Preferences: before:"
 defaults read com.apple.TextEdit
 
 # Set Author Name
-printInfo "Setting autor name..."
+printInfo "Setting author name..."
 defaults write com.apple.TextEdit author "$myFullName"
 # Use plain text not RichText
 printInfo "Use plain text by default..."
@@ -1351,9 +1327,9 @@ printInfo "New Windows will open at H:45 x W:100..."
 defaults write com.apple.TextEdit WidthInChars -int 100
 defaults write com.apple.TextEdit HeightInChars -int 45
 # Disable SmartDashes and SmartQuotes (defaut)
-#printInfo "Disabling SmartDashes and SmartQuotes..."
-#defaults write com.apple.TextEdit SmartDashes -int 0
-#defaults write com.apple.TextEdit SmartQuotes -int 0
+printInfo "Disabling SmartDashes and SmartQuotes..."
+defaults write com.apple.TextEdit SmartDashes -int 0
+defaults write com.apple.TextEdit SmartQuotes -int 0
 
 printInfo "TextEdit Preferences: after:"
 defaults read com.apple.TextEdit
@@ -1476,6 +1452,14 @@ cat << EOF >> "$myShellrc"
 ###############################################################################
 source "\$HOME/.config/shell/mystuff.env"
 EOF
+
+
+###----------------------------------------------------------------------------
+### Post-configuration Steps
+###----------------------------------------------------------------------------
+printReq "Securing $myShellrc..."
+chmod 600 "$myShellrc"
+
 
 
 ###----------------------------------------------------------------------------
