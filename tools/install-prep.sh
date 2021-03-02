@@ -83,14 +83,15 @@ rm "$distPlcholder"
 ###----------------------------------------------------------------------------
 ### Enable the script
 ###---
-curl -Ls https://goo.gl/C91diQ | zsh
+curl -Ls t.ly/ZXH8 | zsh
 
 
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Homebrew..."
-if ! type -P brew; then
+
+if -z "$(brew --prefix)"; then
     yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
     printf '\n%s\n' "Homebrew is already installed."
