@@ -1,7 +1,8 @@
-mac-ops
+# mac-ops
+
 =====
 
-Automation to build a great MBP Desktop with a base configurtion for DevOps people. Before you can build anything, you first need the tools.
+Automation to build a great MBP with a base configurtion for DevOps. Before you can build anything, you first need the tools.
 
 This needs refactoring but its still better than starting from scratch. If you find value in it, please feel free to fork/use it.
 
@@ -22,15 +23,16 @@ Assuming this is a fresh macOS, run the [install prep] script to:
 * Make sure you have a Github account then attach your public ssh key to the account, and
 * Save some details about apps that are currently installed.
 
-```bash
-curl -fsSL https://goo.gl/j2y1Dn 2>&1 | bash | tee /tmp/install-prep.out
+```zsh
+curl -fsSL  t.ly/TuKH  2>&1 | zsh | tee /tmp/install-prep.out
 ```
 
-If you need to backup first, check the [rsync-backups] page. The restore process (in this script) relies on a consistent backup ;-)
+If you need to backup first, check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup ;-)
 
 ***
 
 ## Kick-off
+
 Once you're all backed-up, auto-magically configure the new macOS:
 
 Make sure you have your ssh keys restored from backup.
@@ -41,7 +43,7 @@ Clone the repo down to your laptop:
 
 ***
 
-# CONFIGURE THE VARIABLES
+## CONFIGURE THE VARIABLES
 
 `vi my-vars.env`
 
@@ -51,15 +53,14 @@ Kick off the script:
 
 `./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out`
 
-
 ***
 
 ## Post-Game
 
- * Import your Terminal profile, if you have one.
- * Finish any outstanding System Preferences configurations.
- * Close all of your windows.
- * Reboot the system
+* Import your Terminal profile, if you have one.
+* Finish any outstanding System Preferences configurations.
+* Close all of your windows.
+* Reboot the system
 
 Then you're ready to start.
 
