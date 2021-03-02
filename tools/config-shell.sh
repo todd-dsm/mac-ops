@@ -6,20 +6,21 @@
 ###----------------------------------------------------------------------------
 theENV="$1"
 source './my-vars.env' "$theENV"
+gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
 
 
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
 # Bounce the default theme
-sed -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
+"$gnuSed" -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
 
 # Default to NO THEME
-sed -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
+"$gnuSed" -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
 
 # source-in personal zsh configs
-sed -i "|^#\ ZSH_CUSTOM| s|^#\ ||g" "$myShellrc"
-sed -i "/^ZSH_CUSTOM/ s|/path/to/new-custom-folder|$myZSHExt|g" "$myShellrc"
+"$gnuSed" -i "|^#\ ZSH_CUSTOM| s|^#\ ||g" "$myShellrc"
+"$gnuSed" -i "/^ZSH_CUSTOM/ s|/path/to/new-custom-folder|$myZSHExt|g" "$myShellrc"
 
 cat << EOF >> "$myShellrc"
 ###############################################################################
