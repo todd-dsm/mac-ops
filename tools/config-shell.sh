@@ -33,6 +33,6 @@ EOF
 ###----------------------------------------------------------------------------
 ### Post-configuration Steps
 ###----------------------------------------------------------------------------
-printReq "Securing $myShellrc..."
+printf '\n%s\n' "Securing $myShellrc..."
 chmod 600 "$myShellrc"
 
