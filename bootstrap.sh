@@ -1430,39 +1430,6 @@ printf '\n%s\n' """
 
 
 ###----------------------------------------------------------------------------
-### Configure the Shell: base options
-###----------------------------------------------------------------------------
-printReq "Pulling the latest Oh My Zsh..."
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-# Bounce the default theme
-sed -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
-
-# Default to NO THEME
-"$gnuSed" -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
-
-# source-in personal zsh configs
-"$gnuSed" -i "|^#\ ZSH_CUSTOM| s|^#\ ||g" "$myShellrc"
-"$gnuSed" -i "/^ZSH_CUSTOM/ s|/path/to/new-custom-folder|$myZSHExt|g" "$myShellrc"
-
-cat << EOF >> "$myShellrc"
-
-###############################################################################
-###                            OLD BASH SETTINGS                            ###
-###############################################################################
-source "\$HOME/.config/shell/mystuff.env"
-EOF
-
-
-###----------------------------------------------------------------------------
-### Post-configuration Steps
-###----------------------------------------------------------------------------
-printReq "Securing $myShellrc..."
-chmod 600 "$myShellrc"
-
-
-
-###----------------------------------------------------------------------------
 ### Quick and Dirty duration
 ###----------------------------------------------------------------------------
 # we can't read /etc/paths until the next login; set date location
@@ -1477,6 +1444,13 @@ printf '%s\n' """
     Process end   at: $timePost
     Process duration: $procDur
 """
+
+
+###----------------------------------------------------------------------------
+### Configure the Shell: base options
+###----------------------------------------------------------------------------
+printReq "Pulling the latest Oh My Zsh..."
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 
 ###----------------------------------------------------------------------------

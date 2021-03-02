@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-# shellcheck disable=SC1091,SC2154
+#!/usr/bin/env zsh
+# shellcheck disable=SC1071,SC1091,SC2154
 
 ###----------------------------------------------------------------------------
 ### Variables
