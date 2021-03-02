@@ -13,15 +13,18 @@ gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
+# Backup the default file
+cp "$myShellrc" "${backupDir}/zshrc"
+
 # Bounce the default theme
-"$gnuSed" -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
+sed -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
 
 # Default to NO THEME
-"$gnuSed" -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
+sed -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
 
 # source-in personal zsh configs
-"$gnuSed" -i "|^#\ ZSH_CUSTOM| s|^#\ ||g" "$myShellrc"
-"$gnuSed" -i "/^ZSH_CUSTOM/ s|/path/to/new-custom-folder|$myZSHExt|g" "$myShellrc"
+sed -i "/^#\ ZSH_CUSTOM/ s|^#\ ||g" "$myShellrc"
+sed -i "/^ZSH_CUSTOM/ s|/path/to/new-custom-folder|$myZSHExt|g" "$myShellrc"
 
 cat << EOF >> "$myShellrc"
 ###############################################################################
