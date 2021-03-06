@@ -844,13 +844,12 @@ EOF
 # Boto is for some Ansible/AWS operations
 printReq "Installing Ansible..."
 #sudo -H python -m pip install ansible paramiko
-ansible --version
 pip3 install --upgrade ansible paramiko
 
 printHead "Ansible Version Info:"
 ansible --version
 
-printHead "Configuring Vagrant..."
+printHead "Configuring Ansible..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 Ansible                                 ###
@@ -903,7 +902,7 @@ EOF
 ###----------------------------------------------------------------------------
 ### Install the latest git with completions
 ###----------------------------------------------------------------------------
-printReq "Installing Docker, et al..."
+printReq "Installing Git..."
 # Includes completion
 brew install git
 
@@ -968,11 +967,8 @@ cp ktx-completion.sh "${HOME}/.ktx-completion.sh"
 # Add this to your "${HOME}/".bash_profile (or similar)
 source "${HOME}/.ktx-completion.sh"
 
-# Reload your shell
-#exec bash
 
-
-printReq "Configuring Git..."
+printReq "Configuring kubectl, helm, et al..."
 cat << EOF >> "$myBashExt"
 ###############################################################################
 ###                              KUBERNETES                                 ###
