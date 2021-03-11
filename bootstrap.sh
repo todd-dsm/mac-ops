@@ -20,6 +20,7 @@ set -x
 ###------------------------------------------------------------------------------
 : "${1?  Wheres my environment, bro!}"
 theENV="$1"
+workDir="${PWD}"
 
 if [[ "$theENV" == 'TEST' ]]; then
     # We're either testing or we aint
@@ -29,6 +30,7 @@ else
     echo "We are preparing to going live..."
     sleep 3s
 fi
+
 
 source './my-vars.env' "$theENV"
 timePre="$(date +'%T')"
@@ -554,7 +556,8 @@ printHead "Opening up $goBins so we can see local go programs..."
 sudo mkdir -p "$goBins"
 
 # Open go-bins up to the system
-sudo "$gnuSed" -i "\|/usr/bin|i $goBins" "$sysPaths"
+sudo "$gnuSed" -i "\|/usr/bin|i       $goBins"                 "$sysPaths"
+sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
 
 
 ###----------------------------------------------------------------------------
@@ -701,7 +704,7 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 Amazon                                  ###
 ###############################################################################
-source /usr/local/bin/aws_zsh_completer.sh
+#source /usr/local/bin/aws_zsh_completer.sh
 #complete -C "\$(type -P aws_completer)" aws
 #export AWS_REGION='yourRegion'
 #export AWS_PROFILE='awsUser'
@@ -1004,7 +1007,7 @@ make all
 
 # move binary to $goBins
 sudo mv "$GOPATH/bin/operator-sdk" "$goBins"
-cd - || exit
+cd "$workDir" || exit
 
 ###----------------------------------------------------------------------------
 ### Install confd https://github.com/kelseyhightower/confd
@@ -1378,12 +1381,14 @@ atsutil server -ping
 
 # FIXME
 printInfo "Restoring the /etc/hosts file..."
-if [[ ! -f "$sysBackups/etc/hosts" ]]; then
-    printInfo "Can't find $sysBackups/etc/hosts"
-else
-    printInfo "Restoring the /etc/hosts file..."
-    sudo cp "$sysBackups/etc/hosts" /etc/hosts
-    sudo chown root:wheel /etc/hosts
+if [[ "$myMBPisFor" == 'personal' ]]; then
+    if [[ ! -f "$sysBackups/etc/hosts" ]]; then
+        printInfo "Can't find $sysBackups/etc/hosts"
+    else
+        printInfo "Restoring the /etc/hosts file..."
+        sudo cp "$sysBackups/etc/hosts" /etc/hosts
+        sudo chown root:wheel /etc/hosts
+    fi
 fi
 
 printInfo "Ensure correct ownership of ~/.viminfo file..."
