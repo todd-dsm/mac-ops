@@ -6,28 +6,40 @@
 #           work quickly. It will be replaced by Ansible automation as soon as
 #           possible between laptop upgrades.
 #------------------------------------------------------------------------------
-# EXECUTE:  ./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
+# EXECUTE:  ./bootstrap.sh TEST 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
 #------------------------------------------------------------------------------
 # PREREQS: 1) ssh keys must be on the new system for Github clones
 #          2)
 #------------------------------------------------------------------------------
-#  AUTHOR: todd_dsm
-#------------------------------------------------------------------------------
-#    DATE: 2017/01/11
+#  AUTHOR: todd-dsm
 #------------------------------------------------------------------------------
 set -x
 
 ###------------------------------------------------------------------------------
 ### VARIABLES
 ###------------------------------------------------------------------------------
+: "${1?  Wheres my environment, bro!}"
+theENV="$1"
+workDir="${PWD}"
+
+if [[ "$theENV" == 'TEST' ]]; then
+    # We're either testing or we aint
+    echo "THIS IS ONLY A TEST"
+    sleep 3s
+else
+    echo "We are preparing to going live..."
+    sleep 3s
+fi
+
+
+source './my-vars.env' "$theENV"
 timePre="$(date +'%T')"
 myGroup="$(id -g)"
-source './my-vars.env'
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
 ###----------------------------------------------------------------------------
-### Print stuff of secondary importance: Requirements
+### Print stuff of greatest importance: Requirements
 ###---
 printReq() {
     theReq="$1"
@@ -66,9 +78,9 @@ getNewPaths() {
     while IFS= read -r binPath; do
         printHead "Adding: $binPath"
         if [[ -z "$myPath" ]]; then
-           declare "myPath=$binPath"
+           "myPath=$binPath"
        else
-           declare myPath="$myPath:$binPath"
+           myPath="$myPath:$binPath"
         fi
     done < "$sysPaths"
 
@@ -80,9 +92,9 @@ getNewPaths() {
     while IFS= read -r manPath; do
         printHead "Adding: $manPath"
         if [[ -z "$myMans" ]]; then
-           declare "myMans=$manPath"
+           "myMans=$manPath"
        else
-           declare myMans="$myMans:$manPath"
+           myMans="$myMans:$manPath"
         fi
     done < "$sysManPaths"
 
@@ -93,11 +105,6 @@ getNewPaths() {
 ###----------------------------------------------------------------------------
 ### The Setup
 ###----------------------------------------------------------------------------
-### Enable the script
-###---
-curl -Ls https://goo.gl/C91diQ | bash
-
-###---
 ### Add the Github key to the knownhosts file
 ###---
 printReq  "Checking to see if we have the Github public key..."
@@ -108,8 +115,8 @@ else
     printHead "We have the Github key, all good."
 fi
 
-####---
-## Backup some files before we begin
+###---
+### Backup some files before we begin
 ###---
 if [[ "$theENV" == 'TEST' ]]; then
     printReq "Backing up the /etc directory before we begin..."
@@ -131,94 +138,26 @@ else
 fi
 
 
-###----------------------------------------------------------------------------
-### Configure the Shell: base options
-###----------------------------------------------------------------------------
-printReq "Configuring base shell options..."
-
-printHead "Configuring $myBashProfile ..."
-cat << EOF >> "$myBashProfile"
-# URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
-if [ -f ~/.bashrc ]; then
-	. ~/.bashrc
-fi
-
-EOF
-
-
-printHead "Configuring $myBashrc ..."
-cat << EOF >> "$myBashrc"
-# shellcheck disable=SC2148,SC1090,SC1091,SC2012,SC2139
-sysBashrc='/etc/bashrc'
-bashComps='/usr/local/share/bash-completion/bash_completion'
-bashCompsDir='/usr/local/etc/bash_completion.d'
-if [[ -f "\$sysBashrc" ]]; then
-    source "\$sysBashrc"
-    # enable bash completions
-    if [ -f "\$bashComps" ]; then
-        source "\$bashComps"
-        if [[ -d "\$bashCompsDir" ]]; then
-            while read -r compFile; do
-                #printf '%s\n' "  \${compFile##*/}"
-                source "\$compFile"
-            done <<< "\$(find "\$bashCompsDir" -type l)"
-        fi
-    fi
-fi
-
-###############################################################################
-###                                  System                                 ###
-###############################################################################
-export TERM='xterm-256color'
-export HISTFILESIZE=
-export HISTSIZE=
-export PROMPT_COMMAND="history -a; \$PROMPT_COMMAND"
-# If you want the last command ran immediately available to all currently open
-# shells then comment the one above and uncomment the two below.
-#shopt -s histappend
-#export PROMPT_COMMAND="history -a; history -c; history -r; \$PROMPT_COMMAND"
-export HISTCONTROL=ignoredups
-export HISTTIMEFORMAT="%a%l:%M %p  "
-export HISTIGNORE='ls:bg:fg:history'
-
-EOF
-
-# Source-in and Display changes
-printInfo '\n%s\n' "System ~/.bashrc changes:"
-source "$myBashProfile" && tail -18 "$myBashrc"
-
-
-###----------------------------------------------------------------------------
-### Install Homebrew
-###----------------------------------------------------------------------------
-printReq "Installing Homebrew..."
-if ! type -P brew; then
-    yes | /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-else
-    printInfo '\n%s\n' "Homebrew is already installed, bro."
-fi
-
-
-printHead "Updating Homebrew..."
-brew update
-
-printHead "Running 'brew doctor'..."
-brew doctor
-
-printHead "Tapping Homebrew fonts..."
-brew tap caskroom/fonts
-
-printHead "Configuring Homebrew..."
-cat << EOF >> "$myBashrc"
-###############################################################################
-###                                Homebrew                                 ###
-###############################################################################
-
-EOF
-
-# Source-in and Display changes
-printInfo "homebrew ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myBashrc"
+################################################################################
+####                                  System                                 ###
+################################################################################
+#export TERM='xterm-256color'
+#export HISTFILESIZE=
+#export HISTSIZE=
+#export PROMPT_COMMAND="history -a; \$PROMPT_COMMAND"
+## If you want the last command ran immediately available to all currently open
+## shells then comment the one above and uncomment the two below.
+##shopt -s histappend
+##export PROMPT_COMMAND="history -a; history -c; history -r; \$PROMPT_COMMAND"
+#export HISTCONTROL=ignoredups
+#export HISTTIMEFORMAT="%a%l:%M %p  "
+#export HISTIGNORE='ls:bg:fg:history'
+#
+#EOF
+#
+## Source-in and Display changes
+#printInfo '\n%s\n' "System ~/.bashrc changes:"
+#source "$myShellProfile" && tail -18 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -242,61 +181,52 @@ fi
 
 ###----------------------------------------------------------------------------
 ### Install the font: Hack
-### Hack is a solid font for programmers; version 2.010 is the golden-age.
-### If you want the latest version then:
-###   *delete the mkdir and tar lines
-###   *uncomment the brew lines.
+### https://github.com/Homebrew/homebrew-cask-fonts
 ###----------------------------------------------------------------------------
 printHead "Installing font: Hack..."
-brew tap caskroom/fonts
-brew cask install font-hack
-#if [[ ! -d "$myDocs/system/Hack-v2_010-ttf.tgz" ]]; then
-#    printInfo "Download Hack when you can"
-#else
-#    mkdir "$HOME/Library/Fonts"
-#    tar xzvf "$myDocs/system/Hack-v2_010-ttf.tgz" -C "$HOME/Library/Fonts"
-#fi
-
+brew tap homebrew/cask-fonts
+brew install font-hack
 
 ###----------------------------------------------------------------------------
-### Let's Get Open: GNU Coreutils
+### Let's Get Open: Install GNU Programs
 ###----------------------------------------------------------------------------
 printReq "Let's get open..."
+paramsFile="${sourceDir}/gnu-programs.list"
+gnuProgs=()
 
-printHead "Installing sed - the stream editor..."
-brew install gnu-sed
+# Read list of programs from a file
+while read -r gnuProgram; do
+    # install program
+    brew install "$gnuProgram"
+    # send name to gnuProgs array
+    gnuProgs+=("$gnuProgram")
+done < "$paramsFile"
 
-# let's use this immediately
-pathGNU_SED="$(brew --prefix gnu-sed)"
-export PATH="$pathGNU_SED:$PATH"
 
-# Set path for GNU sed
-sudo sed -i "\|/usr/local/bin|i $pathGNU_SED/libexec/gnubin" "$sysPaths"
+###---
+### Add paths for all elements in the gnuProgs array
+###---
+gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
 
-# Set path for GNU sed Manuals
-sudo sed -i "\|/usr/share/man|i $pathGNU_SED/libexec/gnuman" "$sysManPaths"
+printf '\n\n%s\n' "Adding paths for new GNU programs..."
+for myProg in "${gnuProgs[@]}"; do
+    gnuPath="$(brew --prefix "$myProg")"
+    printf '%s\n' "Adding: $gnuPath"
+    sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
+done
 
-printHead "Installing GNU Coreutils..."
-brew install coreutils
-
-###----------------------------------------------------------------------------
-### Set new Variables
-###----------------------------------------------------------------------------
-# Set path for the GNU Coreutils, et al.
-pathGNU_CORE="$(brew --prefix coreutils)"
-sudo sed -i "\|/usr/local/bin|i $pathGNU_CORE/libexec/gnubin" "$sysPaths"
-
-# Set path for the GNU Coreutils Manuals
-sudo sed -i "\|/usr/share/man|i $pathGNU_CORE/libexec/gnuman" "$sysManPaths"
 
 # Move system manpaths down 1 line
-sudo sed -i -n '2{h;n;G};p' "$sysManPaths"
+sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
 
+### Add manpaths for the GNU Manuals
+printf '\n\n%s\n' "Adding paths for new GNU manuals..."
+for myProg in "${gnuProgs[@]}"; do
+    gnuPath="$(brew --prefix "$myProg")"
+    printf '%s\n' "Adding: $gnuPath"
+    sudo "$gnuSed" -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
+done
 
-###---
-#### Verify the new paths have been set
-###---
-getNewPaths
 
 ###----------------------------------------------------------------------------
 ### PATHs
@@ -322,9 +252,9 @@ else
 fi
 
 
-### Configure coreutils
+### Configure coreutils                                FIX LATER WITH ALIASES
 printHead "Configuring GNU Coreutils..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myBashExt"
 ###############################################################################
 ###                                coreutils                                ###
 ###############################################################################
@@ -339,39 +269,13 @@ alias mv='mv -v'
 # FIX: alias for GNU zip/unzip do not work
 alias zip='/usr/local/bin/gzip'
 alias unzip='/usr/local/bin/gunzip'
-alias hist='history | cut -c 21-'
+#alias hist='history | cut -c 21-'
+alias hist='history | cut -c 8-'
 
 EOF
 
-# Source-in and Display changes
-printInfo "coreutils ~/.bashrc changes:"
-source "$myBashProfile" && tail -16 "$myBashrc"
-
-
-###----------------------------------------------------------------------------
-### Install GNU Tools and Languages
-###----------------------------------------------------------------------------
-printReq "Installing and configuring additional GNU programs..."
-brew install gnu-indent
-brew install findutils
-brew install gnu-which
-brew install wget
-brew install gnu-tar
-brew install gnu-time
-brew install grep
-brew install gzip gawk diffutils
-
-
-# Set path for the GNU find
-pathGNU_FIND="$(brew --prefix findutils)"
-sudo sed -i "\|/usr/local/bin|i $pathGNU_FIND/libexec/gnubin" "$sysPaths"
-
-# Set path for the GNU find Manuals
-sudo sed -i "\|/usr/share/man|i $pathGNU_FIND/libexec/gnuman" "$sysManPaths"
-
-
 printHead "Configuring grep and find..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myBashExt"
 ###############################################################################
 ###                                   grep                                  ###
 ###############################################################################
@@ -412,14 +316,14 @@ alias findmy=findMyStuff
 
 EOF
 
-# Source-in and Display changes
-printInfo "grep/find ~/.bashrc changes:"
-source "$myBashProfile" && tail -38 "$myBashrc"
+## Source-in and Display changes
+#printInfo "grep/find ~/.bashrc changes:"
+#source "$myShellProfile" && tail -38 "$myShellrc"
 
 
 ### Open up ssl to the system
-printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
-sudo sed -i "\|/usr/bin|i /usr/local/opt/openssl/bin" "$sysPaths"
+#printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
+#sudo sed -i "\|/usr/bin|i /usr/local/opt/openssl/bin" "$sysPaths"
 
 
 ###----------------------------------------------------------------------------
@@ -427,21 +331,9 @@ sudo sed -i "\|/usr/bin|i /usr/local/opt/openssl/bin" "$sysPaths"
 ###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
-brew cask install \
-    google-chrome visual-studio-code intellij-idea-ce   \
-    virtualbox virtualbox-extension-pack                \
-    android-file-transfer java wireshark osxfuse
-
-### Install GNU Privacy Guard: gpg-agent
-brew install gnupg
-
-
-###---
-### Install the latest version of VMware Fusion
-### Using older versions of Fusion on current macOS never seems to work.
-###---
-printHead "Installing VMware Fusion..."
-brew cask install vmware-fusion
+brew install --cask \
+    google-chrome visual-studio-code intellij-idea-ce  \
+    virtualbox virtualbox-extension-pack wireshark
 
 ###---
 ### VirtualBox configurations
@@ -451,7 +343,7 @@ printInfo "Setting the machinefolder property..."
 vboxmanage setproperty machinefolder "$HOME/vms/vbox"
 
 printHead "Setting VirtualBox environment variables..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                VirtualBox                               ###
 ###############################################################################
@@ -461,10 +353,17 @@ EOF
 
 
 ###---
+### Install the latest version of VMware Fusion
+### Using older versions of Fusion on current macOS never seems to work.
+###---
+printHead "Installing VMware Fusion..."
+brew install --cask vmware-fusion
+
+###---
 ### VMware configurations
 ###---
 printHead "Configuring VMware..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  VMware                                 ###
 ###############################################################################
@@ -472,7 +371,7 @@ export VMWARE_STORAGE="\$HOME/vms/vmware"
 
 EOF
 
-tail -10 "$myBashrc"
+#tail -10 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -481,52 +380,64 @@ tail -10 "$myBashrc"
 printReq "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 brew install \
-    git nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
-    sipcalc whatmask ipcalc dos2unix testdisk sshfs
-    #openssh
+    nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
+    sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux
+    #openssh sshfs
 
 ### Seperate installs for programs with options
-printHead "Installing tcl-tk with options..."
-brew install tcl-tk
+#printHead "Installing tcl-tk with options..."
+#brew install tcl-tk
 
 ### Include path for tcl-tk
-printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
-sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
+#printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
+#sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
 
-printHead "Installing tcpdump with options..."
-brew install tcpdump
+#printHead "Installing tcpdump with options..."
+#brew install tcpdump
 
-printHead "Installing tmux with options..."
-brew install tmux
+#printHead "Installing tmux with options..."
+#brew install tmux
 
 ### Include path for tcpdump
-printHead "Opening up /usr/local/sbin so we can see tcpdump..."
-sudo sed -i "\|/usr/bin|i /usr/local/sbin" "$sysPaths"
+#printHead "Opening up /usr/local/sbin so we can see tcpdump..."
+#sudo sed -i "\|/usr/bin|i /usr/sbin/tcpdump" "$sysPaths"
+
+
+###----------------------------------------------------------------------------
+### RUST
+###----------------------------------------------------------------------------
+printReq "Installing Rust..."
+brew install rust
+
+printHead "Configuring the path..."
+sudo "$gnuSed" -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"
+
+
+printHead "Configuring Rust..."
+cat << EOF >> "$myZSHExt"
+###############################################################################
+###                                   Rust                                  ###
+###############################################################################
+#source $HOME/.cargo/env
+
+EOF
 
 
 ###----------------------------------------------------------------------------
 ### PYTHON
 ###----------------------------------------------------------------------------
 printReq "Installing Python..."
-printf '%s\n' """
-    ####    ####    ####    ####    ####     ####     ####     ####     ####
-
-        You can safely ignore the message 'echo export PATH' message from
-                  the installer. THIS IS NOT NECESSARY.
-
-    ####    ####    ####    ####    ####     ####     ####     ####     ####
-    """
-
-brew install python python@2
+brew install python
 
 printHead "Upgrading Python Pip and setuptools..."
-pip  install --upgrade pip setuptools neovim
-pip3 install --upgrade pip3 setuptools wheel neovim \
-    ipython simplejson requests boto Sphinx
+pip3 install --upgrade pip setuptools wheel
+pip3 install --upgrade ipython simplejson requests boto Sphinx
 
+printHead "Configuring the path..."
+sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
 
 printHead "Configuring Python..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  Python                                 ###
 ###############################################################################
@@ -544,12 +455,12 @@ EOF
 ###---
 printReq "Configuring pip..."
 printHead "Creating pip home..."
-if [[ ! -d "$myConfigs/python" ]]; then
-    mkdir -p "$myConfigs/python"
+if [[ ! -d "$configDir/python" ]]; then
+    mkdir -p "$configDir/python"
 fi
 
 printHead "Creating the pip config file..."
-cat << EOF > "$myConfigs/python/pip.conf"
+cat << EOF > "$configDir/python/pip.conf"
 # pip configuration
 [list]
 format=columns
@@ -562,14 +473,14 @@ EOF
 printHead "Configuring autoenv..."
 
 printHead "Creating the autoenv file..."
-touch "$myConfigs/python/autoenv_authorized"
+touch "$configDir/python/autoenv_authorized"
 
 # Source-in and Display changes
-printHead "python ~/.bashrc changes:"
-source "$myBashProfile" && tail -5 "$myBashrc"
+#printHead "python ~/.bashrc changes:"
+#source "$myShellProfile" && tail -5 "$myShellrc"
 
 printInfo "Testing pip config..."
-pip list
+pip3 list
 
 
 ###----------------------------------------------------------------------------
@@ -584,12 +495,12 @@ brew install ruby chruby
 printHead "Updating all Gems..."
 gem update "$(gem list | cut -d' ' -f1)"
 
-printHead "Installing new Gems to test..."
-gem install neovim
+printHead "Configuring the path..."
+sudo "$gnuSed" -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
 
 
 printHead "Configuring Ruby..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Ruby                                  ###
 ###############################################################################
@@ -599,27 +510,16 @@ cat << EOF >> "$myBashrc"
 EOF
 
 # Source-in and Display changes
-printInfo "ruby ~/.bashrc changes:"
-source "$myBashProfile" && tail -6 "$myBashrc"
+#printInfo "ruby ~/.bashrc changes:"
+#source "$myShellProfile" && tail -6 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Install Build Utilities
 ###----------------------------------------------------------------------------
 printReq "Installing build utilities..."
-brew install make
-
-# Set path for the GNU make
-pathGNU_MAKE="$(brew --prefix make)"
-sudo sed -i "\|/usr/local/bin|i $pathGNU_MAKE/libexec/gnubin" "$sysPaths"
-
-# Set path for the GNU Coreutils Manuals
-sudo sed -i "\|/usr/share/man|i $pathGNU_MAKE/libexec/gnuman" "$sysManPaths"
-
-
 # cmake with completion requires (python) sphinx-doc
-brew install cmake
-brew install automake
+brew install cmake bazel
 
 
 ###----------------------------------------------------------------------------
@@ -634,7 +534,7 @@ export GOPATH="$HOME/go"
 mkdir -p "$GOPATH"
 
 printHead "Configuring Go..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                    Go                                   ###
 ###############################################################################
@@ -644,8 +544,8 @@ alias mygo="cd \$GOPATH"
 EOF
 
 # Source-in and Display changes
-printInfo "golang ~/.bashrc changes:"
-source "$myBashProfile" && tail -6 "$myBashrc"
+#printInfo "golang ~/.bashrc changes:"
+#source "$myShellProfile" && tail -6 "$myShellrc"
 
 ###---
 ### Go bins
@@ -656,54 +556,54 @@ printHead "Opening up $goBins so we can see local go programs..."
 sudo mkdir -p "$goBins"
 
 # Open go-bins up to the system
-sudo sed -i "\|/usr/bin|i $goBins" "$sysPaths"
+sudo "$gnuSed" -i "\|/usr/bin|i       $goBins"                 "$sysPaths"
+sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
 
 
 ###----------------------------------------------------------------------------
 ### Bash
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Bash..."
-brew install bash shellcheck dash bash-completion@2
-
-# Configure GNU Bash for the system and current $USER
-printReq "Configuring Bash..."
-
-printHead "Creating a softlink from sh to dash..."
-ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
-
-printHead "System Shells default:"
-grep '^\/' "$sysShells"
-sudo sed -i "\|^.*bash$|i /usr/local/bin/bash" "$sysShells"
-sudo sed -i "\|local|a /usr/local/bin/sh" "$sysShells"
-printHead "System Shells new:"
-grep '^\/' "$sysShells"
-
-# Switch to GNU Bash
-currentShell="$(dscl . -read "$HOME" UserShell)"
-
-if [[ "${currentShell##*\ }" != "$(type -P bash)" ]]; then
-    printHead "$USER's shell is: ${currentShell##*\ }"
-    printHead "Changing default shell to GNU Bash"
-    sudo chpass -s "$(type -P bash)" "$USER"
-    dscl . -read "$HOME" UserShell
-else
-    printHead "Default shell is already GNU Bash"
-fi
-
-cat << EOF >> "$myBashrc"
-###############################################################################
-###                                   Bash                                  ###
-###############################################################################
-export SHELL='/usr/local/bin/bash'
-#export BASH_VERSION="\$(bash --version | head -1 | awk -F " " '{print \$4}')"
-# ShellCheck: Ignore: https://goo.gl/n9W5ly
-export SHELLCHECK_OPTS="-e SC2155"
-
-EOF
-
-# Source-in and Display changes
-printInfo "bash ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
+#printf '\n%s\n' "Installing Bash..."
+#brew install bash shellcheck dash bash-completion@2
+#
+## Configure GNU Bash for the system and current $USER
+#printReq "Configuring Bash..."
+#
+#printHead "Creating a softlink from sh to dash..."
+#ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
+#
+#printHead "System Shells default:"
+#grep '^\/' "$sysShells"
+#sudo sed -i "\|^.*bash$|i /usr/local/bin/bash" "$sysShells"
+#sudo sed -i "\|local|a /usr/local/bin/sh" "$sysShells"
+#printHead "System Shells new:"
+#grep '^\/' "$sysShells"
+#
+## Switch to GNU Bash
+#currentShell="$(dscl . -read "$HOME" UserShell)"
+#
+#if [[ "${currentShell##*\ }" != "$(type -P bash)" ]]; then
+#    printHead "$USER's shell is: ${currentShell##*\ }"
+#    printHead "Changing default shell to GNU Bash"
+#    sudo chpass -s "$(type -P bash)" "$USER"
+#    dscl . -read "$HOME" UserShell
+#else
+#    printHead "Default shell is already GNU Bash"
+#fi
+#
+#cat << EOF >> "$myBashExt"
+################################################################################
+####                                   Bash                                  ###
+################################################################################
+#export SHELL='/usr/local/bin/bash'
+## ShellCheck: Ignore: https://goo.gl/n9W5ly
+#export SHELLCHECK_OPTS="-e SC2155"
+#
+#EOF
+#
+## Source-in and Display changes
+#printInfo "bash ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -718,7 +618,7 @@ yarn global add yarn
 
 
 printHead "Configuring npm..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  npm                                    ###
 ###############################################################################
@@ -726,14 +626,14 @@ cat << EOF >> "$myBashrc"
 EOF
 
 # Source-in and Display changes
-printInfo "npm ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
+#printInfo "npm ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 ###---
-### install yeoman
+### install yarn packages
 ###---
 # yeoman
-npm install -g yo
+#yarn add yo
 
 
 ###----------------------------------------------------------------------------
@@ -754,29 +654,24 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 #   +mzscheme (broke)
 
 printHead "Installing Vim..."
-brew install luarocks
-brew install vim
+#brew install luarocks
+brew install vim neovim
 echo "ignore: Error: Vim will not link against both Luajit & Lua message"
 
 
-# We should start getting serious about Neovim
-printHead "Installing Neovim..."
-brew install neovim
-
 printHead "Configuring Vim..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Vim                                   ###
 ###############################################################################
-export EDITOR='/usr/local/bin/vim'
-alias vi="\$EDITOR"
-alias nim='/usr/local/bin/nvim'
+export EDITOR="$(type -P vim)"
+alias -g vi="\$EDITOR"
 
 EOF
 
 # Source-in and Display changes
-printInfo "vim ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
+#printInfo "vim ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 # Verify after install
@@ -787,12 +682,8 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 ###----------------------------------------------------------------------------
 ### Amazon AWS CLI
 ###----------------------------------------------------------------------------
-printReq "Installing the AWS CLI..."
-pip3 install awscli
-
-printHead "Installing some AWS CLI Utilitiese..."
-pip3 install --upgrade jmespath jmespath-terminal
-
+printReq "Installing the AWS CLI and some Utilities..."
+pip3 install awscli jmespath jmespath-terminal
 brew tap jmespath/jmespath
 brew install jp jq jid
 
@@ -809,11 +700,12 @@ if [[ -f "$HOME/go/bin/docker-credential-ecr-login" ]]; then
 fi
 
 printHead "Configuring the AWS CLI..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 Amazon                                  ###
 ###############################################################################
-complete -C "\$(type -P aws_completer)" aws
+#source /usr/local/bin/aws_zsh_completer.sh
+#complete -C "\$(type -P aws_completer)" aws
 #export AWS_REGION='yourRegion'
 #export AWS_PROFILE='awsUser'
 export AWS_CONFIG_FILE="\$HOME/.aws/config"
@@ -821,7 +713,7 @@ export AWS_CONFIG_FILE="\$HOME/.aws/config"
 EOF
 
 printHead "Setting the AWS User to your local account name..."
-sed -i "/AWS_PROFILE/ s/awsUser/$USER/g" "$myBashrc"
+"$gnuSed" -i "/AWS_PROFILE/ s/awsUser/${USER}/g" "$myZSHExt"
 
 # Restore the AWS configs if there are any
 if [[ ! -d "$myBackups" ]]; then
@@ -833,15 +725,15 @@ else
 fi
 
 # Source-in and Display changes
-printInfo "aws ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -7 "$myBashrc"
+#printInfo "aws ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -7 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Add a space for common remote access tokens
 ###----------------------------------------------------------------------------
 printReq "Configuring Access Tokens for Remote services..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                             Remote Access                               ###
 ###############################################################################
@@ -853,85 +745,50 @@ export HOMEBREW_GITHUB_API_TOKEN=''
 EOF
 
 # Source-in and Display changes
-printInfo "token ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
+#printInfo "token ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### HashiCorp: Terraform
 ###----------------------------------------------------------------------------
-### we're not quite ready to refactor for the new version; sticking with 11.x
-### for now. Decide which line to comment.
-###----------------------------------------------------------------------------
 printHead "Installing Terraform..."
-#brew install terraform graphviz
-
-# latest version <12
-brew install 'terraform@0.11' graphviz
-pathTF='/usr/local/opt/terraform@0.11/bin'
-
-# Set path for Terraform 11.x
-sudo sed -i "\|/usr/local/bin|i $pathTF" "$sysPaths"
-
-# add typhoon support: https://typhoon.psdn.io/cl/google-cloud/#terraform-setup
-#go get -u github.com/coreos/terraform-provider-ct
-# take it home
-#if [[ -f "$HOME/go/bin/terraform-provider-ct" ]]; then
-#    sudo mv "$HOME/go/bin/terraform-provider-ct" "$goBins"
-#fi
-
-# configure terraform
-cat << EOF >> ~/.terraformrc
-# NOTE WELL: The URL declared in here is subject to change at any time, which
-#            will cause module installation to fail. It is not recommended to
-#            leave the following permanently in the CLI config, since real
-#            network discovery is required to ensure that Terraform will
-#            automatically adopt any future changes to the module API URL.
-host "registry.terraform.io" {
-  services = {
-    "modules.v1" = "https://registry.terraform.io/v1/modules/"
-  }
-}
-
-providers {
-  ct = "/opt/go-bins/terraform-provider-ct"
-}
-
-EOF
-
+brew install hashicorp/tap/terraform
+brew install graphviz
 
 printHead "Configuring Terraform..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                Terraform                                ###
 ###############################################################################
-alias tf='/usr/local/bin/terraform'
+alias tf="\$(whence -p terraform)"
+complete -o nospace -C /usr/local/bin/terraform tf
 export TF_VAR_AWS_PROFILE="\$AWS_PROFILE"
-export TF_LOG='DEBUG'
+export TF_LOG='TRACE'
 export TF_LOG_PATH='/tmp/terraform.log'
 
 EOF
-terraform -install-autocomplete
 
 
 # Source-in and Display changes
-printInfo "terraform ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -9 "$myBashrc"
+#printInfo "terraform ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -9 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### HashiCorp: Packer
 ###----------------------------------------------------------------------------
 printReq "Installing Packer..."
-brew install packer packer-completion
+brew install hashicorp/tap/packer
+brew install packer-completion
 
 printHead "Configuring Packer..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  Packer                                 ###
 ###############################################################################
 export PACKER_HOME="\$HOME/vms/packer"
-#export PACKER_CONFIG="\$PACKER_HOME"
+export PACKER_CONFIG="\$PACKER_HOME"
 export PACKER_CACHE_DIR="\$PACKER_HOME/iso-cache"
 export PACKER_BUILD_DIR="\$PACKER_HOME/builds"
 export PACKER_LOG='yes'
@@ -941,43 +798,43 @@ export PACKER_NO_COLOR='yes'
 EOF
 
 # Source-in and Display changes
-printInfo "packer ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -10 "$myBashrc"
+#printInfo "packer ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -10 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### HashiCorp: Vagrant
 ###----------------------------------------------------------------------------
-printReq "Installing Vagrant..."
-brew cask install vagrant
-brew install vagrant-completion
-
-printHead "Configuring Vagrant..."
-cat << EOF >> "$myBashrc"
-###############################################################################
-###                                 Vagrant                                 ###
-###############################################################################
-#export VAGRANT_LOG=debug
-export VAGRANT_HOME="\$HOME/vms/vagrant"
-export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
-export VAGRANT_DEFAULT_PROVIDER='virtualbox'
-
-EOF
-
+#printReq "Installing Vagrant..."
+#brew install --cask vagrant
+#brew install vagrant-completion
+#
+#printHead "Configuring Vagrant..."
+#cat << EOF >> "$myShellrc"
+################################################################################
+####                                 Vagrant                                 ###
+################################################################################
+##export VAGRANT_LOG=debug
+#export VAGRANT_HOME="\$HOME/vms/vagrant"
+#export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
+#export VAGRANT_DEFAULT_PROVIDER='virtualbox'
+#
+#EOF
+#
 # Source-in and Display changes
-printInfo "vagrant ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -8 "$myBashrc"
+#printInfo "vagrant ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
 
 # Handle Licensing
-printHead "Installing vagrant vmware-fusion license..."
-printInfo "Reparing plugins first..."
-vagrant plugin repair
+#printHead "Installing vagrant vmware-fusion license..."
+#printInfo "Reparing plugins first..."
+#vagrant plugin repair
 
-printInfo "Installing Fusion plugin..."
-vagrant plugin install vagrant-vmware-fusion
+#printInfo "Installing Fusion plugin..."
+#vagrant plugin install vagrant-vmware-fusion
 
 #printInfo "All plugins:"
-vagrant plugin list
+#vagrant plugin list
 
 #printInfo "Installing Vagrant license..."
 #vagrant plugin license vagrant-vmware-fusion \
@@ -989,13 +846,14 @@ vagrant plugin list
 ###----------------------------------------------------------------------------
 # Boto is for some Ansible/AWS operations
 printReq "Installing Ansible..."
-pip3 install --upgrade ansible boto
+#sudo -H python -m pip install ansible paramiko
+pip3 install --upgrade ansible paramiko
 
 printHead "Ansible Version Info:"
 ansible --version
 
-printHead "Configuring Vagrant..."
-cat << EOF >> "$myBashrc"
+printHead "Configuring Ansible..."
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 Ansible                                 ###
 ###############################################################################
@@ -1004,8 +862,8 @@ export ANSIBLE_CONFIG="\$HOME/.ansible"
 EOF
 
 # Source-in and Display changes
-printInfo "ansible ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
+#printInfo "ansible ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 # Create a home for Ansible
 printInfo "Creating the Ansible directory..."
@@ -1020,7 +878,7 @@ cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
 ###----------------------------------------------------------------------------
 printReq "Installing Docker, et al..."
 # Includes completion
-brew cask install docker
+brew install --cask docker
 brew install docker-compose docker-completion docker-clean \
     docker-credential-helper
 
@@ -1030,7 +888,7 @@ brew install docker-compose docker-completion docker-clean \
 #docker-machine create --driver virtualbox default
 
 printHead "Configuring Docker..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 DOCKER                                  ###
 ###############################################################################
@@ -1040,70 +898,100 @@ cat << EOF >> "$myBashrc"
 EOF
 
 # Source-in and Display changes
-printInfo "Docker ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
+#printInfo "Docker ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Install the latest git with completions
 ###----------------------------------------------------------------------------
-printReq "Installing Docker, et al..."
+printReq "Installing Git..."
 # Includes completion
 brew install git
 
 printReq "Configuring Git..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myGitConfig"
 ###############################################################################
 ###                                  GIT                                    ###
 ###############################################################################
+[user]
+	name = $myFullName
+	email = $myEmailAdd
+[core]
+	editor = vim
+	pager = cat
+	excludesfile = ~/.gitignore
+[color]
+	ui = true
+[push]
+	default = matching
+[alias]
+	rlog = log --reverse
+[pull]
+	rebase = false
+EOF
 
+cat << EOF >> "$myGitIgnore"
+# macOS Stuff
+.DS_Store
+# Ignore IDE Garbage
+**/.idea/*
+**/.vscode/*
 EOF
 
 # Source-in and Display changes
-printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -5 "$myBashrc"
+#printInfo "git ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Install Kubernetes-related packages
 ###----------------------------------------------------------------------------
-printReq "Installing Docker, et al..."
+printReq "Installing Kubernetes-related packages..."
 # Includes completion
-brew install kubernetes-helm kubernetes-cli
-brew cask install minikube
+brew install kubernetes-cli kubernetes-helm kind
 
 # install helper packages
-brew tap azure/draft && brew install draft
+#brew tap azure/draft && brew install draft
 
-printReq "Configuring Git..."
-cat << EOF >> "$myBashrc"
+# Install ktx; clone the ktx repo
+git clone https://github.com/heptiolabs/ktx /tmp/ktx
+cd /tmp/ktx || exit
+
+# Install the bash function
+cp ktx "${HOME}/.ktx"
+
+# Add this to your "${HOME}/".bash_profile (or similar)
+source "${HOME}/.ktx"
+
+# Install the auto-completion
+cp ktx-completion.sh "${HOME}/.ktx-completion.sh"
+
+# Add this to your "${HOME}/".bash_profile (or similar)
+source "${HOME}/.ktx-completion.sh"
+
+
+printReq "Configuring kubectl, helm, et al..."
+cat << EOF >> "$myBashExt"
 ###############################################################################
 ###                              KUBERNETES                                 ###
 ###############################################################################
-source <(kubectl  completion bash)
-source <(helm     completion bash)
-source <(minikube completion bash)
+#alias kube='/usr/local/bin/kubectl'
+#source <(kubectl completion bash | sed 's/kubectl/kube/g')
+#source "\${HOME}/.ktx-completion.sh"
+#source "\${HOME}/.ktx"
+#source <(kubectl completion bash)
+#source <(minikube completion bash)
 # --------------------------------------------------------------------------- #
 export HELM_HOME="\$HOME/.helm"
-localKubes="\$HOME/.kube/config"
-# testKubes="\$HOME/code/kubes/secrets/auth/kubes-config"
-# stagKubes="\$HOME/code/kubes/secrets/auth/kubes-config"
-# prodKubes="\$HOME/code/kubes/secrets/auth/kubes-config"
-#export KUBECONFIG="\$localKubes:\$testKubes:\$stagKubes:\$prodKubes"
-export KUBECONFIG="\$localKubes"
-#export KUBECONFIG_SAVED="\$KUBECONFIG"
+#source <(helm     completion bash)
 
 EOF
 
 # Source-in and Display changes
-printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -15 "$myBashrc"
+#printInfo "git ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -15 "$myShellrc"
 
-###----------------------------------------------------------------------------
-### Install Kontena Mortar
-###----------------------------------------------------------------------------
-printReq "Installing kontena/mortar..."
-gem install kontena-mortar
 
 ###----------------------------------------------------------------------------
 ### Install the CoreOS Operator SDK
@@ -1119,56 +1007,46 @@ make all
 
 # move binary to $goBins
 sudo mv "$GOPATH/bin/operator-sdk" "$goBins"
+cd "$workDir" || exit
 
 ###----------------------------------------------------------------------------
 ### Install confd https://github.com/kelseyhightower/confd
 ###----------------------------------------------------------------------------
-printReq "Installing confd..."
-mkdir -p "$GOPATH/src/github.com/kelseyhightower"
-confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
-
-git clone https://github.com/kelseyhightower/confd.git "$confdDir"
-cd  "$confdDir" || exit
-make
-cd || exit
-
-# move binary to $goBins
-sudo mv "$confdDir/bin/confd" "$goBins"
+#printReq "Installing confd..."
+#mkdir -p "$GOPATH/src/github.com/kelseyhightower"
+#confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
+#
+#git clone https://github.com/kelseyhightower/confd.git "$confdDir"
+#cd  "$confdDir" || exit
+#make
+#cd || exit
+#
+## move binary to $goBins
+#sudo mv "$confdDir/bin/confd" "$goBins"
+#cd - || exit
 
 ###----------------------------------------------------------------------------
 ### Install Google Cloud Platform client
 ###----------------------------------------------------------------------------
 printReq "Installing the Google Cloud SDK..."
 # Includes completion
-brew cask install google-cloud-sdk
+brew install --cask google-cloud-sdk
 
 
 printReq "Configuring the Google Cloud SDK..."
-cat << EOF >> "$myBashrc"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                        Google Cloud Platform                            ###
 ###############################################################################
-gcloudCompsDir='/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk'
-if [[ -d "\$gcloudCompsDir" ]]; then
-    while read -r compFile; do
-        #printf '%s\n' "  \${compFile##*/}"
-        source "\$compFile"
-    done <<< "\$(find "\$gcloudCompsDir" -maxdepth 1 -type f -name '*bash.inc')"
-fi
+source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
+source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
 # --------------------------------------------------------------------------- #
 
 EOF
 
 # Source-in and Display changes
-printInfo "git ~/.bashrc changes:"
-source "$myBashProfile" > /dev/null 2>&1 && tail -11 "$myBashrc"
-
-
-###----------------------------------------------------------------------------
-### Post-configuration Steps
-###----------------------------------------------------------------------------
-printReq "Securing ~/.bashrc ..."
-chmod 600 "$myBashrc"
+#printInfo "git ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -11 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -1250,18 +1128,20 @@ printReq "Configuring the System:"
 ####---
 ####  Set the hostname(s)
 ####---
-#printHead "Configuring the hostname(s)..."
-#### Configure the network hostname
-#printInfo "Configuring network hostname..."
-#sudo scutil --set ComputerName "$myHostName"
-#
-#### Configure the Terminal hostname
-#printInfo "Configuring Terminal hostname..."
-#sudo scutil --set HostName "${myHostName%%.*}"
-#
-#### Configure the AirDrop hostname
-#printInfo "Configuring AirDrop hostname..."
-#sudo scutil --set LocalHostName "${myHostName%%.*}"
+if [[ "$myMBPisFor" == 'personal' ]]; then
+    printHead "Configuring the hostname(s)..."
+    ### Configure the network hostname
+    printInfo "Configuring network hostname..."
+    sudo scutil --set ComputerName "$myHostName"
+
+    ### Configure the Terminal hostname
+    printInfo "Configuring Terminal hostname..."
+    sudo scutil --set HostName "${myHostName%%.*}"
+
+    ### Configure the AirDrop hostname
+    printInfo "Configuring AirDrop hostname..."
+    sudo scutil --set LocalHostName "${myHostName%%.*}"
+fi
 
 ###---
 ### Storage
@@ -1273,6 +1153,7 @@ defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
 ###---
 ### Disable smart quotes and dashes system-wide
+### REF: https://apple.stackexchange.com/a/334572/34436
 ###---
 printHead "Disabling smart quotes and dashes system-wide:"
 ### Disable smart quotes
@@ -1291,23 +1172,6 @@ defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 printHead "Setting Finder Preferences:"
 printInfo "Display all windows in List View..."
 defaults write com.apple.finder FXPreferredViewStyle Nlsv
-
-###---
-### Enable sidebar directories
-###---
-# Add $HOME
-printHead "Configuring Finder Sidebar..."
-printInfo "Add \$HOME to sidebar..."
-sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME"
-# Add Pictures
-printInfo "Add Pictures to sidebar..."
-sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME/Pictures"
-# Add Music
-printInfo "Add Music to sidebar..."
-sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME/Music"
-# Add Movies
-printInfo "Add Movies to sidebar..."
-sfltool add-item com.apple.LSSharedFileList.FavoriteItems "file:///$HOME/Movies"
 
 ###---
 ### New window displays home
@@ -1367,9 +1231,10 @@ defaults write com.apple.airplay showInMenuBarIfPresent -bool false
 
 ###---
 ### Display Date/Time formatted: 'EEE MMM d  h:mm a'
+### This is now a default
 ###---
-printInfo "Display Day HH:MM AM format..."
-defaults write com.apple.menuextra.clock 'DateFormat' -string 'EEE MMM d  h:mm a'
+#printInfo "Display Day HH:MM AM format..."
+#defaults write com.apple.menuextra.clock 'DateFormat' -string 'EEE MMM d  h:mm a'
 
 ###---
 ### Network Shares
@@ -1445,7 +1310,7 @@ printInfo "TextEdit Preferences: before:"
 defaults read com.apple.TextEdit
 
 # Set Author Name
-printInfo "Setting autor name..."
+printInfo "Setting author name..."
 defaults write com.apple.TextEdit author "$myFullName"
 # Use plain text not RichText
 printInfo "Use plain text by default..."
@@ -1460,7 +1325,7 @@ defaults write com.apple.TextEdit NSFixedPitchFontSize -int 14
 printInfo "New Windows will open at H:45 x W:100..."
 defaults write com.apple.TextEdit WidthInChars -int 100
 defaults write com.apple.TextEdit HeightInChars -int 45
-# Disable SmartDashes and SmartQuotes
+# Disable SmartDashes and SmartQuotes (defaut)
 printInfo "Disabling SmartDashes and SmartQuotes..."
 defaults write com.apple.TextEdit SmartDashes -int 0
 defaults write com.apple.TextEdit SmartQuotes -int 0
@@ -1479,7 +1344,7 @@ defaults read com.apple.TextEdit
 ###----------------------------------------------------------------------------
 ### Save installed package and library details AFTER the install
 ###----------------------------------------------------------------------------
-printReq "Saving some pre-install app/lib details..."
+printReq "Saving some post-install app/lib details..."
 tools/admin-app-details.sh post
 
 ### Create a link to the log file
@@ -1489,11 +1354,13 @@ ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 ###----------------------------------------------------------------------------
 ### Restore Personal Data
 ###----------------------------------------------------------------------------
-#if [[ ! -d "$myBackups" ]]; then
-#    printInfo "There are no Documents to restore."
-#else
-#    printInfo "Restoring files..."
-#    tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
+#if [[ "$dataRestore" == true ]]; then
+#    if [[ ! -d "$myBackups" ]]; then
+#        printInfo "There are no Documents to restore."
+#    else
+#        printInfo "Restoring files..."
+#        tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
+#    fi
 #fi
 
 
@@ -1507,11 +1374,22 @@ brew cleanup
 sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 
 printInfo "Refreshing the Fonts directory..."
-fc-cache -frv "$HOME/Library/Fonts"
+atsutil server -ping
+sudo atsutil databases -remove
+atsutil server -shutdown
+atsutil server -ping
 
+# FIXME
 printInfo "Restoring the /etc/hosts file..."
-sudo cp "$sysBackups/etc/hosts" /etc/hosts
-sudo chown root:wheel /etc/hosts
+if [[ "$myMBPisFor" == 'personal' ]]; then
+    if [[ ! -f "$sysBackups/etc/hosts" ]]; then
+        printInfo "Can't find $sysBackups/etc/hosts"
+    else
+        printInfo "Restoring the /etc/hosts file..."
+        sudo cp "$sysBackups/etc/hosts" /etc/hosts
+        sudo chown root:wheel /etc/hosts
+    fi
+fi
 
 printInfo "Ensure correct ownership of ~/.viminfo file..."
 if [[ -f ~/.viminfo ]]; then
@@ -1556,7 +1434,7 @@ printf '\n%s\n' """
 ### Quick and Dirty duration
 ###----------------------------------------------------------------------------
 # we can't read /etc/paths until the next login; set date location
-declare gnuDate='/usr/local/opt/coreutils/libexec/gnubin/date'
+gnuDate='/usr/local/opt/coreutils/libexec/gnubin/date'
 timePost=$("$gnuDate" +'%T')
 ### Convert time to a duration
 startTime=$("$gnuDate" -u -d "$timePre" +"%s")
@@ -1567,6 +1445,13 @@ printf '%s\n' """
     Process end   at: $timePost
     Process duration: $procDur
 """
+
+
+###----------------------------------------------------------------------------
+### Configure the Shell: base options
+###----------------------------------------------------------------------------
+printReq "Pulling the latest Oh My Zsh..."
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 
 ###----------------------------------------------------------------------------
