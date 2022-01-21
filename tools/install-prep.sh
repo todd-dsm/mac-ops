@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 # shellcheck disable=SC1071
 #  PURPOSE: Get updates, Xcode CLI Tools, and some package details without pain.
 #           For use with a new macOS install.
@@ -13,24 +13,15 @@
 # -----------------------------------------------------------------------------
 #   AUTHOR: todd-dsm
 # -----------------------------------------------------------------------------
-set -x
+set -ex
 
 
 ###----------------------------------------------------------------------------
 ### VARIABLES
 ###----------------------------------------------------------------------------
 # ENV Stuff
-configDir="${HOME}/.config"
-myShellDir="${configDir}/shell"
-myBashExt="${myShellDir}/mystuff.env"
-myZSHExt="${myShellDir}/myzshstuff.env"
-# Xcode CLI Tools
-distPlcholder='/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress'
-
-# admin app install details
 stage='pre'
-adminDir="$HOME/.config/admin"
-adminLogs="$adminDir/logs"
+source my-vars.env > /dev/null 2>&1
 
 
 ###----------------------------------------------------------------------------
@@ -41,41 +32,34 @@ adminLogs="$adminDir/logs"
 ###----------------------------------------------------------------------------
 ### MAIN PROGRAM
 ###----------------------------------------------------------------------------
-### Get the start time
-###---
 printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
 
 
-###----------------------------------------------------------------------------
-### Update the OS
-###----------------------------------------------------------------------------
-printf '\n%s\n' "Updating macOS..."
-#softwareupdate --all --install --force
-
-
-###----------------------------------------------------------------------------
-### Install the Xcode CLI Tools
-###----------------------------------------------------------------------------
-### create the placeholder file that's checked by CLI updates' .dist code
-###---
-touch "$distPlcholder"
-
-###---
-### Find the CLI Tools update; resolves to:
-### 'Command Line Tools (macOS Sierra version 10.12) for Xcode-8.2'
-###---
-cliTools="$(softwareupdate -l | grep "\*.*Command Line" | head -n 1 |   \
-    awk -F"*" '{print $2}' | sed -e 's/^ *//' | tr -d '\n')"
-
-###---
-### Install the package
-###---
-softwareupdate -i "$cliTools" --verbose
-
-###---
-### Do some light cleaning
-###---
-rm "$distPlcholder"
+####----------------------------------------------------------------------------
+#### Update the OS
+#### FIXME: https://github.com/todd-dsm/mac-ops/issues/63
+####----------------------------------------------------------------------------
+#printf '\n%s\n' "Updating macOS..."
+##softwareupdate --all --install --force
+#
+#
+####----------------------------------------------------------------------------
+#### Install the Xcode CLI Tools
+#### FIXME: https://github.com/todd-dsm/mac-ops/issues/33
+####----------------------------------------------------------------------------
+#echo "Watch for on-screen prompts about sshd-keygen-wrapper: Accept"
+#
+#xcode-select --install
+#
+#sleep 10
+#osascript <<EOD
+#    tell application "System Events"
+#      tell process "Install Command Line Developer Tools"
+#        keystroke return
+#        click button "Agree" of window "License Agreement"
+#      end tell
+#    end tell
+#EOD
 
 
 ###----------------------------------------------------------------------------
@@ -91,8 +75,8 @@ curl -Ls t.ly/ZXH8 | zsh
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Homebrew..."
 
-if -z "$(brew --prefix)"; then
-    yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+if ! type -P brew; then
+    yes | CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
     printf '\n%s\n' "Homebrew is already installed."
 fi
@@ -107,44 +91,17 @@ brew doctor
 printf '\n%s\n' "Installing Bash, et al..."
 brew install bash shellcheck dash bash-completion@2
 
-# Fix zsh compinit: insecure directories message
-autoload -Uz compaudit
-compaudit | xargs chmod g-w
-
-# Rebuilding 'zcompdump' wont hurt
-if [[ -f ~/.zcompdump ]]; then
-    rm -f ~/.zcompdump
-    compinit
-fi
-
-
-# Configure GNU Bash for the system and current $USER
-printf '\n%s\n' "Configuring Bash..."
-
-if [[ ! -f "$myShellDir" ]]; then
-    mkdir -p "$myShellDir"
-    touch "$myBashExt"
-    touch "$myZSHExt"
-fi
-
+###---
+### Softlink sh to dash
+###---
 printf '\n%s\n' "Creating a softlink from sh to dash..."
 ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
 
-cat << EOF >> "$myZSHExt"
-###############################################################################
-###                                   ZSH                                   ###
-###############################################################################
 
-EOF
-
-cat << EOF >> "$myBashExt"
-###############################################################################
-###                                   Bash                                  ###
-###############################################################################
-# ShellCheck: Ignore: https://goo.gl/n9W5ly
-export SHELLCHECK_OPTS="-e SC2155"
-
-EOF
+####----------------------------------------------------------------------------
+#### Preliminary ZSH Cleanup
+####----------------------------------------------------------------------------
+tools/zsh-shell-config.sh
 
 
 ###----------------------------------------------------------------------------
