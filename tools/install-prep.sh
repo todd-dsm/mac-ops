@@ -3,11 +3,13 @@
 #  PURPOSE: Get updates, Xcode CLI Tools, and some package details without pain.
 #           For use with a new macOS install.
 # -----------------------------------------------------------------------------
-#  PREREQS: none
+#  PREREQS: Script must be ran as Bash per Homebrew's requirements.
+#           https://docs.brew.sh/Installation
 # -----------------------------------------------------------------------------
 #  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | zsh | tee /tmp/install-prep.out
 # -----------------------------------------------------------------------------
-#     TODO: 1)
+#     TODO: 1) File Enhancement Request with Homebrew for ZSH install support.
+#              https://github.com/Homebrew/homebrew-core/issues/95108
 #           2)
 #           3)
 # -----------------------------------------------------------------------------
@@ -22,6 +24,7 @@ set -ex
 # ENV Stuff
 stage='pre'
 source my-vars.env > /dev/null 2>&1
+#printf '\n%s\n' "Configuring this macOS for $myFullName."
 
 
 ###----------------------------------------------------------------------------
@@ -40,11 +43,12 @@ printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
 #### FIXME: https://github.com/todd-dsm/mac-ops/issues/63
 ####----------------------------------------------------------------------------
 #printf '\n%s\n' "Updating macOS..."
-##softwareupdate --all --install --force
-#
-#
+#softwareupdate --all --install --force
+
+
 ####----------------------------------------------------------------------------
 #### Install the Xcode CLI Tools
+#### UPDATE: this will get installed as a dependency to Homebrew
 #### FIXME: https://github.com/todd-dsm/mac-ops/issues/33
 ####----------------------------------------------------------------------------
 #echo "Watch for on-screen prompts about sshd-keygen-wrapper: Accept"
@@ -121,13 +125,13 @@ printf '%s\n' "  Apps to a list: pkgutil..."
 pkgutil --pkgs > "$adminLogs/apps-pkgutil-$stage-install.log"
 
 
-printf '%s\n' "  Apps to a list: GNU find..."
+printf '%s\n' "  Apps to a list..."
 find /Applications -maxdepth 1 -type d -print | \
     sed 's|/Applications/||'    \
     > "$adminLogs/apps-find-all-$stage-install.log"
 
 
-printf '%s\n' "  PAID Apps to a list: GNU find..."
+printf '%s\n' "  PAID Apps to a list..."
 find /Applications -maxdepth 4 -path '*Contents/_MASReceipt/receipt' -print | \
     sed 's|.app/Contents/_MASReceipt/receipt|.app|g; s|/Applications/||' \
     > "$adminLogs/apps-paid-$stage-install.log"
