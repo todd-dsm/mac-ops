@@ -31,8 +31,10 @@ else
     sleep 3s
 fi
 
-
-source './my-vars.env' "$theENV"
+# source-in user-pecific variables
+source my-vars.env "$theENV" > /dev/null 2>&1
+printf '\n%s\n' "Configuring this macOS for $myFullName."
+exit
 timePre="$(date +'%T')"
 myGroup="$(id -g)"
 
