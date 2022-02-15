@@ -4,6 +4,7 @@ gawk
 bash
 findutils
 coreutils
+tree
 gnu-which
 wget
 make

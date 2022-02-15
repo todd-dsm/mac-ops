@@ -25,7 +25,7 @@ workDir="${PWD}"
 if [[ "$theENV" == 'TEST' ]]; then
     # We're either testing or we aint
     echo "THIS IS ONLY A TEST"
-    sleep 3s
+    sleep 2s
 else
     echo "We are preparing to going live..."
     sleep 3s
@@ -141,29 +141,8 @@ fi
 ################################################################################
 ####                                  System                                 ###
 ################################################################################
-#export TERM='xterm-256color'
-#export HISTFILESIZE=
-#export HISTSIZE=
-#export PROMPT_COMMAND="history -a; \$PROMPT_COMMAND"
-## If you want the last command ran immediately available to all currently open
-## shells then comment the one above and uncomment the two below.
-##shopt -s histappend
-##export PROMPT_COMMAND="history -a; history -c; history -r; \$PROMPT_COMMAND"
-#export HISTCONTROL=ignoredups
-#export HISTTIMEFORMAT="%a%l:%M %p  "
-#export HISTIGNORE='ls:bg:fg:history'
-#
-#EOF
-#
-## Source-in and Display changes
-#printInfo '\n%s\n' "System ~/.bashrc changes:"
-#source "$myShellProfile" && tail -18 "$myShellrc"
-
-
-###----------------------------------------------------------------------------
 ### Display some defaults for the log
-### For some reason Homebrew triggers a set -x; counter that
-###----------------------------------------------------------------------------
+###---
 printHead "Default macOS paths:"
 printInfo "System Paths:"
 cat "$sysPaths"
@@ -173,160 +152,104 @@ printHead "System man paths:"
 cat "$sysManPaths"
 if [[ -z "$MANPATH" ]]; then
     # at this stage it's always empty
-    printInfo "MANPATH is empty!"
+    printInfo "The MANPATH Environmental Variable is empty!"
 else
     printInfo "\$MANPATH=$MANPATH"
 fi
 
 
-###----------------------------------------------------------------------------
-### Install the font: Hack
-### https://github.com/Homebrew/homebrew-cask-fonts
-###----------------------------------------------------------------------------
-printHead "Installing font: Hack..."
-brew tap homebrew/cask-fonts
-brew install font-hack
-
-###----------------------------------------------------------------------------
-### Let's Get Open: Install GNU Programs
-###----------------------------------------------------------------------------
-printReq "Let's get open..."
-paramsFile="${sourceDir}/gnu-programs.list"
-gnuProgs=()
-
-# Read list of programs from a file
-while read -r gnuProgram; do
-    # install program
-    brew install "$gnuProgram"
-    # send name to gnuProgs array
-    gnuProgs+=("$gnuProgram")
-done < "$paramsFile"
-
-
-###---
-### Add paths for all elements in the gnuProgs array
-###---
-gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
-
-printf '\n\n%s\n' "Adding paths for new GNU programs..."
-for myProg in "${gnuProgs[@]}"; do
-    gnuPath="$(brew --prefix "$myProg")"
-    printf '%s\n' "Adding: $gnuPath"
-    sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
-done
-
-
-# Move system manpaths down 1 line
-sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
-
-### Add manpaths for the GNU Manuals
-printf '\n\n%s\n' "Adding paths for new GNU manuals..."
-for myProg in "${gnuProgs[@]}"; do
-    gnuPath="$(brew --prefix "$myProg")"
-    printf '%s\n' "Adding: $gnuPath"
-    sudo "$gnuSed" -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
-done
-
-
-###----------------------------------------------------------------------------
-### PATHs
-###   * System:  /usr/bin:/bin:/usr/sbin:/sbin
-###   * Homebrew: anything under /usr/local
-###----------------------------------------------------------------------------
-printHead "The new paths:"
-printInfo "\$PATH:"
-cat "$sysPaths"
-printInfo "$PATH"
-
-###----------------------------------------------------------------------------
-### MANPATHs
-###   * System:   /usr/share/man
-###   * Homebrew: /usr/local/share/man
-###----------------------------------------------------------------------------
-printHead "\$MANPATH:"
-cat "$sysManPaths"
-if [[ -z "$MANPATH" ]]; then
-    printInfo "MANPATH is empty!"
-else
-    printInfo "\$MANPATH=$MANPATH"
-fi
-
-
-### Configure coreutils                                FIX LATER WITH ALIASES
-printHead "Configuring GNU Coreutils..."
-cat << EOF >> "$myBashExt"
-###############################################################################
-###                                coreutils                                ###
-###############################################################################
-export MANPATH=$MANPATH
-# Filesystem Operational Behavior
-function ll { ls --color -l   "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
-function la { ls --color -al  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
-function ld { ls --color -ld  "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
-function lh { ls --color -alh "\$@" | egrep -v '.(DS_Store|CFUserTextEncoding)'; }
-alias cp='cp -rfvp'
-alias mv='mv -v'
-# FIX: alias for GNU zip/unzip do not work
-alias zip='/usr/local/bin/gzip'
-alias unzip='/usr/local/bin/gunzip'
-#alias hist='history | cut -c 21-'
-alias hist='history | cut -c 8-'
-
-EOF
-
-printHead "Configuring grep and find..."
-cat << EOF >> "$myBashExt"
-###############################################################################
-###                                   grep                                  ###
-###############################################################################
-alias grep='grep   --color=auto' 2>/dev/null
-alias egrep='egrep --color=auto' 2>/dev/null
-alias fgrep='fgrep --color=auto' 2>/dev/null
-
-###############################################################################
-###                                   find                                  ###
-###-------------------------------------------------------------------------###
-### Easily find stuff within the root '/' filesystem (fs) without errors.
-###----------------------------------------------------------------------------
-# Find files somewhere on the system; to use:
-#   1) call the alias, 'findsys'
-#   2) pass a directory where the search should begin, and
-#   3) pass a file name, either exact or fuzzy: e.g.:
-# $ findsys /var/ '*.log'
-function findSystemStuff()   {
-    findDir="\$1"
-    findFSO="\$2"
-    sudo find "\$findDir" -name 'cores' -prune , -name 'dev' -prune , -name 'net' -prune , -name "\$findFSO"
-}
-
-alias findsys=findSystemStuff
-###-------------------------------------------------------------------------###
-### Easily find stuff within your home directory. To use:
-#     1) call the alias, 'findmy'
-#     2) pass a 'type' of fs object, either 'f' (file) or 'd' (directory)
-#     3) pass the object name, either exact or fuzzy: e.g.:
-#     \$ findmy f '.vim*'
-function findMyStuff()   {
-    findType="\$1"
-    findFSO="\$2"
-    find "\$HOME" -type "\$findType" -name "\$findFSO"
-}
-
-alias findmy=findMyStuff
-
-EOF
-
-## Source-in and Display changes
-#printInfo "grep/find ~/.bashrc changes:"
-#source "$myShellProfile" && tail -38 "$myShellrc"
-
-
-### Open up ssl to the system
-#printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
-#sudo sed -i "\|/usr/bin|i /usr/local/opt/openssl/bin" "$sysPaths"
-
-
-###----------------------------------------------------------------------------
+####----------------------------------------------------------------------------
+#### Install the font: Hack
+#### https://github.com/Homebrew/homebrew-cask-fonts
+####----------------------------------------------------------------------------
+#printHead "Installing font: Hack..."
+#brew tap homebrew/cask-fonts
+#brew install font-hack
+#
+#
+####----------------------------------------------------------------------------
+#### Let's Get Open: Install GNU Programs
+####----------------------------------------------------------------------------
+#printReq "Let's get open..."
+#paramsFile="${sourceDir}/gnu-programs.list"
+#gnuProgs=()
+#
+## Read list of programs from a file
+#set -x
+#while read -r gnuProgram; do
+#    # install program
+#    brew install "$gnuProgram"
+#    # send name to gnuProgs array
+#    gnuProgs+=("$gnuProgram")
+#done < "$paramsFile"
+#
+#
+####---
+#### Add paths for all elements in the gnuProgs array
+####---
+#gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
+#
+#printf '\n\n%s\n' "Adding paths for new GNU programs..."
+#for myProg in "${gnuProgs[@]}"; do
+#    gnuPath="$(brew --prefix "$myProg")"
+#    printf '%s\n' "  $gnuPath"
+#    sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
+#done
+#
+#
+## Move system manpaths down 1 line
+#sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
+#
+#### Add manpaths for the GNU Manuals
+#printf '\n\n%s\n' "Adding manpaths for new GNU manuals..."
+#for myProg in "${gnuProgs[@]}"; do
+#    gnuPath="$(brew --prefix "$myProg")"
+#    printf '%s\n' "  $gnuPath"
+#    sudo "$gnuSed" -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
+#done
+#
+#
+####----------------------------------------------------------------------------
+#### PATHs
+####   * System:  /usr/bin:/bin:/usr/sbin:/sbin
+####   * Homebrew: anything under /usr/local
+####----------------------------------------------------------------------------
+#printHead "The new paths:"
+#printInfo "\$PATH:"
+#cat "$sysPaths"
+#printInfo "$PATH"
+#
+#
+####----------------------------------------------------------------------------
+#### MANPATHs
+####   * System:   /usr/share/man
+####   * Homebrew: /usr/local/share/man
+####----------------------------------------------------------------------------
+#printHead "\$MANPATH: (available after next login)"
+#cat "$sysManPaths"
+#
+#if [[ -z "$MANPATH" ]]; then
+#    printInfo "Current MANPATH is empty!"
+#else
+#    printInfo "\$MANPATH=$MANPATH"
+#fi
+#
+#
+#### Configure coreutils                                FIX LATER WITH ALIASES
+#printHead "Configuring GNU Coreutils..."
+#cp sources/{aliases,functions}.zsh "$myShellDir"
+#
+#
+####---
+#### RESET TEST ENVIRONMEN
+####---
+##if [[ "$theENV" == 'TEST' ]]; then
+##    sudo cp ~/.config/admin/backup/etc/paths /etc/paths
+##    sudo cp ~/.config/admin/backup/etc/manpaths /etc/manpaths
+##fi
+#
+#
+####----------------------------------------------------------------------------
 ### Install the Casks (GUI Apps)
 ###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
@@ -335,6 +258,7 @@ brew install --cask \
     google-chrome visual-studio-code intellij-idea-ce  \
     virtualbox virtualbox-extension-pack wireshark
 
+exit
 ###---
 ### VirtualBox configurations
 ###---
@@ -591,7 +515,7 @@ sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
 #    printHead "Default shell is already GNU Bash"
 #fi
 #
-#cat << EOF >> "$myBashExt"
+#cat << EOF >> "$myZSHExt"
 ################################################################################
 ####                                   Bash                                  ###
 ################################################################################
@@ -972,7 +896,7 @@ source "${HOME}/.ktx-completion.sh"
 
 
 printReq "Configuring kubectl, helm, et al..."
-cat << EOF >> "$myBashExt"
+cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                              KUBERNETES                                 ###
 ###############################################################################
