@@ -34,7 +34,7 @@ fi
 # source-in user-pecific variables
 source my-vars.env "$theENV" > /dev/null 2>&1
 printf '\n%s\n' "Configuring this macOS for $myFullName."
-exit
+
 timePre="$(date +'%T')"
 myGroup="$(id -g)"
 
@@ -256,17 +256,17 @@ fi
 ###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
-brew install --cask \
-    google-chrome visual-studio-code intellij-idea-ce  \
-    virtualbox virtualbox-extension-pack wireshark
-
-exit
+#brew install --cask \
+#    google-chrome visual-studio-code intellij-idea-ce  \
+#    virtualbox virtualbox-extension-pack wireshark
+#
+#
 ###---
 ### VirtualBox configurations
 ###---
 printHead "Configuring VirtualBox..."
 printInfo "Setting the machinefolder property..."
-vboxmanage setproperty machinefolder "$HOME/vms/vbox"
+#vboxmanage setproperty machinefolder "$HOME/vms/vbox"
 
 printHead "Setting VirtualBox environment variables..."
 cat << EOF >> "$myZSHExt"
@@ -283,7 +283,7 @@ EOF
 ### Using older versions of Fusion on current macOS never seems to work.
 ###---
 printHead "Installing VMware Fusion..."
-brew install --cask vmware-fusion
+#brew install --cask vmware-fusion
 
 ###---
 ### VMware configurations
@@ -297,46 +297,44 @@ export VMWARE_STORAGE="\$HOME/vms/vmware"
 
 EOF
 
-#tail -10 "$myShellrc"
-
 
 ###----------------------------------------------------------------------------
 ### Useful System Utilities
 ###----------------------------------------------------------------------------
 printReq "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
-brew install \
-    nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
-    sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux
-    #openssh sshfs
-
-### Seperate installs for programs with options
-#printHead "Installing tcl-tk with options..."
-#brew install tcl-tk
-
-### Include path for tcl-tk
-#printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
-#sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
-
-#printHead "Installing tcpdump with options..."
-#brew install tcpdump
-
-#printHead "Installing tmux with options..."
-#brew install tmux
-
-### Include path for tcpdump
-#printHead "Opening up /usr/local/sbin so we can see tcpdump..."
-#sudo sed -i "\|/usr/bin|i /usr/sbin/tcpdump" "$sysPaths"
-
-
+##brew install \
+##    nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
+##    sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux
+##    #sshfs
+##
+#### Seperate installs for programs with options
+##printHead "Installing tcl-tk with options..."
+##brew install tcl-tk
+##
+#### Include path for tcl-tk
+##printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
+##sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
+##
+##printHead "Installing tcpdump with options..."
+##brew install tcpdump
+##
+##printHead "Installing tmux with options..."
+##brew install tmux
+##
+#### Include path for tcpdump
+##printHead "Opening up /usr/local/sbin so we can see tcpdump..."
+##sudo sed -i "\|/usr/bin|i /usr/sbin/tcpdump" "$sysPaths"
+##
+##
 ###----------------------------------------------------------------------------
 ### RUST
 ###----------------------------------------------------------------------------
 printReq "Installing Rust..."
-brew install rust
-
-printHead "Configuring the path..."
-sudo "$gnuSed" -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"
+#brew install rust
+#
+#printHead "Configuring the Rust path..."
+#sudo "$gnuSed" -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"
 
 
 printHead "Configuring Rust..."
@@ -344,7 +342,7 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Rust                                  ###
 ###############################################################################
-#source $HOME/.cargo/env
+#source \$HOME/.cargo/env
 
 EOF
 
@@ -353,14 +351,14 @@ EOF
 ### PYTHON
 ###----------------------------------------------------------------------------
 printReq "Installing Python..."
-brew install python
-
-printHead "Upgrading Python Pip and setuptools..."
-pip3 install --upgrade pip setuptools wheel
-pip3 install --upgrade ipython simplejson requests boto Sphinx
-
-printHead "Configuring the path..."
-sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
+#brew install python
+#
+#printHead "Upgrading Python Pip and setuptools..."
+#pip3 install --upgrade pip setuptools wheel
+#pip3 install --upgrade ipython simplejson requests boto Sphinx
+#
+#printHead "Configuring the path..."
+#sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
 
 printHead "Configuring Python..."
 cat << EOF >> "$myZSHExt"
@@ -380,12 +378,12 @@ EOF
 ### Configure pip
 ###---
 printReq "Configuring pip..."
-printHead "Creating pip home..."
+printHead "  Creating pip home..."
 if [[ ! -d "$configDir/python" ]]; then
     mkdir -p "$configDir/python"
 fi
 
-printHead "Creating the pip config file..."
+printHead "  Creating the pip config file..."
 cat << EOF > "$configDir/python/pip.conf"
 # pip configuration
 [list]
@@ -401,28 +399,28 @@ printHead "Configuring autoenv..."
 printHead "Creating the autoenv file..."
 touch "$configDir/python/autoenv_authorized"
 
-# Source-in and Display changes
-#printHead "python ~/.bashrc changes:"
-#source "$myShellProfile" && tail -5 "$myShellrc"
-
-printInfo "Testing pip config..."
-pip3 list
+## Source-in and Display changes
+##printHead "python ~/.bashrc changes:"
+##source "$myShellProfile" && tail -5 "$myShellrc"
+#
+#printInfo "Testing pip config..."
+#pip3 list
 
 
 ###----------------------------------------------------------------------------
 ### Ruby
 ###----------------------------------------------------------------------------
 printReq "Installing Ruby..."
-brew install ruby chruby
+#brew install ruby chruby
+#
+####---
+#### Update/Install Gems
+####---
+#printHead "Updating all Gems..."
+#gem update "$(gem list | cut -d' ' -f1)"
 
-###---
-### Update/Install Gems
-###---
-printHead "Updating all Gems..."
-gem update "$(gem list | cut -d' ' -f1)"
-
-printHead "Configuring the path..."
-sudo "$gnuSed" -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
+#printHead "Configuring the path..."
+#sudo "$gnuSed" -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
 
 
 printHead "Configuring Ruby..."
@@ -435,29 +433,25 @@ cat << EOF >> "$myZSHExt"
 
 EOF
 
-# Source-in and Display changes
-#printInfo "ruby ~/.bashrc changes:"
-#source "$myShellProfile" && tail -6 "$myShellrc"
-
 
 ###----------------------------------------------------------------------------
 ### Install Build Utilities
 ###----------------------------------------------------------------------------
 printReq "Installing build utilities..."
 # cmake with completion requires (python) sphinx-doc
-brew install cmake bazel
+#brew install cmake bazel
 
 
 ###----------------------------------------------------------------------------
 ### golang
 ###----------------------------------------------------------------------------
 printReq "Installing the Go Programming Language..."
-brew install go dep
-
-# Create the code path
-printHead "Creating the \$GOPATH directory..."
-export GOPATH="$HOME/go"
-mkdir -p "$GOPATH"
+#brew install go dep
+#
+## Create the code path
+#printHead "Creating the \$GOPATH directory..."
+#export GOPATH="$HOME/go"
+#mkdir -p "$GOPATH"
 
 printHead "Configuring Go..."
 cat << EOF >> "$myZSHExt"
@@ -469,80 +463,72 @@ alias mygo="cd \$GOPATH"
 
 EOF
 
-# Source-in and Display changes
-#printInfo "golang ~/.bashrc changes:"
-#source "$myShellProfile" && tail -6 "$myShellrc"
-
-###---
-### Go bins
-### Until there is some consistency we'll move compiled go binaries elsewhere
-###---
-goBins='/opt/go-bins'
-printHead "Opening up $goBins so we can see local go programs..."
-sudo mkdir -p "$goBins"
-
-# Open go-bins up to the system
-sudo "$gnuSed" -i "\|/usr/bin|i       $goBins"                 "$sysPaths"
-sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
-
-
-###----------------------------------------------------------------------------
-### Bash
-###----------------------------------------------------------------------------
-#printf '\n%s\n' "Installing Bash..."
-#brew install bash shellcheck dash bash-completion@2
+####---
+#### Go bins
+#### Until there is some consistency we'll move compiled go binaries elsewhere
+####---
+#goBins='/opt/go-bins'
+#printHead "Opening up $goBins so we can see local go programs..."
+#sudo mkdir -p "$goBins"
 #
-## Configure GNU Bash for the system and current $USER
-#printReq "Configuring Bash..."
+## Open go-bins up to the system
+#sudo "$gnuSed" -i "\|/usr/bin|i       $goBins"                 "$sysPaths"
+#sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
 #
-#printHead "Creating a softlink from sh to dash..."
-#ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
 #
-#printHead "System Shells default:"
-#grep '^\/' "$sysShells"
-#sudo sed -i "\|^.*bash$|i /usr/local/bin/bash" "$sysShells"
-#sudo sed -i "\|local|a /usr/local/bin/sh" "$sysShells"
-#printHead "System Shells new:"
-#grep '^\/' "$sysShells"
+####----------------------------------------------------------------------------
+#### Bash
+####----------------------------------------------------------------------------
+##printf '\n%s\n' "Installing Bash..."
+##brew install bash shellcheck dash bash-completion@2
+##
+### Configure GNU Bash for the system and current $USER
+##printReq "Configuring Bash..."
+##
+##printHead "Creating a softlink from sh to dash..."
+##ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
+##
+##printHead "System Shells default:"
+##grep '^\/' "$sysShells"
+##sudo sed -i "\|^.*bash$|i /usr/local/bin/bash" "$sysShells"
+##sudo sed -i "\|local|a /usr/local/bin/sh" "$sysShells"
+##printHead "System Shells new:"
+##grep '^\/' "$sysShells"
+##
+### Switch to GNU Bash
+##currentShell="$(dscl . -read "$HOME" UserShell)"
+##
+##if [[ "${currentShell##*\ }" != "$(type -P bash)" ]]; then
+##    printHead "$USER's shell is: ${currentShell##*\ }"
+##    printHead "Changing default shell to GNU Bash"
+##    sudo chpass -s "$(type -P bash)" "$USER"
+##    dscl . -read "$HOME" UserShell
+##else
+##    printHead "Default shell is already GNU Bash"
+##fi
+##
+##cat << EOF >> "$myZSHExt"
+#################################################################################
+#####                                   Bash                                  ###
+#################################################################################
+##export SHELL='/usr/local/bin/bash'
+### ShellCheck: Ignore: https://goo.gl/n9W5ly
+##export SHELLCHECK_OPTS="-e SC2155"
+##
+##EOF
+##
 #
-## Switch to GNU Bash
-#currentShell="$(dscl . -read "$HOME" UserShell)"
-#
-#if [[ "${currentShell##*\ }" != "$(type -P bash)" ]]; then
-#    printHead "$USER's shell is: ${currentShell##*\ }"
-#    printHead "Changing default shell to GNU Bash"
-#    sudo chpass -s "$(type -P bash)" "$USER"
-#    dscl . -read "$HOME" UserShell
-#else
-#    printHead "Default shell is already GNU Bash"
-#fi
-#
-#cat << EOF >> "$myZSHExt"
-################################################################################
-####                                   Bash                                  ###
-################################################################################
-#export SHELL='/usr/local/bin/bash'
-## ShellCheck: Ignore: https://goo.gl/n9W5ly
-#export SHELLCHECK_OPTS="-e SC2155"
-#
-#EOF
-#
-## Source-in and Display changes
-#printInfo "bash ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
-
-
 ###----------------------------------------------------------------------------
 ### nodejs and npm
 ###----------------------------------------------------------------------------
-printReq "Installing the Node.js and npm..."
-brew install node
-
-# install/configure yarn
-brew install yarn
-yarn global add yarn
-
-
+#printReq "Installing the Node.js and npm..."
+#brew install node
+#
+## install/configure yarn
+#brew install yarn
+#yarn global add yarn
+#
+#
 printHead "Configuring npm..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
@@ -550,16 +536,6 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 
 EOF
-
-# Source-in and Display changes
-#printInfo "npm ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
-
-###---
-### install yarn packages
-###---
-# yeoman
-#yarn add yo
 
 
 ###----------------------------------------------------------------------------
@@ -580,11 +556,11 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 #   +mzscheme (broke)
 
 printHead "Installing Vim..."
-#brew install luarocks
-brew install vim neovim
-echo "ignore: Error: Vim will not link against both Luajit & Lua message"
-
-
+##brew install luarocks
+#brew install vim neovim
+#echo "ignore: Error: Vim will not link against both Luajit & Lua message"
+#
+#
 printHead "Configuring Vim..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
@@ -595,11 +571,6 @@ alias -g vi="\$EDITOR"
 
 EOF
 
-# Source-in and Display changes
-#printInfo "vim ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
-
-
 # Verify after install
 printHead "The Real version of Vim:"
 vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
@@ -609,22 +580,23 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 ### Amazon AWS CLI
 ###----------------------------------------------------------------------------
 printReq "Installing the AWS CLI and some Utilities..."
-pip3 install awscli jmespath jmespath-terminal
-brew tap jmespath/jmespath
-brew install jp jq jid
-
+#pip3 install awscli jmespath jmespath-terminal
+## Ignore the following error: 'Calling bottle :unneeded is deprecated!'
+#brew tap jmespath/jmespath
+#brew install jp jq jid
+#
 # install aws aliases: https://github.com/awslabs/awscli-aliases
 git clone git@github.com:awslabs/awscli-aliases.git /tmp/awscli-aliases
 mkdir -p "$HOME/.aws/cli"
 cp /tmp/awscli-aliases/alias "$HOME/.aws/cli/alias"
 
-# install amazon-ecr-credential-helper
-go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-Login
-# take it home
-if [[ -f "$HOME/go/bin/docker-credential-ecr-login" ]]; then
-    sudo mv "$HOME/go/bin/docker-credential-ecr-login" "$goBins"
-fi
-
+## install amazon-ecr-credential-helper
+#go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-Login
+## take it home
+#if [[ -f "$HOME/go/bin/docker-credential-ecr-login" ]]; then
+#    sudo mv "$HOME/go/bin/docker-credential-ecr-login" "$goBins"
+#fi
+#
 printHead "Configuring the AWS CLI..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
@@ -650,10 +622,6 @@ else
     sudo chown -R "$USER:$myGroup" "$HOME/.aws"
 fi
 
-# Source-in and Display changes
-#printInfo "aws ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -7 "$myShellrc"
-
 
 ###----------------------------------------------------------------------------
 ### Add a space for common remote access tokens
@@ -663,31 +631,24 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                             Remote Access                               ###
 ###############################################################################
-# HashiCorp Atlas
-export ATLAS_TOKEN=''
 # Homebrew / Github
 export HOMEBREW_GITHUB_API_TOKEN=''
 
 EOF
 
-# Source-in and Display changes
-#printInfo "token ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
-
 
 ###----------------------------------------------------------------------------
 ### HashiCorp: Terraform
 ###----------------------------------------------------------------------------
-printHead "Installing Terraform..."
-brew install hashicorp/tap/terraform
-brew install graphviz
+printHead "Installing tfenv..."
+#brew install tfenv graphviz
 
 printHead "Configuring Terraform..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                Terraform                                ###
 ###############################################################################
-alias tf="\$(whence -p terraform)"
+alias tf="\$(command -v terraform)"
 complete -o nospace -C /usr/local/bin/terraform tf
 export TF_VAR_AWS_PROFILE="\$AWS_PROFILE"
 export TF_LOG='TRACE'
@@ -696,25 +657,21 @@ export TF_LOG_PATH='/tmp/terraform.log'
 EOF
 
 
-# Source-in and Display changes
-#printInfo "terraform ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -9 "$myShellrc"
-
-
 ###----------------------------------------------------------------------------
 ### HashiCorp: Packer
 ###----------------------------------------------------------------------------
 printReq "Installing Packer..."
-brew install hashicorp/tap/packer
-brew install packer-completion
+##brew install hashicorp/tap/packer
+##brew install packer-completion
 
 printHead "Configuring Packer..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  Packer                                 ###
 ###############################################################################
+complete -o nospace -C /usr/local/bin/packer packer
 export PACKER_HOME="\$HOME/vms/packer"
-export PACKER_CONFIG="\$PACKER_HOME"
+#export PACKER_CONFIG="\$PACKER_HOME"
 export PACKER_CACHE_DIR="\$PACKER_HOME/iso-cache"
 export PACKER_BUILD_DIR="\$PACKER_HOME/builds"
 export PACKER_LOG='yes'
@@ -722,10 +679,6 @@ export PACKER_LOG_PATH='/tmp/packer.log'
 export PACKER_NO_COLOR='yes'
 
 EOF
-
-# Source-in and Display changes
-#printInfo "packer ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -10 "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
@@ -773,10 +726,10 @@ EOF
 # Boto is for some Ansible/AWS operations
 printReq "Installing Ansible..."
 #sudo -H python -m pip install ansible paramiko
-pip3 install --upgrade ansible paramiko
+#pip3 install --upgrade ansible paramiko
 
 printHead "Ansible Version Info:"
-ansible --version
+#ansible --version
 
 printHead "Configuring Ansible..."
 cat << EOF >> "$myZSHExt"
@@ -787,9 +740,6 @@ export ANSIBLE_CONFIG="\$HOME/.ansible"
 
 EOF
 
-# Source-in and Display changes
-#printInfo "ansible ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 # Create a home for Ansible
 printInfo "Creating the Ansible directory..."
@@ -804,9 +754,9 @@ cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
 ###----------------------------------------------------------------------------
 printReq "Installing Docker, et al..."
 # Includes completion
-brew install --cask docker
-brew install docker-compose docker-completion docker-clean \
-    docker-credential-helper
+#brew install --cask docker
+#brew install docker-compose docker-completion docker-clean \
+#    docker-credential-helper
 
 
 # Create a vbox VM
@@ -865,17 +815,13 @@ cat << EOF >> "$myGitIgnore"
 **/.vscode/*
 EOF
 
-# Source-in and Display changes
-#printInfo "git ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
-
 
 ###----------------------------------------------------------------------------
 ### Install Kubernetes-related packages
 ###----------------------------------------------------------------------------
 printReq "Installing Kubernetes-related packages..."
 # Includes completion
-brew install kubernetes-cli kubernetes-helm kind
+brew install kubernetes-cli helm kind
 
 # install helper packages
 #brew tap azure/draft && brew install draft
@@ -914,49 +860,46 @@ export HELM_HOME="\$HOME/.helm"
 
 EOF
 
-# Source-in and Display changes
-#printInfo "git ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -15 "$myShellrc"
-
 
 ###----------------------------------------------------------------------------
 ### Install the CoreOS Operator SDK
 ###----------------------------------------------------------------------------
 printReq "Installing the CoreOS Operator SDK..."
-mkdir -p "$GOPATH/src/github.com/operator-framework"
-cd "$GOPATH/src/github.com/operator-framework" || exit
-git clone https://github.com/operator-framework/operator-sdk
-cd operator-sdk || exit
-git checkout master
-make dep
-make all
-
-# move binary to $goBins
-sudo mv "$GOPATH/bin/operator-sdk" "$goBins"
-cd "$workDir" || exit
-
-###----------------------------------------------------------------------------
-### Install confd https://github.com/kelseyhightower/confd
-###----------------------------------------------------------------------------
-#printReq "Installing confd..."
-#mkdir -p "$GOPATH/src/github.com/kelseyhightower"
-#confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
-#
-#git clone https://github.com/kelseyhightower/confd.git "$confdDir"
-#cd  "$confdDir" || exit
-#make
-#cd || exit
-#
-## move binary to $goBins
-#sudo mv "$confdDir/bin/confd" "$goBins"
-#cd - || exit
-
+#brew install operator-sdk
+##mkdir -p "$GOPATH/src/github.com/operator-framework"
+##cd "$GOPATH/src/github.com/operator-framework" || exit
+##git clone https://github.com/operator-framework/operator-sdk
+##cd operator-sdk || exit
+##git checkout master
+##make dep
+##make all
+##
+### move binary to $goBins
+###sudo mv "$GOPATH/bin/operator-sdk" "$goBins"
+###cd "$workDir" || exit
+##
+#####----------------------------------------------------------------------------
+##### Install confd https://github.com/kelseyhightower/confd
+#####----------------------------------------------------------------------------
+###printReq "Installing confd..."
+###mkdir -p "$GOPATH/src/github.com/kelseyhightower"
+###confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
+###
+###git clone https://github.com/kelseyhightower/confd.git "$confdDir"
+###cd  "$confdDir" || exit
+###make
+###cd || exit
+###
+#### move binary to $goBins
+###sudo mv "$confdDir/bin/confd" "$goBins"
+###cd - || exit
+##
 ###----------------------------------------------------------------------------
 ### Install Google Cloud Platform client
 ###----------------------------------------------------------------------------
 printReq "Installing the Google Cloud SDK..."
-# Includes completion
-brew install --cask google-cloud-sdk
+## Includes completion
+#brew install --cask google-cloud-sdk
 
 
 printReq "Configuring the Google Cloud SDK..."
@@ -970,18 +913,13 @@ source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.
 
 EOF
 
-# Source-in and Display changes
-#printInfo "git ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -11 "$myShellrc"
-
 
 ###----------------------------------------------------------------------------
 ### Configure Vim
 ###----------------------------------------------------------------------------
-### Pull the code
-###---
 printReq "Pulling the vimSimple repo..."
 git clone --recursive -j10 "$vimSimpleGitRepo" "$vimSimpleLocal"
+
 
 ###----------------------------------------------------------------------------
 ### Modify 1-off configurations on current submodules
@@ -1277,26 +1215,26 @@ tools/admin-app-details.sh post
 ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 
 
-###----------------------------------------------------------------------------
-### Restore Personal Data
-###----------------------------------------------------------------------------
-#if [[ "$dataRestore" == true ]]; then
-#    if [[ ! -d "$myBackups" ]]; then
-#        printInfo "There are no Documents to restore."
-#    else
-#        printInfo "Restoring files..."
-#        tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
-#    fi
-#fi
-
-
+####----------------------------------------------------------------------------
+#### Restore Personal Data
+####----------------------------------------------------------------------------
+##if [[ "$dataRestore" == true ]]; then
+##    if [[ ! -d "$myBackups" ]]; then
+##        printInfo "There are no Documents to restore."
+##    else
+##        printInfo "Restoring files..."
+##        tools/restore-my-stuff.sh 2> /tmp/rsycn-errors.out
+##    fi
+##fi
+#
+#
 ###----------------------------------------------------------------------------
 ### Some light housework
 ###----------------------------------------------------------------------------
 printReq "Cleaning up a bit..."
 brew cleanup
 
-# move this garbage to log directory for posterity
+### move this garbage to log directory for posterity
 sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 
 printInfo "Refreshing the Fonts directory..."
@@ -1305,7 +1243,7 @@ sudo atsutil databases -remove
 atsutil server -shutdown
 atsutil server -ping
 
-# FIXME
+### FIXME
 printInfo "Restoring the /etc/hosts file..."
 if [[ "$myMBPisFor" == 'personal' ]]; then
     if [[ ! -f "$sysBackups/etc/hosts" ]]; then
