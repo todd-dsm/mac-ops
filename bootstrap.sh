@@ -42,7 +42,7 @@ myGroup="$(id -g)"
 ### FUNCTIONS
 ###----------------------------------------------------------------------------
 ### Print stuff of greatest importance: Requirements
-###---
+####---
 printReq() {
     theReq="$1"
     printf '\e[1;34m%-6s\e[m' """
@@ -50,9 +50,9 @@ $theReq
 """
 }
 
-###---
+####---
 ### Print stuff of secondary importance: Headlines
-###---
+####---
 printHead() {
     theHead="$1"
     printf '%s' """
@@ -60,9 +60,9 @@ printHead() {
 """
 }
 
-###---
+####---
 ### Print stuff of tertiary importance: Informational
-###---
+####---
 printInfo() {
     theInfo="$1"
     printf '%s\n' """
@@ -70,9 +70,9 @@ printInfo() {
 """
 }
 
-###---
+####---
 ### Print Requirement
-###---
+####---
 getNewPaths() {
     declare PATH=''
     ### Construct new paths
@@ -108,7 +108,7 @@ getNewPaths() {
 ### The Setup
 ###----------------------------------------------------------------------------
 ### Add the Github key to the knownhosts file
-###---
+####---
 printReq  "Checking to see if we have the Github public key..."
 if ! grep "^$hostRemote" "$knownHosts" > /dev/null 2>&1; then
     printHead "We don't, pulling it now..."
@@ -117,17 +117,17 @@ else
     printHead "We have the Github key, all good."
 fi
 
-###---
+####---
 ### Backup some files before we begin
-###---
+####---
 if [[ "$theENV" == 'TEST' ]]; then
     printReq "Backing up the /etc directory before we begin..."
     sudo rsync -aE /private/etc "$backupDir/" 2> /tmp/rsync-err-etc.out
 fi
 
-###---
+####---
 ### Pull some stuff for the Terminal
-###---
+####---
 printReq "Pulling Terminal stuff..."
 git clone "$solarizedGitRepo" "$termStuff/solarized" > /dev/null 2>&1
 
@@ -144,7 +144,7 @@ fi
 ####                                  System                                 ###
 ################################################################################
 ### Display some defaults for the log
-###---
+####---
 printHead "Default macOS paths:"
 printInfo "System Paths:"
 cat "$sysPaths"
@@ -261,9 +261,9 @@ printHead "Installing Utilities..."
 #    virtualbox virtualbox-extension-pack wireshark
 #
 #
-###---
-### VirtualBox configurations
-###---
+####---
+#### VirtualBox configurations
+####---
 printHead "Configuring VirtualBox..."
 printInfo "Setting the machinefolder property..."
 #vboxmanage setproperty machinefolder "$HOME/vms/vbox"
@@ -278,16 +278,16 @@ export VBOX_USER_HOME="\$HOME/vms/vbox"
 EOF
 
 
-###---
+####---
 ### Install the latest version of VMware Fusion
 ### Using older versions of Fusion on current macOS never seems to work.
-###---
+####---
 printHead "Installing VMware Fusion..."
 #brew install --cask vmware-fusion
 
-###---
+####---
 ### VMware configurations
-###---
+####---
 printHead "Configuring VMware..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
@@ -374,9 +374,9 @@ export PIP_CONFIG_FILE="\$HOME/.config/python/pip.conf"
 
 EOF
 
-###---
+####---
 ### Configure pip
-###---
+####---
 printReq "Configuring pip..."
 printHead "  Creating pip home..."
 if [[ ! -d "$configDir/python" ]]; then
@@ -391,9 +391,9 @@ format=columns
 
 EOF
 
-###---
+####---
 ### Configure autoenv
-###---
+####---
 printHead "Configuring autoenv..."
 
 printHead "Creating the autoenv file..."
@@ -884,12 +884,12 @@ printReq "Installing the CoreOS Operator SDK..."
 ###printReq "Installing confd..."
 ###mkdir -p "$GOPATH/src/github.com/kelseyhightower"
 ###confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
-###
+####
 ###git clone https://github.com/kelseyhightower/confd.git "$confdDir"
 ###cd  "$confdDir" || exit
 ###make
 ###cd || exit
-###
+####
 #### move binary to $goBins
 ###sudo mv "$confdDir/bin/confd" "$goBins"
 ###cd - || exit
@@ -923,7 +923,7 @@ git clone --recursive -j10 "$vimSimpleGitRepo" "$vimSimpleLocal"
 
 ###----------------------------------------------------------------------------
 ### Modify 1-off configurations on current submodules
-###---
+####---
 printHead "Making 1-off configuration changes..."
 ### python-mode: disable: 'pymode_rope'
 printHead "Disabling pymode_rope..."
@@ -944,9 +944,9 @@ printHead "The pymode_rope plugin is disabled:"
 grep "('g:pymode_rope', \w)$" "$pymodConfig"
 
 
-###---
+####---
 ### json-vim: add: 'autocmd' to the top of the file
-###---
+####---
 sed -i "/$jsonIndREGEX/a $jsonAppendStr" "$jsonIndent"
 
 ### json-vim: add a space seperator
@@ -986,7 +986,7 @@ ln -s "$vimSimpleLocal/vimrc" "$nvimDir/init.vim"
 ### Configure The macOS
 ###----------------------------------------------------------------------------
 ### Configure the System
-###---
+####---
 printReq "Configuring the System:"
 
 ####---
@@ -1007,18 +1007,18 @@ if [[ "$myMBPisFor" == 'personal' ]]; then
     sudo scutil --set LocalHostName "${myHostName%%.*}"
 fi
 
-###---
+####---
 ### Storage
-###---
+####---
 printHead "Configuring Storage:"
 printInfo "Save to disk by default (not to iCloud)..."
 # defaults read NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
-###---
+####---
 ### Disable smart quotes and dashes system-wide
 ### REF: https://apple.stackexchange.com/a/334572/34436
-###---
+####---
 printHead "Disabling smart quotes and dashes system-wide:"
 ### Disable smart quotes
 printInfo "Disabling smart quotes..."
@@ -1032,39 +1032,39 @@ defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
 ### The Finder
 ###----------------------------------------------------------------------------
 ### Display all folders in List View
-###---
+####---
 printHead "Setting Finder Preferences:"
 printInfo "Display all windows in List View..."
 defaults write com.apple.finder FXPreferredViewStyle Nlsv
 
-###---
+####---
 ### New window displays home
-###---
+####---
 printInfo "Display the home directory by default..."
 defaults write com.apple.finder NewWindowTarget -string "PfLo"
 defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
 
-###---
+####---
 ### Show status bar in Finder
-###---
+####---
 printInfo "Display status bar in Finder..."
 defaults write com.apple.finder ShowStatusBar -bool true
 
-###---
+####---
 ### Search the current folder by default
-###---
+####---
 printInfo "Search the current folder by default..."
 defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
 
-###---
+####---
 ### Display all file extensions in Finder
-###---
+####---
 printInfo "Display all extensions by default..."
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
-###---
+####---
 ### Screenshot behavior
-###---
+####---
 printInfo "Save screenshots to a specified location..."
 if [[ ! -d "$dirScreenshot" ]]; then
     mkdir -p "$dirScreenshot"
@@ -1080,35 +1080,35 @@ fi
 printInfo "Save screenshots without window shadows..."
 defaults write com.apple.screencapture disable-shadow -bool true
 
-###---
+####---
 ### Show battery percentage
-###---
+####---
 printInfo "Show battery percentage..."
 # defaults read com.apple.menuextra.battery ShowPercent
 defaults write com.apple.menuextra.battery ShowPercent -string 'YES'
 
-###---
+####---
 ### Display Configuration
-###---
+####---
 printInfo "Don't show mirroring options in the menu bar..."
 defaults write com.apple.airplay showInMenuBarIfPresent -bool false
 
-###---
+####---
 ### Display Date/Time formatted: 'EEE MMM d  h:mm a'
 ### This is now a default
-###---
+####---
 #printInfo "Display Day HH:MM AM format..."
 #defaults write com.apple.menuextra.clock 'DateFormat' -string 'EEE MMM d  h:mm a'
 
-###---
+####---
 ### Network Shares
-###---
+####---
 printInfo "Do NOT create .DS_Store files on network volumes..."
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
-###---
+####---
 ### Dialog Box behavior
-###---
+####---
 
 ### The Save Dialog Box
 printInfo "Expand Save panel by default..."
@@ -1142,17 +1142,17 @@ defaults write com.apple.dock autohide -bool true
 ###----------------------------------------------------------------------------
 printHead "Configuring Basic OS Security:"
 
-###---
+####---
 ### Disable Guest User at the Login Screen
-###---
+####---
 printInfo "Disable Guest User at the Login Screen..."
 sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -bool NO
 # sudo defaults read /Library/Preferences/com.apple.loginwindow GuestEnabled
 # OUTPUT: 0
 
-###---
+####---
 ### Apple File Protocol
-###---
+####---
 printInfo "Disable AFP Guest Access..."
 defaults write com.apple.AppleFileServer.plist AllowGuestAccess -int 0
 
@@ -1161,15 +1161,15 @@ defaults write com.apple.AppleFileServer.plist AllowGuestAccess -int 0
 ###----------------------------------------------------------------------------
 printHead "Configuring Application Preferences:"
 
-###---
+####---
 ### Stop Photos from opening automatically when plugging in iPhone [TEST]
-###---
+####---
 printInfo "Stop Photos from opening automatically..."
 defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
 
-###---
+####---
 ### TextEdit
-###---
+####---
 printInfo "TextEdit Preferences: before:"
 defaults read com.apple.TextEdit
 
@@ -1209,6 +1209,8 @@ defaults read com.apple.TextEdit
 ### Save installed package and library details AFTER the install
 ###----------------------------------------------------------------------------
 printReq "Saving some post-install app/lib details..."
+pwd
+cd "/Users/${USER}/mac-ops" || exit             # FIXME: remove later
 tools/admin-app-details.sh post
 
 ### Create a link to the log file
@@ -1234,7 +1236,9 @@ ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 printReq "Cleaning up a bit..."
 brew cleanup
 
-### move this garbage to log directory for posterity
+####---
+#### move this garbage to log directory for posterity
+####---
 sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 
 printInfo "Refreshing the Fonts directory..."
@@ -1243,9 +1247,11 @@ sudo atsutil databases -remove
 atsutil server -shutdown
 atsutil server -ping
 
-### FIXME
-printInfo "Restoring the /etc/hosts file..."
+####---
+#### Recover the hosts file from backup
+####---
 if [[ "$myMBPisFor" == 'personal' ]]; then
+    printInfo "Restoring the /etc/hosts file..."
     if [[ ! -f "$sysBackups/etc/hosts" ]]; then
         printInfo "Can't find $sysBackups/etc/hosts"
     else
@@ -1282,11 +1288,11 @@ printf '\n%s\n' """
     3) You still have to open System Preferences and verify your settings. I
        can't see any other way to set these preference than the manual way.
 
-    4) Data Restoration:
-       a) Check for any data restore errors by:
-          less /tmp/rsycn-errors.out
-       b) Check for any data that is not owned by you:
-          less /tmp/find-out.log
+    4) If build is PERSONAL, verify data restoration:
+         a) Check for any data restore errors by:
+            less /tmp/rsycn-errors.out
+         b) Check for any data that is not owned by you:
+            less /tmp/find-out.log
 
     That's basically it. Now get back to work :-)
 
@@ -1301,8 +1307,8 @@ printf '\n%s\n' """
 gnuDate='/usr/local/opt/coreutils/libexec/gnubin/date'
 timePost=$("$gnuDate" +'%T')
 ### Convert time to a duration
-startTime=$("$gnuDate" -u -d "$timePre" +"%s")
-endTime=$("$gnuDate" -u -d "$timePost" +"%s")
+startTime=$("$gnuDate" -u -d "$timePre"  +"%s")
+  endTime=$("$gnuDate" -u -d "$timePost" +"%s")
 procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
 printf '%s\n' """
     Process start at: $timePre
