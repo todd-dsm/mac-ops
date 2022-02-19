@@ -163,9 +163,22 @@ find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
 ### Announcements
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' """
+    Pulling the latest Oh My Zsh build...
+"""
+sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+
+###----------------------------------------------------------------------------
+### Announcements
+###----------------------------------------------------------------------------
+printf '\n\n%s\n' """
+    Configure the Shell with some sensible defaults
+    tools/config-shell.sh
+
 	You are now prepped for the mac-ops process.
 
-    It might be a good idea to reboot.
+    It's time to reboot!
+    sudo shutdown -r now
 """
 
 

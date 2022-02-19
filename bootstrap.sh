@@ -816,30 +816,30 @@ cat << EOF >> "$myGitIgnore"
 EOF
 
 
-###----------------------------------------------------------------------------
-### Install Kubernetes-related packages
-###----------------------------------------------------------------------------
+####----------------------------------------------------------------------------
+#### Install Kubernetes-related packages
+####----------------------------------------------------------------------------
 printReq "Installing Kubernetes-related packages..."
-# Includes completion
-brew install kubernetes-cli helm kind
+## Includes completion
+#brew install kubernetes-cli helm kind
 
-# install helper packages
-#brew tap azure/draft && brew install draft
+## install helper packages
+##brew tap azure/draft && brew install draft
 
-# Install ktx; clone the ktx repo
+## Install ktx; clone the ktx repo
 git clone https://github.com/heptiolabs/ktx /tmp/ktx
 cd /tmp/ktx || exit
 
-# Install the bash function
+## Install the bash function
 cp ktx "${HOME}/.ktx"
 
-# Add this to your "${HOME}/".bash_profile (or similar)
+## Add this to your "${HOME}/".bash_profile (or similar)
 source "${HOME}/.ktx"
 
-# Install the auto-completion
+## Install the auto-completion
 cp ktx-completion.sh "${HOME}/.ktx-completion.sh"
 
-# Add this to your "${HOME}/".bash_profile (or similar)
+## Add this to your "${HOME}/".bash_profile (or similar)
 source "${HOME}/.ktx-completion.sh"
 
 
@@ -1309,13 +1309,6 @@ printf '%s\n' """
     Process end   at: $timePost
     Process duration: $procDur
 """
-
-
-###----------------------------------------------------------------------------
-### Configure the Shell: base options
-###----------------------------------------------------------------------------
-printReq "Pulling the latest Oh My Zsh..."
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 
 ###----------------------------------------------------------------------------
