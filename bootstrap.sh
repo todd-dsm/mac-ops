@@ -160,6 +160,20 @@ else
 fi
 
 
+###----------------------------------------------------------------------------
+### Configure the Shell: base options
+###----------------------------------------------------------------------------
+printReq "Configuring base ZSH options..."
+printHead "Configuring $myShellProfile ..."
+cat << EOF >> "$myShellProfile"
+# URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
+#      With the advent of ZSH, this config seems unnecessary: RESEARCH
+if [ -f ~/.zshrc ]; then
+	. ~/.zshrc
+fi
+
+EOF
+
 ####----------------------------------------------------------------------------
 #### Install the font: Hack
 #### https://github.com/Homebrew/homebrew-cask-fonts
