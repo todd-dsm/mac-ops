@@ -1,10 +1,8 @@
 # mac-ops
 
-=====
+Automation to build a great MBP with a base configuration for DevOps. Before you can build anything, you first need the tools.
 
-Automation to build a great MBP with a base configurtion for DevOps. Before you can build anything, you first need the tools.
-
-This needs refactoring but its still better than starting from scratch. If you find value in it, please feel free to fork/use it.
+This needs refactoring but it's still better than starting from scratch. If you find value in it, please feel free to fork/use it.
 
 ***
 
@@ -20,14 +18,14 @@ Assuming this is a fresh macOS, run the [install prep] script to:
 
 * Get the latest OS Updates,
 * Install the Xcode CLI Tools
-* Make sure you have a Github account then attach your public ssh key to the account, and
+* Make sure you have a GitHub account then attach your public ssh key to the account, and
 * Save some details about apps that are currently installed.
 
 ```zsh
 curl -fsSL  t.ly/TuKH  2>&1 | zsh | tee /tmp/install-prep.out
 ```
 
-If you need to backup first, check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup ;-)
+If you need to back up first, check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup ;-)
 
 ***
 
