@@ -136,7 +136,6 @@ EOF
 ### Let's Get Open: Install GNU Programs
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Let's get open..."
-set -x
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
 
@@ -215,14 +214,13 @@ fi
 ###############################################################################
 ###                                END                                      ###
 ###############################################################################
-set +x
 
 
 ###----------------------------------------------------------------------------
 ### Installing and Configuring Shells
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Bash, et al..."
-brew install bash shellcheck dash bash-completion@2
+printf '\n%s\n' "Installing Dash, et al..."
+brew install shellcheck dash bash-completion@2
 
 ###---
 ### Softlink sh to dash
@@ -288,16 +286,11 @@ find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
 printf '\n\n%s\n' """
     Pulling the latest Oh My Zsh build...
 """
-set -x
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+else
+    printf '\n%s\n' "Oh My ZSH is already installed."
 fi
-set +x
-
-####----------------------------------------------------------------------------
-#### Preliminary ZSH Cleanup
-####----------------------------------------------------------------------------
-tools/zsh-shell-config.sh
 
 
 ###----------------------------------------------------------------------------
