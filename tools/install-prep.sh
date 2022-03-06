@@ -113,6 +113,10 @@ else
     printf '\n%s\n' "\$MANPATH=$MANPATH"
 fi
 
+### Backup paths/manpaths files
+sudo cp /etc/*paths "$backupDir"
+
+
 
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
@@ -192,12 +196,6 @@ printf '\n%s\n' "$PATH"
 printf '\n%s\n' "\$MANPATH: (available after next login)"
 cat "$sysManPaths"
 
-if [[ -z "$MANPATH" ]]; then
-    printf '\n%s\n' "Current MANPATH is empty!"
-else
-    printf '\n%s\n' "\$MANPATH=$MANPATH"
-fi
-
 
 ### Configure coreutils                                FIX LATER WITH ALIASES
 printf '\n%s\n' "Configuring GNU Coreutils..."
@@ -208,8 +206,8 @@ cp sources/{aliases,functions}.zsh "$myShellDir"
 ### RESET TEST ENVIRONMEN
 ###---
 if [[ "$theENV" == 'TEST' ]]; then
-    sudo cp ~/.config/admin/backup/etc/paths /etc/paths
-    sudo cp ~/.config/admin/backup/etc/manpaths /etc/manpaths
+    sudo cp "$backupDir/etc/paths"    /etc/paths
+    sudo cp "$backupDir/etc/manpaths" /etc/manpaths
 fi
 
 
@@ -231,12 +229,6 @@ brew install bash shellcheck dash bash-completion@2
 ###---
 printf '\n%s\n' "Creating a softlink from sh to dash..."
 ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
-
-
-####----------------------------------------------------------------------------
-#### Preliminary ZSH Cleanup
-####----------------------------------------------------------------------------
-tools/zsh-shell-config.sh
 
 
 ###----------------------------------------------------------------------------
@@ -301,6 +293,12 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 set +x
+
+####----------------------------------------------------------------------------
+#### Preliminary ZSH Cleanup
+####----------------------------------------------------------------------------
+tools/zsh-shell-config.sh
+
 
 ###----------------------------------------------------------------------------
 ### Announcements
