@@ -216,7 +216,21 @@ fi
 
 
 ###----------------------------------------------------------------------------
-### Install/Configure Ansible and Python
+### Installing and Configuring Shells
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Installing Dash, et al..."
+brew install shellcheck dash bash-completion@2
+
+
+###---
+### Softlink sh to dash
+###---
+printf '\n%s\n' "Creating a softlink from sh to dash..."
+ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
+
+
+###----------------------------------------------------------------------------
+### Install/Configure Ansible
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Ansible (and Python as a dependency)..."
 brew install ansible
@@ -244,8 +258,66 @@ cp -pv 'sources/ansible/ansible.cfg' ~/.ansible/ansible.cfg
 cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
 
 
+###----------------------------------------------------------------------------
+### Configure Python
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Upgrading Python Pip and setuptools..."
+pip3 install --upgrade pip setuptools wheel
+pip3 install --upgrade ipython simplejson requests boto Sphinx
+
+
+printf '\n%s\n' "Configuring the path..."
+sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
+
+
+printf '\n%s\n' "Configuring Python..."
+cat << EOF >> "$myZSHExt"
+##############################################################################
+##                                  Python                                 ###
+##############################################################################
+export PIP_CONFIG_FILE="\$HOME/.config/python/pip.conf"
+ Setup autoenv to your tastes
+export AUTOENV_AUTH_FILE="\$HOME/.config/python/autoenv_authorized"
+export AUTOENV_ENV_FILENAME='.env'
+export AUTOENV_LOWER_FIRST=''
+source /usr/local/bin/activate.sh
+
+EOF
+
+
+###---
+### Configure pip
+###---
+printf '\n%s\n' "Configuring pip..."
+printf '\n%s\n' "  Creating pip home..."
+if [[ ! -d "$configDir/python" ]]; then
+    mkdir -p "$configDir/python"
+fi
+
+printf '\n%s\n' "  Creating the pip config file..."
+cat << EOF > "$configDir/python/pip.conf"
+ pip configuration
+[list]
+format=columns
+
+EOF
+
+
+###---
+### Configure autoenv
+###---
+printf '\n%s\n' "Configuring autoenv..."
+
+
+printf '\n%s\n' "Creating the autoenv file..."
+touch "$configDir/python/autoenv_authorized"
+
+
+printf '\n%s\n' "Testing pip config..."
+pip3 list
+
 ### Upgrade pip
-/Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip
+#/Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip
 
 # PYTHON STUFF
 #sudo -H python -m pip install ansible paramiko
@@ -254,19 +326,6 @@ cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
 
 ### Boto is required for some Ansible/AWS operations
 
-
-
-###----------------------------------------------------------------------------
-### Installing and Configuring Shells
-###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Dash, et al..."
-brew install shellcheck dash bash-completion@2
-
-###---
-### Softlink sh to dash
-###---
-printf '\n%s\n' "Creating a softlink from sh to dash..."
-ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
 
 
 ###----------------------------------------------------------------------------
@@ -314,7 +373,7 @@ printf '%s\n' "  Python libraries (Homebrew) to a list..."
 pip3 list > "$adminLogs/libs-pip-python-$stage-install.log"
 
 
-# Save minimal application and library output
+### Save minimal application and library output
 printf '\n%s\n' "Saving all..."
 printf '%s\n' "  Apps to a list: pkgutil..."
 pkgutil --pkgs > "$adminLogs/apps-pkgutil-$stage-install.log"

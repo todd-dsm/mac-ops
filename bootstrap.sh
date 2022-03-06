@@ -364,64 +364,64 @@ source \$HOME/.cargo/env
 EOF
 
 
-##----------------------------------------------------------------------------
-## PYTHON
-##----------------------------------------------------------------------------
-printReq "Installing Python..."
-brew install python
-
-printHead "Upgrading Python Pip and setuptools..."
-pip3 install --upgrade pip setuptools wheel
-pip3 install --upgrade ipython simplejson requests boto Sphinx
-
-printHead "Configuring the path..."
-sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
-
-printHead "Configuring Python..."
-cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                  Python                                 ###
-##############################################################################
-export PIP_CONFIG_FILE="\$HOME/.config/python/pip.conf"
- Setup autoenv to your tastes
-export AUTOENV_AUTH_FILE="\$HOME/.config/python/autoenv_authorized"
-export AUTOENV_ENV_FILENAME='.env'
-export AUTOENV_LOWER_FIRST=''
-source /usr/local/bin/activate.sh
-
-EOF
-
-###---
-## Configure pip
-###---
-printReq "Configuring pip..."
-printHead "  Creating pip home..."
-if [[ ! -d "$configDir/python" ]]; then
-    mkdir -p "$configDir/python"
-fi
-
-printHead "  Creating the pip config file..."
-cat << EOF > "$configDir/python/pip.conf"
- pip configuration
-[list]
-format=columns
-
-EOF
-
-###---
-## Configure autoenv
-###---
-printHead "Configuring autoenv..."
-
-printHead "Creating the autoenv file..."
-touch "$configDir/python/autoenv_authorized"
-
-# Source-in and Display changes
-#printHead "python ~/.bashrc changes:"
-#source "$myShellProfile" && tail -5 "$myShellrc"
-
-printInfo "Testing pip config..."
-pip3 list
+###----------------------------------------------------------------------------
+### PYTHON
+###----------------------------------------------------------------------------
+#printReq "Installing Python..."
+#brew install python
+#
+#printHead "Upgrading Python Pip and setuptools..."
+#pip3 install --upgrade pip setuptools wheel
+#pip3 install --upgrade ipython simplejson requests boto Sphinx
+#
+#printHead "Configuring the path..."
+#sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
+#
+#printHead "Configuring Python..."
+#cat << EOF >> "$myZSHExt"
+###############################################################################
+###                                  Python                                 ###
+###############################################################################
+#export PIP_CONFIG_FILE="\$HOME/.config/python/pip.conf"
+# Setup autoenv to your tastes
+#export AUTOENV_AUTH_FILE="\$HOME/.config/python/autoenv_authorized"
+#export AUTOENV_ENV_FILENAME='.env'
+#export AUTOENV_LOWER_FIRST=''
+#source /usr/local/bin/activate.sh
+#
+#EOF
+#
+####---
+#### Configure pip
+####---
+#printReq "Configuring pip..."
+#printHead "  Creating pip home..."
+#if [[ ! -d "$configDir/python" ]]; then
+#    mkdir -p "$configDir/python"
+#fi
+#
+#printHead "  Creating the pip config file..."
+#cat << EOF > "$configDir/python/pip.conf"
+# pip configuration
+#[list]
+#format=columns
+#
+#EOF
+#
+####---
+#### Configure autoenv
+####---
+#printHead "Configuring autoenv..."
+#
+#printHead "Creating the autoenv file..."
+#touch "$configDir/python/autoenv_authorized"
+#
+## Source-in and Display changes
+##printHead "python ~/.bashrc changes:"
+##source "$myShellProfile" && tail -5 "$myShellrc"
+#
+#printInfo "Testing pip config..."
+#pip3 list
 
 
 ##----------------------------------------------------------------------------
