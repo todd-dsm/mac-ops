@@ -8,8 +8,7 @@
 # -----------------------------------------------------------------------------
 #  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | zsh | tee /tmp/install-prep.out
 # -----------------------------------------------------------------------------
-#     TODO: 1) File Enhancement Request with Homebrew for ZSH install support.
-#              https://github.com/Homebrew/homebrew-core/issues/95108
+#     TODO: 1)
 #           2)
 #           3)
 # -----------------------------------------------------------------------------
@@ -25,7 +24,13 @@ set -x
 theENV=TEST
 stage='pre'
 source my-vars.env > /dev/null 2>&1
-#printf '\n%s\n' "Configuring this macOS for $myFullName."
+
+if [[ "$myFullName" == 'fName lName' ]]; then
+    printf '\n%s\n' "you didnt configure my-vars.env; do that first."
+    exit 1
+else
+    printf '\n%s\n' "Configuring this macOS for $myFullName."
+fi
 
 
 ###----------------------------------------------------------------------------
@@ -89,14 +94,9 @@ fi
 printf '\n%s\n' "Running 'brew doctor'..."
 brew doctor
 
-###############################################################################
-###                               BEGIN                                     ###
-###############################################################################
-
-
-###############################################################################
-###                                  System                                 ###
-###############################################################################
+###----------------------------------------------------------------------------
+### System: pre-game
+###----------------------------------------------------------------------------
 ### Display some defaults for the log
 ###---
 printf '\n%s\n' "Default macOS paths:"
@@ -115,7 +115,6 @@ fi
 
 ### Backup paths/manpaths files
 sudo cp /etc/*paths "$backupDir"
-
 
 
 ###----------------------------------------------------------------------------
@@ -176,44 +175,38 @@ for myProg in "${gnuProgs[@]}"; do
 done
 
 
-###----------------------------------------------------------------------------
+###---
 ### PATHs
 ###   * System:  /usr/bin:/bin:/usr/sbin:/sbin
 ###   * Homebrew: anything under /usr/local
-###----------------------------------------------------------------------------
+###---
 printf '\n%s\n' "The new paths:"
 printf '\n%s\n' "\$PATH:"
 cat "$sysPaths"
 printf '\n%s\n' "$PATH"
 
 
-###----------------------------------------------------------------------------
+###---
 ### MANPATHs
 ###   * System:   /usr/share/man
 ###   * Homebrew: /usr/local/share/man
-###----------------------------------------------------------------------------
+###---
 printf '\n%s\n' "\$MANPATH: (available after next login)"
 cat "$sysManPaths"
 
 
-### Configure coreutils                                FIX LATER WITH ALIASES
+### Copy personal configs to $myShellDir
 printf '\n%s\n' "Configuring GNU Coreutils..."
 cp sources/{aliases,functions}.zsh "$myShellDir"
 
 
 ###---
-### RESET TEST ENVIRONMEN
+### RESET TEST ENVIRONMENT
 ###---
 if [[ "$theENV" == 'TEST' ]]; then
-    sudo cp "$backupDir/etc/paths"    /etc/paths
-    sudo cp "$backupDir/etc/manpaths" /etc/manpaths
+    sudo cp "$backupDir/paths"    /etc/paths
+    sudo cp "$backupDir/manpaths" /etc/manpaths
 fi
-
-
-
-###############################################################################
-###                                END                                      ###
-###############################################################################
 
 
 ###----------------------------------------------------------------------------
@@ -231,6 +224,8 @@ ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
 
 ###----------------------------------------------------------------------------
 ### Save installed package and library details before the install
+### We will use the $XDG_CONFIG_HOME like a good POSIX system should.
+### REF: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Saving some pre-install app/lib details..."
 
