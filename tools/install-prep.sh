@@ -83,7 +83,7 @@ printf '\n%s\n' "Installing Homebrew..."
 if ! type -P brew > /dev/null 2>&1; then
     yes | CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
-    printf '\n%s\n' "Homebrew is already installed."
+    printf '\n%s\n' "  Homebrew is already installed."
 fi
 
 printf '\n%s\n' "Running 'brew doctor'..."
@@ -217,7 +217,7 @@ fi
 ###############################################################################
 ###                                END                                      ###
 ###############################################################################
-
+set +x
 
 
 ###----------------------------------------------------------------------------
@@ -296,8 +296,11 @@ find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
 printf '\n\n%s\n' """
     Pulling the latest Oh My Zsh build...
 """
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
+set -x
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
+set +x
 
 ###----------------------------------------------------------------------------
 ### Announcements
