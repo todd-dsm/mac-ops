@@ -80,7 +80,7 @@ curl -Ls t.ly/ZXH8 | zsh
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Homebrew..."
 
-if ! type -P brew; then
+if ! type -P brew > /dev/null 2>&1; then
     yes | CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
     printf '\n%s\n' "Homebrew is already installed."
