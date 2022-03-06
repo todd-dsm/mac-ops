@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1071
+# shellcheck disable=SC1071,SC1091,SC2154
 #  PURPOSE: Get updates, Xcode CLI Tools, and some package details without pain.
 #           For use with a new macOS install.
 # -----------------------------------------------------------------------------
@@ -22,6 +22,7 @@ set -ex
 ### VARIABLES
 ###----------------------------------------------------------------------------
 # ENV Stuff
+theENV=TEST
 stage='pre'
 source my-vars.env > /dev/null 2>&1
 #printf '\n%s\n' "Configuring this macOS for $myFullName."
@@ -87,6 +88,136 @@ fi
 
 printf '\n%s\n' "Running 'brew doctor'..."
 brew doctor
+
+###############################################################################
+###                               BEGIN                                     ###
+###############################################################################
+
+
+###############################################################################
+###                                  System                                 ###
+###############################################################################
+### Display some defaults for the log
+###---
+printHead "Default macOS paths:"
+printInfo "System Paths:"
+cat "$sysPaths"
+printInfo "\$PATH=$PATH"
+
+printHead "System man paths:"
+cat "$sysManPaths"
+if [[ -z "$MANPATH" ]]; then
+    # at this stage it's always empty
+    printInfo "The MANPATH Environmental Variable is empty!"
+else
+    printInfo "\$MANPATH=$MANPATH"
+fi
+
+
+###----------------------------------------------------------------------------
+### Configure the Shell: base options
+###----------------------------------------------------------------------------
+printReq "Configuring base ZSH options..."
+printHead "Configuring $myShellProfile ..."
+cat << EOF >> "$myShellProfile"
+# URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
+#      With the advent of ZSH, this config seems unnecessary: RESEARCH
+if [ -f ~/.zshrc ]; then
+	. ~/.zshrc
+fi
+
+EOF
+
+###----------------------------------------------------------------------------
+### Let's Get Open: Install GNU Programs
+###----------------------------------------------------------------------------
+printReq "Let's get open..."
+set -x
+paramsFile="${sourceDir}/gnu-programs.list"
+gnuProgs=()
+
+### install programs
+brew install gnu-sed grep gawk bash findutils coreutils tree gnu-which \
+    wget make automake gnu-tar gnu-time gzip gnupg diffutils gettext \
+    gnu-indent
+
+### Read list of programs from a file
+while read -r gnuProgram; do
+    # send name to gnuProgs array
+    gnuProgs+=("$gnuProgram")
+done < "$paramsFile"
+
+
+###---
+### Add paths for all elements in the gnuProgs array
+###---
+gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
+
+printf '\n\n%s\n' "Adding paths for new GNU programs..."
+for myProg in "${gnuProgs[@]}"; do
+    gnuPath="$(brew --prefix "$myProg")"
+    printf '%s\n' "  $gnuPath"
+    sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
+done
+
+
+### Move system manpaths down 1 line
+sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
+
+### Add manpaths for the GNU Manuals
+printf '\n\n%s\n' "Adding manpaths for new GNU manuals..."
+for myProg in "${gnuProgs[@]}"; do
+    gnuPath="$(brew --prefix "$myProg")"
+    printf '%s\n' "  $gnuPath"
+    sudo "$gnuSed" -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
+done
+
+
+###----------------------------------------------------------------------------
+### PATHs
+###   * System:  /usr/bin:/bin:/usr/sbin:/sbin
+###   * Homebrew: anything under /usr/local
+###----------------------------------------------------------------------------
+printHead "The new paths:"
+printInfo "\$PATH:"
+cat "$sysPaths"
+printInfo "$PATH"
+
+
+###----------------------------------------------------------------------------
+### MANPATHs
+###   * System:   /usr/share/man
+###   * Homebrew: /usr/local/share/man
+###----------------------------------------------------------------------------
+printHead "\$MANPATH: (available after next login)"
+cat "$sysManPaths"
+
+if [[ -z "$MANPATH" ]]; then
+    printInfo "Current MANPATH is empty!"
+else
+    printInfo "\$MANPATH=$MANPATH"
+fi
+
+
+### Configure coreutils                                FIX LATER WITH ALIASES
+printHead "Configuring GNU Coreutils..."
+cp sources/{aliases,functions}.zsh "$myShellDir"
+
+
+###---
+### RESET TEST ENVIRONMEN
+###---
+if [[ "$theENV" == 'TEST' ]]; then
+    sudo cp ~/.config/admin/backup/etc/paths /etc/paths
+    sudo cp ~/.config/admin/backup/etc/manpaths /etc/manpaths
+fi
+
+
+
+###############################################################################
+###                                END                                      ###
+###############################################################################
+
 
 
 ###----------------------------------------------------------------------------
