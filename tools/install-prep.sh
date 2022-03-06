@@ -99,18 +99,18 @@ brew doctor
 ###############################################################################
 ### Display some defaults for the log
 ###---
-printHead "Default macOS paths:"
-printInfo "System Paths:"
+printf '\n%s\n' "Default macOS paths:"
+printf '\n%s\n' "System Paths:"
 cat "$sysPaths"
-printInfo "\$PATH=$PATH"
+printf '\n%s\n' "\$PATH=$PATH"
 
-printHead "System man paths:"
+printf '\n%s\n' "System man paths:"
 cat "$sysManPaths"
 if [[ -z "$MANPATH" ]]; then
     # at this stage it's always empty
-    printInfo "The MANPATH Environmental Variable is empty!"
+    printf '\n%s\n' "The MANPATH Environmental Variable is empty!"
 else
-    printInfo "\$MANPATH=$MANPATH"
+    printf '\n%s\n' "\$MANPATH=$MANPATH"
 fi
 
 
@@ -118,7 +118,7 @@ fi
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
 printReq "Configuring base ZSH options..."
-printHead "Configuring $myShellProfile ..."
+printf '\n%s\n' "Configuring $myShellProfile ..."
 cat << EOF >> "$myShellProfile"
 # URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
 #      With the advent of ZSH, this config seems unnecessary: RESEARCH
@@ -178,10 +178,10 @@ done
 ###   * System:  /usr/bin:/bin:/usr/sbin:/sbin
 ###   * Homebrew: anything under /usr/local
 ###----------------------------------------------------------------------------
-printHead "The new paths:"
-printInfo "\$PATH:"
+printf '\n%s\n' "The new paths:"
+printf '\n%s\n' "\$PATH:"
 cat "$sysPaths"
-printInfo "$PATH"
+printf '\n%s\n' "$PATH"
 
 
 ###----------------------------------------------------------------------------
@@ -189,18 +189,18 @@ printInfo "$PATH"
 ###   * System:   /usr/share/man
 ###   * Homebrew: /usr/local/share/man
 ###----------------------------------------------------------------------------
-printHead "\$MANPATH: (available after next login)"
+printf '\n%s\n' "\$MANPATH: (available after next login)"
 cat "$sysManPaths"
 
 if [[ -z "$MANPATH" ]]; then
-    printInfo "Current MANPATH is empty!"
+    printf '\n%s\n' "Current MANPATH is empty!"
 else
-    printInfo "\$MANPATH=$MANPATH"
+    printf '\n%s\n' "\$MANPATH=$MANPATH"
 fi
 
 
 ### Configure coreutils                                FIX LATER WITH ALIASES
-printHead "Configuring GNU Coreutils..."
+printf '\n%s\n' "Configuring GNU Coreutils..."
 cp sources/{aliases,functions}.zsh "$myShellDir"
 
 
