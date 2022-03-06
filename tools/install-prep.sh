@@ -117,7 +117,7 @@ fi
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
-printReq "Configuring base ZSH options..."
+printf '\n%s\n' "Configuring base ZSH options..."
 printf '\n%s\n' "Configuring $myShellProfile ..."
 cat << EOF >> "$myShellProfile"
 # URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
@@ -131,7 +131,7 @@ EOF
 ###----------------------------------------------------------------------------
 ### Let's Get Open: Install GNU Programs
 ###----------------------------------------------------------------------------
-printReq "Let's get open..."
+printf '\n%s\n' "Let's get open..."
 set -x
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
