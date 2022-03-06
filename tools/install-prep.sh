@@ -25,14 +25,8 @@ set -x
 theENV="$1"
 stage='pre'
 source my-vars.env > /dev/null 2>&1
-
-if [[ "$myFullName" == 'fName lName' ]]; then
-    printf '\n%s\n' "you didnt configure my-vars.env; do that first."
-    exit 1
-else
-    printf '\n%s\n' "Configuring this macOS for $myFullName."
-fi
-
+paramsFile="${sourceDir}/gnu-programs.list"
+gnuProgs=()
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
@@ -43,6 +37,13 @@ fi
 ### MAIN PROGRAM
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
+
+if [[ "$myFullName" == 'fName lName' ]]; then
+    printf '\n%s\n' "you didnt configure my-vars.env; do that first."
+    exit 1
+else
+    printf '\n%s\n' "  Configuring this macOS for $myFullName."
+fi
 
 
 ####----------------------------------------------------------------------------
@@ -92,8 +93,9 @@ else
     printf '\n%s\n' "  Homebrew is already installed."
 fi
 
-printf '\n%s\n' "Running 'brew doctor'..."
+printf '\n%s\n' "  Running 'brew doctor'..."
 brew doctor
+
 
 ###----------------------------------------------------------------------------
 ### System: pre-game
@@ -101,7 +103,7 @@ brew doctor
 ### Display some defaults for the log
 ###---
 printf '\n%s\n' "Default macOS paths:"
-printf '\n%s\n' "System Paths:"
+printf '\n%s\n' "  System Paths:"
 cat "$sysPaths"
 printf '\n%s\n' "\$PATH=$PATH"
 
@@ -123,6 +125,11 @@ sudo cp /etc/*paths "$backupDir"
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Configuring base ZSH options..."
 printf '\n%s\n' "Configuring $myShellProfile ..."
+
+if [[ -e "$myShellProfile" ]]; then
+    cp "$myShellProfile" "$backupDir"
+fi
+
 cat << EOF >> "$myShellProfile"
 # URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
 #      With the advent of ZSH, this config seems unnecessary: RESEARCH
@@ -136,8 +143,6 @@ EOF
 ### Let's Get Open: Install GNU Programs
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Let's get open..."
-paramsFile="${sourceDir}/gnu-programs.list"
-gnuProgs=()
 
 ### install programs
 brew install gnu-sed grep gawk bash findutils coreutils tree gnu-which \
@@ -152,17 +157,21 @@ done < "$paramsFile"
 
 
 ###---
-### Add paths for all elements in the gnuProgs array
+### Configure PATHs
 ###---
-gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
-
 printf '\n\n%s\n' "Adding paths for new GNU programs..."
+
+### Add paths for all elements in the gnuProgs array
 for myProg in "${gnuProgs[@]}"; do
     gnuPath="$(brew --prefix "$myProg")"
     printf '%s\n' "  $gnuPath"
     sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
 done
 
+
+###---
+### Configure MANPATHs
+###---
 
 ### Move system manpaths down 1 line
 sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
@@ -177,14 +186,10 @@ done
 
 
 ###---
-### PATHs
-###   * System:  /usr/bin:/bin:/usr/sbin:/sbin
-###   * Homebrew: anything under /usr/local
+### Display results for logging
 ###---
-printf '\n%s\n' "The new paths:"
-printf '\n%s\n' "\$PATH:"
+printf '\n%s\n' "The new paths: (available after opening a new Terminal window)"
 cat "$sysPaths"
-printf '\n%s\n' "$PATH"
 
 
 ###---
@@ -192,7 +197,7 @@ printf '\n%s\n' "$PATH"
 ###   * System:   /usr/share/man
 ###   * Homebrew: /usr/local/share/man
 ###---
-printf '\n%s\n' "\$MANPATH: (available after next login)"
+printf '\n%s\n' "The new manpaths: (available after opening a new Terminal window)"
 cat "$sysManPaths"
 
 
@@ -208,6 +213,47 @@ if [[ "$theENV" == 'TEST' ]]; then
     sudo cp "$backupDir/paths"    /etc/paths
     sudo cp "$backupDir/manpaths" /etc/manpaths
 fi
+
+
+###----------------------------------------------------------------------------
+### Install/Configure Ansible and Python
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Installing Ansible (and Python as a dependency)..."
+brew install ansible
+
+
+printf '\n%s\n' "Ansible Version Info:"
+ansible --version
+
+
+printf '\n%s\n' "Configuring Ansible..."
+cat << EOF >> "$myZSHExt"
+##############################################################################
+##                                 Ansible                                 ###
+##############################################################################
+export ANSIBLE_CONFIG="\$HOME/.ansible"
+
+EOF
+
+
+### Create a home for Ansible
+printf '\n%s\n' "Creating the Ansible directory..."
+mkdir -p "$HOME/.ansible/roles"
+touch "$HOME/.ansible/"{ansible.cfg,hosts}
+cp -pv 'sources/ansible/ansible.cfg' ~/.ansible/ansible.cfg
+cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
+
+
+### Upgrade pip
+/Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip
+
+# PYTHON STUFF
+#sudo -H python -m pip install ansible paramiko
+#pip3 install --upgrade ansible paramiko
+
+
+### Boto is required for some Ansible/AWS operations
+
 
 
 ###----------------------------------------------------------------------------
@@ -230,50 +276,48 @@ ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Saving some pre-install app/lib details..."
 
-# Create the admin directory if it doesn't exist
+
+### Create the admin directory if it doesn't exist
 if [[ ! -d "$adminDir" ]]; then
     printf '\n%s\n' "Creating a space for admin logs..."
     mkdir -p "$adminDir/"{logs,backup}
 fi
 
-# Save minimal application and library output
-printf '\n%s\n' "Saving all..."
-printf '%s\n' "  Apps to a list: pkgutil..."
-pkgutil --pkgs > "$adminLogs/apps-pkgutil-$stage-install.log"
 
-
+### Save list of all OS-related apps
 printf '%s\n' "  Apps to a list..."
 find /Applications -maxdepth 1 -type d -print | \
     sed 's|/Applications/||'    \
     > "$adminLogs/apps-find-all-$stage-install.log"
 
 
+### Save log of all dotDirectories in your HOME directory
+printf '%s\n\n' "  \$HOME dot directories to a list..."
+find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
+    sed "s|^$HOME/||" > "$adminLogs/apps-home-dot-dirs-$stage-install.log"
+
+
+### Save log of all Homebrew-installed programs
+printf '%s\n' "  Homebrew programs to a list..."
+brew leaves > "$adminLogs/apps-homebrew-$stage-install.log"
+
+
+### Save log of all OS-related apps
 printf '%s\n' "  PAID Apps to a list..."
 find /Applications -maxdepth 4 -path '*Contents/_MASReceipt/receipt' -print | \
     sed 's|.app/Contents/_MASReceipt/receipt|.app|g; s|/Applications/||' \
     > "$adminLogs/apps-paid-$stage-install.log"
 
 
-# if it's pre-install there will be no Homebrew
-if [[ "$stage" == 'post' ]]; then
-    # Collect Homebrew stats
-    printf '%s\n' "  Homebrew programs to a list..."
-    brew leaves > "$adminLogs/apps-homebrew-$stage-install.log"
-
-    # Collect Homebrew Python stats
-    printf '%s\n' "  Python libraries (Homebrew) to a list..."
-    pip list > "$adminLogs/libs-pip-python-$stage-install.log"
-else
-    printf '%s\n' """
-      No Homebrew packages or Python libraries
-      Homebrew is not installed yet.
-    """
-fi
+### Save log of all Python-related libs
+printf '%s\n' "  Python libraries (Homebrew) to a list..."
+pip3 list > "$adminLogs/libs-pip-python-$stage-install.log"
 
 
-printf '%s\n\n' "  \$HOME dot directories to a list..."
-find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
-    sed "s|^$HOME/||" > "$adminLogs/apps-home-dot-dirs-$stage-install.log"
+# Save minimal application and library output
+printf '\n%s\n' "Saving all..."
+printf '%s\n' "  Apps to a list: pkgutil..."
+pkgutil --pkgs > "$adminLogs/apps-pkgutil-$stage-install.log"
 
 
 ###----------------------------------------------------------------------------

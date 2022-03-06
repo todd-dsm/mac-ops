@@ -737,33 +737,33 @@ vagrant plugin license vagrant-vmware-fusion \
     "$HOME/Documents/system/hashicorp/license-vagrant-vmware-fusion.lic"
 
 
-###----------------------------------------------------------------------------
-### Ansible
-###----------------------------------------------------------------------------
-### Boto is required for some Ansible/AWS operations
-printReq "Installing Ansible..."
-sudo -H python -m pip install ansible paramiko
-pip3 install --upgrade ansible paramiko
-
-printHead "Ansible Version Info:"
-ansible --version
-
-printHead "Configuring Ansible..."
-cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                 Ansible                                 ###
-##############################################################################
-export ANSIBLE_CONFIG="\$HOME/.ansible"
-
-EOF
-
-
-# Create a home for Ansible
-printInfo "Creating the Ansible directory..."
-mkdir -p "$HOME/.ansible/roles"
-touch "$HOME/.ansible/"{ansible.cfg,hosts}
-cp -pv 'sources/ansible/ansible.cfg' ~/.ansible/ansible.cfg
-cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
+####----------------------------------------------------------------------------
+#### Ansible
+####----------------------------------------------------------------------------
+#### Boto is required for some Ansible/AWS operations
+#printReq "Installing Ansible..."
+#sudo -H python -m pip install ansible paramiko
+#pip3 install --upgrade ansible paramiko
+#
+#printHead "Ansible Version Info:"
+#ansible --version
+#
+#printHead "Configuring Ansible..."
+#cat << EOF >> "$myZSHExt"
+###############################################################################
+###                                 Ansible                                 ###
+###############################################################################
+#export ANSIBLE_CONFIG="\$HOME/.ansible"
+#
+#EOF
+#
+#
+#### Create a home for Ansible
+#printInfo "Creating the Ansible directory..."
+#mkdir -p "$HOME/.ansible/roles"
+#touch "$HOME/.ansible/"{ansible.cfg,hosts}
+#cp -pv 'sources/ansible/ansible.cfg' ~/.ansible/ansible.cfg
+#cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
 
 
 ###----------------------------------------------------------------------------
