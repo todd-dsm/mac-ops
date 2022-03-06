@@ -2,6 +2,7 @@
 # shellcheck disable=SC1071,SC1091,SC2154
 #  PURPOSE: Get updates, Xcode CLI Tools, and some package details without pain.
 #           For use with a new macOS install.
+#           ONLY TAKES ONE ARG=TEST; wil run with no args.
 # -----------------------------------------------------------------------------
 #  PREREQS: Script must be ran as Bash per Homebrew's requirements.
 #           https://docs.brew.sh/Installation
@@ -21,7 +22,7 @@ set -x
 ### VARIABLES
 ###----------------------------------------------------------------------------
 # ENV Stuff
-theENV=TEST
+theENV="$1"
 stage='pre'
 source my-vars.env > /dev/null 2>&1
 
