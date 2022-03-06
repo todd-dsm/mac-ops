@@ -131,7 +131,7 @@ fi
 printReq "Pulling Terminal stuff..."
 git clone "$solarizedGitRepo" "$termStuff/solarized" > /dev/null 2>&1
 
-# Pull the settings back
+### Pull the settings back
 if [[ ! -d "$myBackups" ]]; then
     printHead "There are no 'settings' to restore."
 else
@@ -159,7 +159,7 @@ else
     printInfo "\$MANPATH=$MANPATH"
 fi
 
-exit
+
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
@@ -175,23 +175,13 @@ fi
 EOF
 
 ###----------------------------------------------------------------------------
-### Install the font: Hack
-### https://github.com/Homebrew/homebrew-cask-fonts
-###----------------------------------------------------------------------------
-printHead "Installing font: Hack..."
-brew tap homebrew/cask-fonts
-brew install font-hack
-
-
-###----------------------------------------------------------------------------
 ### Let's Get Open: Install GNU Programs
 ###----------------------------------------------------------------------------
 printReq "Let's get open..."
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
 
-# Read list of programs from a file
-set -x
+### Read list of programs from a file
 while read -r gnuProgram; do
     # install program
     brew install "$gnuProgram"
@@ -213,7 +203,7 @@ for myProg in "${gnuProgs[@]}"; do
 done
 
 
-# Move system manpaths down 1 line
+### Move system manpaths down 1 line
 sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
 
 ### Add manpaths for the GNU Manuals
@@ -263,6 +253,15 @@ cp sources/{aliases,functions}.zsh "$myShellDir"
 #    sudo cp ~/.config/admin/backup/etc/paths /etc/paths
 #    sudo cp ~/.config/admin/backup/etc/manpaths /etc/manpaths
 #fi
+
+exit
+###----------------------------------------------------------------------------
+### Install the font: Hack
+### https://github.com/Homebrew/homebrew-cask-fonts
+###----------------------------------------------------------------------------
+printHead "Installing font: Hack..."
+brew tap homebrew/cask-fonts
+brew install font-hack
 
 
 ###----------------------------------------------------------------------------
