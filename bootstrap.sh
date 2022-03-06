@@ -178,13 +178,17 @@ EOF
 ### Let's Get Open: Install GNU Programs
 ###----------------------------------------------------------------------------
 printReq "Let's get open..."
+set -x
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
 
+### install programs
+brew install gnu-sed grep gawk bash findutils coreutils tree gnu-which \
+    wget make automake gnu-tar gnu-time gzip gnupg diffutils gettext \
+    gnu-indent
+
 ### Read list of programs from a file
 while read -r gnuProgram; do
-    # install program
-    brew install "$gnuProgram"
     # send name to gnuProgs array
     gnuProgs+=("$gnuProgram")
 done < "$paramsFile"
