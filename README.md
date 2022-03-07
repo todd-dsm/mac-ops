@@ -14,18 +14,32 @@ Before jumping in, you should probably check the [wiki] first. This may not be f
 
 ## Pre-Game
 
-Assuming this is a fresh macOS, run the [install prep] script to:
+If you need to back up first, check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup. You can safely skip this step if this is a **_new_** macOS install.
 
+Assuming this is a fresh macOS, run the [install prep] script to:
 * Get the latest OS Updates,
 * Install the Xcode CLI Tools
 * Make sure you have a GitHub account then attach your public ssh key to the account, and
 * Save some details about apps that are currently installed.
 
-```zsh
-curl -fsSL  t.ly/TuKH  2>&1 | zsh | tee /tmp/install-prep.out
+```shell
+tools/install-prep.sh 2>&1 | tee /tmp/install-prep.out
 ```
 
-If you need to back up first, check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup ;-)
+When it's all over, you will see something like:
+
+```shell
+         __                                     __   
+  ____  / /_     ____ ___  __  __   ____  _____/ /_  
+ / __ \/ __ \   / __ `__ \/ / / /  /_  / / ___/ __ \ 
+/ /_/ / / / /  / / / / / / /_/ /    / /_(__  ) / / / 
+\____/_/ /_/  /_/ /_/ /_/\__, /    /___/____/_/ /_/  
+                        /____/                       ....is now installed!
+```
+
+To back out of the new Oh My ZSH shell just press: `CTRL+d`
+
+The messages should advise you to reboot. 
 
 ***
 

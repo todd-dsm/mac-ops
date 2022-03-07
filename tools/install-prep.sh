@@ -25,6 +25,7 @@ set -x
 theENV="$1"
 stage='pre'
 source my-vars.env > /dev/null 2>&1
+set -x
 ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
 ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
 pyVers='3.10'
@@ -209,15 +210,6 @@ printf '\n%s\n' "Configuring GNU Coreutils..."
 cp sources/{aliases,functions}.zsh "$myShellDir"
 
 
-###---
-### RESET TEST ENVIRONMENT
-###---
-if [[ "$theENV" == 'TEST' ]]; then
-    sudo cp "$backupDir/paths"    /etc/paths
-    sudo cp "$backupDir/manpaths" /etc/manpaths
-fi
-
-
 ###----------------------------------------------------------------------------
 ### Installing and Configuring Shells
 ###----------------------------------------------------------------------------
@@ -336,6 +328,15 @@ touch "$configDir/python/autoenv_authorized"
 
 printf '\n%s\n' "Testing pip config..."
 pip3 list
+
+
+###---
+### RESET TEST ENVIRONMENT
+###---
+if [[ "$theENV" == 'TEST' ]]; then
+    sudo cp "$backupDir/paths"    /etc/paths
+    sudo cp "$backupDir/manpaths" /etc/manpaths
+fi
 
 
 ###----------------------------------------------------------------------------
