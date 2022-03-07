@@ -263,6 +263,7 @@ curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
 "$gnuSed" -i '\|^#inventory.*hosts$| s|#inventory.*hosts$|inventory      = \$HOME/.ansible/hosts,/etc/ansible/hosts|g' "$myAnsibleCFG"
 "$gnuSed" -i '\|^#host_key_checking| s|#host_key_checking.*|host_key_checking = False|g' "$myAnsibleCFG"
 
+
 #printf '\n%s\n' "Ansible Version Info:"
 #ansible --version
 
@@ -272,7 +273,7 @@ curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Upgrading Python Pip and setuptools..."
 pip3 install --upgrade pip setuptools wheel
-pip3 install --upgrade ipython simplejson requests boto Sphinx
+pip3 install --upgrade boto ipython simplejson requests boto Sphinx
 
 
 printf '\n%s\n' "Configuring the path..."
@@ -305,7 +306,7 @@ fi
 
 printf '\n%s\n' "  Creating the pip config file..."
 cat << EOF > "$configDir/python/pip.conf"
- pip configuration
+# pip configuration
 [list]
 format=columns
 
@@ -324,19 +325,6 @@ touch "$configDir/python/autoenv_authorized"
 
 printf '\n%s\n' "Testing pip config..."
 pip3 list
-
-
-### Upgrade pip
-#/Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip
-
-
-# PYTHON STUFF
-#sudo -H python -m pip install ansible paramiko
-#pip3 install --upgrade ansible paramiko
-
-
-### Boto is required for some Ansible/AWS operations
-
 
 
 ###----------------------------------------------------------------------------
@@ -398,6 +386,7 @@ printf '\n\n%s\n' """
 """
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    tools/config-shell.sh
 else
     printf '\n%s\n' "Oh My ZSH is already installed."
 fi
