@@ -27,6 +27,7 @@ stage='pre'
 source my-vars.env > /dev/null 2>&1
 ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
 ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
+pyVers='3.10'
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
 
@@ -271,13 +272,23 @@ curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
 ###----------------------------------------------------------------------------
 ### Configure Python
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Upgrading Python Pip and setuptools..."
-pip3 install --upgrade pip setuptools wheel
-pip3 install --upgrade boto ipython simplejson requests boto Sphinx
-
-
 printf '\n%s\n' "Configuring the path..."
-sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
+pythonBin="$(brew info python@${pyVers} | grep '/usr/local/opt/python@.*python3$' | tr -d ' ')"
+pyPackages="$(brew info python@${pyVers} | grep site-packages$ | tr -d ' ')"
+
+sudo "$gnuSed" -i "\|/usr/local/bin|i ${pythonBin%/*}" "$sysPaths"
+sudo "$gnuSed" -i "\|/usr/local/bin|i $pyPackages"     "$sysPaths"
+
+PATH="${pythonBin%/*}:${pyPackages}:$PATH"
+
+printf '\n%s\n' "Display paths and Python version:"         # FIXME
+echo "$PATH"
+python3 --version
+sleep 3s
+
+printf '\n%s\n' "Upgrading Python Pip and setuptools..."
+python3 -m pip install --upgrade pip setuptools wheel
+python3 -m pip install --upgrade boto ipython simplejson requests boto Sphinx
 
 
 printf '\n%s\n' "Configuring Python..."
@@ -286,11 +297,11 @@ cat << EOF >> "$myZSHExt"
 ##                                  Python                                 ###
 ##############################################################################
 export PIP_CONFIG_FILE="\$HOME/.config/python/pip.conf"
- Setup autoenv to your tastes
-export AUTOENV_AUTH_FILE="\$HOME/.config/python/autoenv_authorized"
-export AUTOENV_ENV_FILENAME='.env'
-export AUTOENV_LOWER_FIRST=''
-source /usr/local/bin/activate.sh
+# Setup autoenv to your tastes
+#export AUTOENV_AUTH_FILE="\$HOME/.config/python/autoenv_authorized"
+#export AUTOENV_ENV_FILENAME='.env'
+#export AUTOENV_LOWER_FIRST=''
+#source /usr/local/bin/activate.sh
 
 EOF
 
