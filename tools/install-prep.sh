@@ -229,6 +229,46 @@ ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
 
 
 ###----------------------------------------------------------------------------
+### Install the latest git
+###----------------------------------------------------------------------------
+printReq "Installing Git..."
+brew install git
+
+printReq "Configuring Git..."
+cat << EOF >> "$myGitConfig"
+##############################################################################
+##                                  GIT                                    ###
+##############################################################################
+[user]
+	name = $myFullName
+	email = $myEmailAdd
+[core]
+	editor = vim
+	pager = cat
+	excludesfile = ~/.gitignore
+[color]
+	ui = true
+[push]
+	default = matching
+[alias]
+	rlog = log --reverse
+[pull]
+	rebase = false
+EOF
+
+
+### ignore some things universally
+cat << EOF >> "$myGitIgnore"
+# macOS Stuff
+.DS_Store
+# Ignore IDE Garbage
+**/.idea/*
+**/.vscode/*
+
+EOF
+
+
+###----------------------------------------------------------------------------
 ### Install/Configure Ansible
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Installing Ansible (and Python as a dependency)..."
