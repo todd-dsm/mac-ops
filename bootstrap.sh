@@ -22,11 +22,16 @@ set -x
 : "${1:-LIVE}"
 theENV="$1"
 workDir="${PWD}"
+timePre="$(date +'%T')"
+myGroup="$(id -g)"
 
-# source-in user-pecific variables
+
+### source-in user-pecific variables
 source my-vars.env "$theENV" > /dev/null 2>&1
 printf '\n%s\n' "Configuring this macOS for $myFullName."
 
+
+### A final announcement before we send it
 if [[ "$theENV" == 'TEST' ]]; then
     # We're either testing or we aint
     echo "THIS IS ONLY A TEST"
@@ -36,9 +41,6 @@ else
     sleep 3s
 fi
 
-timePre="$(date +'%T')"
-myGroup="$(id -g)"
-
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
@@ -47,6 +49,7 @@ myGroup="$(id -g)"
 ###---
 source lib/print-message-formatting.sh
 set -x
+
 
 ###----------------------------------------------------------------------------
 ### The Setup
@@ -220,7 +223,7 @@ printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
 #brew install --cask \
 #    google-chrome visual-studio-code intellij-idea-ce  \
-#######    virtualbox virtualbox-extension-pack wireshark
+#    virtualbox virtualbox-extension-pack wireshark
 
 
 ###---
@@ -1231,6 +1234,11 @@ printInfo "Ensure correct ownership of ~/.viminfo file..."
 if [[ -f ~/.viminfo ]]; then
     sudo chown "$USER:$myGroup" ~/.viminfo
 fi
+
+
+printInfo "Copy ~/.config/shell/environment.zsh to ~/.oh-my-zsh/custom..."
+cp -f "$myZSHExt" "$myShellEnv"
+
 
 ###----------------------------------------------------------------------------
 ### Announcements
