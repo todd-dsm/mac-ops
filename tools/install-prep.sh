@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1071,SC1091,SC2154
+# shellcheck disable=SC1071,SC1091,SC2154,SC2016
 #  PURPOSE: Get updates, Xcode CLI Tools, and some package details without pain.
 #           For use with a new macOS install.
 #           ONLY TAKES ONE ARG=TEST; wil run with no args.
@@ -25,6 +25,8 @@ set -x
 theENV="$1"
 stage='pre'
 source my-vars.env > /dev/null 2>&1
+ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
+ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
 
@@ -236,10 +238,6 @@ printf '\n%s\n' "Installing Ansible (and Python as a dependency)..."
 brew install ansible
 
 
-printf '\n%s\n' "Ansible Version Info:"
-ansible --version
-
-
 printf '\n%s\n' "Configuring Ansible..."
 cat << EOF >> "$myZSHExt"
 ##############################################################################
@@ -252,10 +250,21 @@ EOF
 
 ### Create a home for Ansible
 printf '\n%s\n' "Creating the Ansible directory..."
-mkdir -p "$HOME/.ansible/roles"
-touch "$HOME/.ansible/"{ansible.cfg,hosts}
-cp -pv 'sources/ansible/ansible.cfg' ~/.ansible/ansible.cfg
-cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
+mkdir -p "$myAnsibleDir/roles"
+
+
+### Pull the latest configs
+printf '\n%s\n' "Pulling the latest Ansible configs..."
+curl -o "$myAnsibleHosts" "$ghAnsibleHosts" > /dev/null 2>&1
+curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
+
+
+### Point Ansible to its config file
+"$gnuSed" -i '\|^#inventory.*hosts$| s|#inventory.*hosts$|inventory      = \$HOME/.ansible/hosts,/etc/ansible/hosts|g' "$myAnsibleCFG"
+"$gnuSed" -i '\|^#host_key_checking| s|#host_key_checking.*|host_key_checking = False|g' "$myAnsibleCFG"
+
+#printf '\n%s\n' "Ansible Version Info:"
+#ansible --version
 
 
 ###----------------------------------------------------------------------------
@@ -316,8 +325,10 @@ touch "$configDir/python/autoenv_authorized"
 printf '\n%s\n' "Testing pip config..."
 pip3 list
 
+
 ### Upgrade pip
 #/Library/Developer/CommandLineTools/usr/bin/python3 -m pip install --upgrade pip
+
 
 # PYTHON STUFF
 #sudo -H python -m pip install ansible paramiko
