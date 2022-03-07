@@ -416,6 +416,9 @@ printf '\n\n%s\n' """
     sudo shutdown -r now
 """
 
+### Save the install-prep log
+mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
+
 
 ###---
 ### fin~
