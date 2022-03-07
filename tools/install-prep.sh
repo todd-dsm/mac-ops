@@ -54,8 +54,8 @@ fi
 #### Update the OS
 #### FIXME: https://github.com/todd-dsm/mac-ops/issues/63
 ####----------------------------------------------------------------------------
-#printf '\n%s\n' "Updating macOS..."
-#softwareupdate --all --install --force
+printf '\n%s\n' "Updating macOS..."
+softwareupdate --all --install --force
 
 
 ####----------------------------------------------------------------------------
@@ -98,6 +98,7 @@ else
 fi
 
 printf '\n%s\n' "  Running 'brew doctor'..."
+brew cleanup
 brew doctor
 
 
@@ -253,12 +254,8 @@ curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
 
 
 ### Point Ansible to its config file
-"$gnuSed" -i '\|^#inventory.*hosts$| s|#inventory.*hosts$|inventory      = \$HOME/.ansible/hosts,/etc/ansible/hosts|g' "$myAnsibleCFG"
+"$gnuSed" -i '\|^#inventory.*hosts$| s|#inventory.*hosts$|inventory       = \$HOME/.ansible/hosts,/etc/ansible/hosts|g' "$myAnsibleCFG"
 "$gnuSed" -i '\|^#host_key_checking| s|#host_key_checking.*|host_key_checking = False|g' "$myAnsibleCFG"
-
-
-#printf '\n%s\n' "Ansible Version Info:"
-#ansible --version
 
 
 ###----------------------------------------------------------------------------
@@ -330,6 +327,10 @@ printf '\n%s\n' "Testing pip config..."
 pip3 list
 
 
+printf '\n%s\n' "Ansible Version Info:"
+ansible --version
+
+
 ###---
 ### RESET TEST ENVIRONMENT
 ###---
@@ -379,15 +380,15 @@ find /Applications -maxdepth 4 -path '*Contents/_MASReceipt/receipt' -print | \
     > "$adminLogs/apps-paid-$stage-install.log"
 
 
-### Save log of all Python-related libs
-printf '%s\n' "  Python libraries (Homebrew) to a list..."
-pip3 list > "$adminLogs/libs-pip-python-$stage-install.log"
-
-
 ### Save minimal application and library output
 printf '\n%s\n' "Saving all..."
 printf '%s\n' "  Apps to a list: pkgutil..."
 pkgutil --pkgs > "$adminLogs/apps-pkgutil-$stage-install.log"
+
+
+### Save log of all Python-related libs
+printf '%s\n' "  Python libraries (Homebrew) to a list..."
+pip3 list > "$adminLogs/libs-pip-python-$stage-install.log"
 
 
 ###----------------------------------------------------------------------------
@@ -409,7 +410,6 @@ fi
 ### Announcements
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' """
-    Back OUT of the Oh My ZSH! install by typing: 'CTRL+d'
 
 	You are now prepped for the mac-ops process.
 
