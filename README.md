@@ -6,14 +6,13 @@ This always needs refactoring but it's still better than starting from scratch. 
 
 ***
 
+# Attention! This may not be for you.
+
 ## Documentation
 
-```shell
-Attention! This may not be for you.
-```
-Before jumping in, you should probably check the docs in the [wiki] first. 
+Before jumping in, you should probably check the docs in the [wiki] first.
 
-If this is your _personal_ laptop that also serves as your work machine, a backup procedure is strongly recommended; check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup. If this is a new `macOS` laptop/install for work, you can safely skip this step.
+If this is your _personal_ laptop that also serves as your work machine, a backup procedure is strongly recommended; check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup. If this is a new `macOS` laptop/install for work, you can safely skip the `rsync` step.
 
 ***
 
