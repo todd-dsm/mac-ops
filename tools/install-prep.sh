@@ -407,6 +407,15 @@ else
 fi
 
 
+### save differences to the log for posterity
+diff ~/.zshrc sources/zshrc-custom
+
+
+### add advanced configuration
+cp sources/zshrc-custom "$myShellrc"
+sed -i "s/temp-user/$USER/g" "$myShellrc"
+
+
 ###----------------------------------------------------------------------------
 ### Announcements
 ###----------------------------------------------------------------------------
