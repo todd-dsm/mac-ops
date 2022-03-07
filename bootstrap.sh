@@ -5,8 +5,9 @@
 # PURPOSE:  A QnD script to configure a base environment so I can get back to
 #           work quickly. It will be replaced by Ansible automation as soon as
 #           possible between laptop upgrades.
+#           PASS 'TEST' as the first argument; if not, it's LIVE.
 #------------------------------------------------------------------------------
-# EXECUTE:  ./bootstrap.sh TEST 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
+# EXECUTE:  ./bootstrap.sh <TEST> 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
 #------------------------------------------------------------------------------
 # PREREQS: 1) ssh keys must be on the new system for Github clones
 #          2)
@@ -18,9 +19,13 @@ set -x
 ###------------------------------------------------------------------------------
 ### VARIABLES
 ###------------------------------------------------------------------------------
-: "${1?  Wheres my environment, bro!}"
+: "${1:-LIVE}"
 theENV="$1"
-#workDir="${PWD}"
+workDir="${PWD}"
+
+# source-in user-pecific variables
+source my-vars.env "$theENV" > /dev/null 2>&1
+printf '\n%s\n' "Configuring this macOS for $myFullName."
 
 if [[ "$theENV" == 'TEST' ]]; then
     # We're either testing or we aint
@@ -31,78 +36,17 @@ else
     sleep 3s
 fi
 
-# source-in user-pecific variables
-source my-vars.env "$theENV" > /dev/null 2>&1
-printf '\n%s\n' "Configuring this macOS for $myFullName."
-
 timePre="$(date +'%T')"
 myGroup="$(id -g)"
+
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
 ###----------------------------------------------------------------------------
-### Print stuff of greatest importance: Requirements
-####---
-printReq() {
-    theReq="$1"
-    printf '\e[1;34m%-6s\e[m' """
-$theReq
-"""
-}
-
-####---
-### Print stuff of secondary importance: Headlines
-####---
-printHead() {
-    theHead="$1"
-    printf '%s' """
-  $theHead
-"""
-}
-
-####---
-### Print stuff of tertiary importance: Informational
-####---
-printInfo() {
-    theInfo="$1"
-    printf '%s\n' """
-    $theInfo
-"""
-}
-
-####---
-### Print Requirement
-####---
-getNewPaths() {
-    declare PATH=''
-    ### Construct new paths
-    printReq "Constructing the \$PATH environment variable..."
-    while IFS= read -r binPath; do
-        printHead "Adding: $binPath"
-        if [[ -z "$myPath" ]]; then
-           "myPath=$binPath"
-       else
-           myPath="$myPath:$binPath"
-        fi
-    done < "$sysPaths"
-
-    export PATH="$myPath"
-
-
-    ### Construct new manpaths
-    printReq "Constructing the \$MANPATH environment variable..."
-    while IFS= read -r manPath; do
-        printHead "Adding: $manPath"
-        if [[ -z "$myMans" ]]; then
-           "myMans=$manPath"
-       else
-           myMans="$myMans:$manPath"
-        fi
-    done < "$sysManPaths"
-
-    export MANPATH="$myMans"
-}
-
+### source-in the print library
+###---
+source lib/print-message-formatting.sh
+set -x
 
 ###----------------------------------------------------------------------------
 ### The Setup
@@ -116,6 +60,7 @@ if ! grep "^$hostRemote" "$knownHosts" > /dev/null 2>&1; then
 else
     printHead "We have the Github key, all good."
 fi
+
 
 ####---
 ### Backup some files before we begin
@@ -203,19 +148,19 @@ fi
 #for myProg in "${gnuProgs[@]}"; do
 #    gnuPath="$(brew --prefix "$myProg")"
 #    printf '%s\n' "  $gnuPath"
-#    sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
+#    sudo sed -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
 #done
 #
 #
 #### Move system manpaths down 1 line
-#sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
+#sudo sed -i -n '2{h;n;G};p' "$sysManPaths"
 #
 #### Add manpaths for the GNU Manuals
 #printf '\n\n%s\n' "Adding manpaths for new GNU manuals..."
 #for myProg in "${gnuProgs[@]}"; do
 #    gnuPath="$(brew --prefix "$myProg")"
 #    printf '%s\n' "  $gnuPath"
-#    sudo "$gnuSed" -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
+#    sudo sed -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
 #done
 #
 #
@@ -351,7 +296,7 @@ printReq "Installing Rust..."
 brew install rust
 
 printHead "Configuring the Rust path..."
-sudo "$gnuSed" -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"
+sudo sed -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"
 
 
 printHead "Configuring Rust..."
@@ -375,7 +320,7 @@ EOF
 #pip3 install --upgrade ipython simplejson requests boto Sphinx
 #
 #printHead "Configuring the path..."
-#sudo "$gnuSed" -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
+#sudo sed -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
 #
 #printHead "Configuring Python..."
 #cat << EOF >> "$myZSHExt"
@@ -437,7 +382,7 @@ printHead "Updating all Gems..."
 gem update "$(gem list | cut -d' ' -f1)"
 
 printHead "Configuring the path..."
-sudo "$gnuSed" -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
+sudo sed -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
 
 
 printHead "Configuring Ruby..."
@@ -489,8 +434,8 @@ printHead "Opening up $goBins so we can see local go programs..."
 sudo mkdir -p "$goBins"
 
 # Open go-bins up to the system
-sudo "$gnuSed" -i "\|/usr/bin|i       $goBins"                 "$sysPaths"
-sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
+sudo sed -i "\|/usr/bin|i       $goBins"                 "$sysPaths"
+sudo sed -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
 
 
 ###----------------------------------------------------------------------------
@@ -628,7 +573,7 @@ export AWS_CONFIG_FILE="\$HOME/.aws/config"
 EOF
 
 printHead "Setting the AWS User to your local account name..."
-"$gnuSed" -i "/AWS_PROFILE/ s/awsUser/${USER}/g" "$myZSHExt"
+sed -i "/AWS_PROFILE/ s/awsUser/${USER}/g" "$myZSHExt"
 
 # Restore the AWS configs if there are any
 if [[ ! -d "$myBackups" ]]; then
@@ -1216,6 +1161,10 @@ printInfo "TextEdit Preferences: after:"
 defaults read com.apple.TextEdit
 
 
+### move back to the mac-ops directory
+cd "$workDir" || exit
+
+
 ###----------------------------------------------------------------------------
 ### Remove the Github Remote Host Key
 ###----------------------------------------------------------------------------
@@ -1227,9 +1176,8 @@ ssh-keygen -f "$knownHosts" -R "$hostRemote"
 ### Save installed package and library details AFTER the install
 ###----------------------------------------------------------------------------
 printReq "Saving some post-install app/lib details..."
-pwd
-cd "/Users/${USER}/mac-ops" || exit             # FIXME: remove later
 tools/admin-app-details.sh post
+
 
 ### Create a link to the log file
 ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
