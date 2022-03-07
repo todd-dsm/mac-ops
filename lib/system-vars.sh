@@ -38,12 +38,14 @@ myAnsibleCFG="$myAnsibleDir/ansible.cfg"
 myAnsibleHosts="$myAnsibleDir/hosts"
 termStuff="$myDownloads"
 solarizedGitRepo='git@github.com:altercation/solarized.git'
+#------------------------------------------------------------------------------
 myShellProfile="$HOME/.zprofile"
 myShellrc="$HOME/.zshrc"
-myShellEnv="$HOME/.oh-my-zsh/custom"
 myZSHExt="${myShellDir}/environment.zsh"
 myZSHAlias="${myShellDir}/aliases.zsh"
 myZSHFuncts="${myShellDir}/functions.zsh"
+myShellEnv="$HOME/.oh-my-zsh/custom"
+#------------------------------------------------------------------------------
 myGitConfig="$HOME/.gitconfig"
 myGitIgnore="$HOME/.gitignore"
 sysPaths='/etc/paths'
