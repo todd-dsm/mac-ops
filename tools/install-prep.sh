@@ -390,7 +390,8 @@ pkgutil --pkgs > "$adminLogs/apps-pkgutil-$stage-install.log"
 
 
 ###----------------------------------------------------------------------------
-### Announcements
+### Install Oh My Zsh!
+### REF: https://ohmyz.sh/ | GitHub: https://github.com/ohmyzsh/ohmyzsh
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' """
     Pulling the latest Oh My Zsh build...
@@ -407,8 +408,7 @@ fi
 ### Announcements
 ###----------------------------------------------------------------------------
 printf '\n\n%s\n' """
-    Configure the Shell with some sensible defaults
-    tools/config-shell.sh
+    Back OUT of the Oh My ZSH! install by typing: 'CTRL+d'
 
 	You are now prepped for the mac-ops process.
 
