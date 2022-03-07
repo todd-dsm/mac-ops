@@ -23,12 +23,16 @@ set -x
 theENV="$1"
 workDir="${PWD}"
 timePre="$(date +'%T')"
-myGroup="$(id -g)"
+myGroup="$(id -gn)"
 
 
 ### source-in user-pecific variables
 source my-vars.env "$theENV" > /dev/null 2>&1
 printf '\n%s\n' "Configuring this macOS for $myFullName."
+
+
+### calm the homebrew messages
+export HOMEBREW_NO_ENV_HINTS=TRUE
 
 
 ### A final announcement before we send it
@@ -38,7 +42,7 @@ if [[ "$theENV" == 'TEST' ]]; then
     sleep 2s
 else
     echo "We are preparing to going live..."
-    sleep 3s
+    sleep 5s
 fi
 
 
@@ -48,14 +52,21 @@ fi
 ### source-in the print library
 ###---
 source lib/print-message-formatting.sh
-set -x
 
 
 ###----------------------------------------------------------------------------
 ### The Setup
 ###----------------------------------------------------------------------------
+### Turn on debugging in TEST mode
+###---
+if [[ "$theENV" == 'TEST' ]]; then
+    set -x
+fi
+
+
+###---
 ### Add the Github key to the knownhosts file
-####---
+###---
 printReq  "Checking to see if we have the Github public key..."
 if ! grep "^$hostRemote" "$knownHosts" > /dev/null 2>&1; then
     printHead "We don't, pulling it now..."
@@ -217,8 +228,8 @@ brew install font-hack
 
 
 ###----------------------------------------------------------------------------
-## Install the Casks (GUI Apps)
-##----------------------------------------------------------------------------
+### Install the Casks (GUI Apps)
+###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
 #brew install --cask \
@@ -235,38 +246,38 @@ vboxmanage setproperty machinefolder "$HOME/vms/vbox"
 
 printHead "Setting VirtualBox environment variables..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                VirtualBox                               ###
-##############################################################################
+###############################################################################
+###                                VirtualBox                               ###
+###############################################################################
 export VBOX_USER_HOME="\$HOME/vms/vbox"
 
 EOF
 
 
-###---
-## Install the latest version of VMware Fusion
-## Using older versions of Fusion on current macOS never seems to work.
-###---
+####---
+### Install the latest version of VMware Fusion
+### Using older versions of Fusion on current macOS never seems to work.
+####---
 printHead "Installing VMware Fusion..."
 #brew install --cask vmware-fusion
 
 ###---
-## VMware configurations
+### VMware configurations
 ###---
 printHead "Configuring VMware..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                  VMware                                 ###
-##############################################################################
+###############################################################################
+###                                  VMware                                 ###
+###############################################################################
 export VMWARE_STORAGE="\$HOME/vms/vmware"
 
 EOF
 
 
-##----------------------------------------------------------------------------
-## Useful System Utilities
-##----------------------------------------------------------------------------
-printReq "Installing system-admin utilities..."
+###----------------------------------------------------------------------------
+### Useful System Utilities
+###----------------------------------------------------------------------------
+printReq  "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 #brew install \
 #    nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
@@ -292,9 +303,9 @@ printHead "Some networking and convenience stuff..."
 #sudo sed -i "\|/usr/bin|i /usr/sbin/tcpdump" "$sysPaths"
 #
 #
-##----------------------------------------------------------------------------
-## RUST
-##----------------------------------------------------------------------------
+###----------------------------------------------------------------------------
+### RUST
+###----------------------------------------------------------------------------
 printReq "Installing Rust..."
 brew install rust
 
@@ -304,9 +315,9 @@ sudo sed -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"
 
 printHead "Configuring Rust..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                   Rust                                  ###
-##############################################################################
+###############################################################################
+###                                   Rust                                  ###
+###############################################################################
 source \$HOME/.cargo/env
 
 EOF
@@ -372,17 +383,19 @@ EOF
 #pip3 list
 
 
-##----------------------------------------------------------------------------
-## Ruby
-##----------------------------------------------------------------------------
+###----------------------------------------------------------------------------
+### Ruby
+###----------------------------------------------------------------------------
 printReq "Installing Ruby..."
 brew install ruby chruby
+
 
 ###---
 ### Update/Install Gems
 ###---
 printHead "Updating all Gems..."
-gem update "$(gem list | cut -d' ' -f1)"
+gem update
+
 
 printHead "Configuring the path..."
 sudo sed -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
@@ -390,18 +403,18 @@ sudo sed -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
 
 printHead "Configuring Ruby..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                   Ruby                                  ###
-##############################################################################
-source /usr/local/opt/chruby/share/chruby/chruby.sh
-source /usr/local/opt/chruby/share/chruby/auto.sh
+###############################################################################
+###                                   Ruby                                  ###
+###############################################################################
+#source /usr/local/opt/chruby/share/chruby/chruby.sh
+#source /usr/local/opt/chruby/share/chruby/auto.sh
 
 EOF
 
 
-##----------------------------------------------------------------------------
-## Install Build Utilities
-##----------------------------------------------------------------------------
+###----------------------------------------------------------------------------
+### Install Build Utilities
+###----------------------------------------------------------------------------
 printReq "Installing build utilities..."
 # cmake with completion requires (python) sphinx-doc
 brew install cmake bazel
@@ -420,9 +433,9 @@ mkdir -p "$GOPATH"
 
 printHead "Configuring Go..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                    Go                                   ###
-##############################################################################
+###############################################################################
+###                                    Go                                   ###
+###############################################################################
 export GOPATH="\$HOME/go"
 alias mygo="cd \$GOPATH"
 
@@ -483,32 +496,32 @@ sudo sed -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
 #EOF
 #
 
-##----------------------------------------------------------------------------
-## nodejs and npm
-##----------------------------------------------------------------------------
+###----------------------------------------------------------------------------
+### nodejs and npm
+###----------------------------------------------------------------------------
 printReq "Installing the Node.js and npm..."
 brew install node
 
-# install/configure yarn
+### install/configure yarn
 brew install yarn
 yarn global add yarn
 
 
 printHead "Configuring npm..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                  npm                                    ###
-##############################################################################
+###############################################################################
+###                                  npm                                    ###
+###############################################################################
 
 EOF
 
 
-##----------------------------------------------------------------------------
-## Vim: The Power and the Glory
-##----------------------------------------------------------------------------
+###----------------------------------------------------------------------------
+### Vim: The Power and the Glory
+###----------------------------------------------------------------------------
 printReq "Upgrading to full-blown Vim..."
 
-# Verify before install
+### Verify before install
 printHead "Checking Apple's Vim..."
 vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 
@@ -528,29 +541,29 @@ echo "ignore: Error: Vim will not link against both Luajit & Lua message"
 
 printHead "Configuring Vim..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                   Vim                                   ###
-##############################################################################
+###############################################################################
+###                                   Vim                                   ###
+###############################################################################
 export EDITOR="$(type -P vim)"
 alias -g vi="\$EDITOR"
 
 EOF
 
-# Verify after install
+### Verify after install
 printHead "The Real version of Vim:"
 vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 
 
-##----------------------------------------------------------------------------
-## Amazon AWS CLI
-##----------------------------------------------------------------------------
+###----------------------------------------------------------------------------
+### Amazon AWS CLI
+###----------------------------------------------------------------------------
 printReq "Installing the AWS CLI and some Utilities..."
 pip3 install awscli jmespath jmespath-terminal
 # Ignore the following error: 'Calling bottle :unneeded is deprecated!'
 brew tap jmespath/jmespath
 brew install jp jq jid
 
- install aws aliases: https://github.com/awslabs/awscli-aliases
+# install aws aliases: https://github.com/awslabs/awscli-aliases
 git clone git@github.com:awslabs/awscli-aliases.git /tmp/awscli-aliases
 mkdir -p "$HOME/.aws/cli"
 cp /tmp/awscli-aliases/alias "$HOME/.aws/cli/alias"
@@ -564,9 +577,9 @@ fi
 
 printHead "Configuring the AWS CLI..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                 Amazon                                  ###
-##############################################################################
+###############################################################################
+###                                 Amazon                                  ###
+###############################################################################
 source /usr/local/bin/aws_zsh_completer.sh
 complete -C "\$(type -P aws_completer)" aws
 export AWS_REGION='yourRegion'
@@ -588,31 +601,31 @@ else
 fi
 
 
-##----------------------------------------------------------------------------
-## Add a space for common remote access tokens
-##----------------------------------------------------------------------------
+###----------------------------------------------------------------------------
+### Add a space for common remote access tokens
+###----------------------------------------------------------------------------
 printReq "Configuring Access Tokens for Remote services..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                             Remote Access                               ###
-##############################################################################
+###############################################################################
+###                             Remote Access                               ###
+###############################################################################
  Homebrew / Github
 export HOMEBREW_GITHUB_API_TOKEN=''
 
 EOF
 
 
-##----------------------------------------------------------------------------
-## HashiCorp: Terraform
-##----------------------------------------------------------------------------
+###----------------------------------------------------------------------------
+### HashiCorp: Terraform
+###----------------------------------------------------------------------------
 printHead "Installing tfenv..."
 brew install tfenv graphviz
 
 printHead "Configuring Terraform..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                Terraform                                ###
-##############################################################################
+###############################################################################
+###                                Terraform                                ###
+###############################################################################
 alias tf="\$(command -v terraform)"
 complete -o nospace -C /usr/local/bin/terraform tf
 export TF_VAR_AWS_PROFILE="\$AWS_PROFILE"
@@ -622,18 +635,18 @@ export TF_LOG_PATH='/tmp/terraform.log'
 EOF
 
 
-##----------------------------------------------------------------------------
-## HashiCorp: Packer
-##----------------------------------------------------------------------------
+###----------------------------------------------------------------------------
+### HashiCorp: Packer
+###----------------------------------------------------------------------------
 printReq "Installing Packer..."
 #brew install hashicorp/tap/packer
 #brew install packer-completion
 
 printHead "Configuring Packer..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                  Packer                                 ###
-##############################################################################
+###############################################################################
+###                                  Packer                                 ###
+###############################################################################
 complete -o nospace -C /usr/local/bin/packer packer
 export PACKER_HOME="\$HOME/vms/packer"
 export PACKER_CONFIG="\$PACKER_HOME"
@@ -646,43 +659,43 @@ export PACKER_NO_COLOR='yes'
 EOF
 
 
-##----------------------------------------------------------------------------
-## HashiCorp: Vagrant
-##----------------------------------------------------------------------------
-printReq "Installing Vagrant..."
-#brew install --cask vagrant
-#brew install vagrant-completion
-
-printHead "Configuring Vagrant..."
-cat << EOF >> "$myShellrc"
-###############################################################################
-###                                 Vagrant                                 ###
-###############################################################################
-#export VAGRANT_LOG=debug
-export VAGRANT_HOME="\$HOME/vms/vagrant"
-export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
-export VAGRANT_DEFAULT_PROVIDER='virtualbox'
-
-EOF
-
-# Source-in and Display changes
-printInfo "vagrant ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
-
-### Handle Licensing
-printHead "Installing vagrant vmware-fusion license..."
-printInfo "Reparing plugins first..."
-vagrant plugin repair
-
-printInfo "Installing Fusion plugin..."
-vagrant plugin install vagrant-vmware-fusion
-
-printInfo "All plugins:"
-vagrant plugin list
-
-printInfo "Installing Vagrant license..."
-vagrant plugin license vagrant-vmware-fusion \
-    "$HOME/Documents/system/hashicorp/license-vagrant-vmware-fusion.lic"
+####----------------------------------------------------------------------------
+#### HashiCorp: Vagrant
+####----------------------------------------------------------------------------
+#printReq "Installing Vagrant..."
+##brew install --cask vagrant
+##brew install vagrant-completion
+#
+#printHead "Configuring Vagrant..."
+#cat << EOF >> "$myShellrc"
+################################################################################
+####                                 Vagrant                                 ###
+################################################################################
+##export VAGRANT_LOG=debug
+#export VAGRANT_HOME="\$HOME/vms/vagrant"
+#export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
+#export VAGRANT_DEFAULT_PROVIDER='virtualbox'
+#
+#EOF
+#
+## Source-in and Display changes
+#printInfo "vagrant ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
+#
+#### Handle Licensing
+#printHead "Installing vagrant vmware-fusion license..."
+#printInfo "Reparing plugins first..."
+#vagrant plugin repair
+#
+#printInfo "Installing Fusion plugin..."
+#vagrant plugin install vagrant-vmware-fusion
+#
+#printInfo "All plugins:"
+#vagrant plugin list
+#
+#printInfo "Installing Vagrant license..."
+#vagrant plugin license vagrant-vmware-fusion \
+#    "$HOME/Documents/system/hashicorp/license-vagrant-vmware-fusion.lic"
 
 
 ####----------------------------------------------------------------------------
@@ -730,55 +743,57 @@ printReq "Installing Docker, et al..."
 
 printHead "Configuring Docker..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                                 DOCKER                                  ###
-##############################################################################
- command-completions for docker, et al.
-eval "\$(docker-machine env default)"
+###############################################################################
+###                                 DOCKER                                  ###
+###############################################################################
+# command-completions for docker, et al.
+#eval "\$(docker-machine env default)"
 
 EOF
 
 # Source-in and Display changes
-printInfo "Docker ~/.bashrc changes:"
-source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
+#printInfo "Docker ~/.bashrc changes:"
+#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
 
 
-###----------------------------------------------------------------------------
-### Install the latest git with completions
-###----------------------------------------------------------------------------
-printReq "Installing Git..."
-### Includes completion
-brew install git
-
-printReq "Configuring Git..."
-cat << EOF >> "$myGitConfig"
-##############################################################################
-##                                  GIT                                    ###
-##############################################################################
-[user]
-	name = $myFullName
-	email = $myEmailAdd
-[core]
-	editor = vim
-	pager = cat
-	excludesfile = ~/.gitignore
-[color]
-	ui = true
-[push]
-	default = matching
-[alias]
-	rlog = log --reverse
-[pull]
-	rebase = false
-EOF
-
-cat << EOF >> "$myGitIgnore"
- macOS Stuff
-.DS_Store
- Ignore IDE Garbage
-**/.idea/*
-**/.vscode/*
-EOF
+####----------------------------------------------------------------------------
+#### Install the latest git with completions
+####----------------------------------------------------------------------------
+#printReq "Installing Git..."
+#brew install git
+#
+#printReq "Configuring Git..."
+#cat << EOF >> "$myGitConfig"
+###############################################################################
+###                                  GIT                                    ###
+###############################################################################
+#[user]
+#	name = $myFullName
+#	email = $myEmailAdd
+#[core]
+#	editor = vim
+#	pager = cat
+#	excludesfile = ~/.gitignore
+#[color]
+#	ui = true
+#[push]
+#	default = matching
+#[alias]
+#	rlog = log --reverse
+#[pull]
+#	rebase = false
+#EOF
+#
+#
+#### ignore some things universally
+#cat << EOF >> "$myGitIgnore"
+## macOS Stuff
+#.DS_Store
+## Ignore IDE Garbage
+#**/.idea/*
+#**/.vscode/*
+#
+#EOF
 
 
 ###----------------------------------------------------------------------------
@@ -810,18 +825,18 @@ source "${HOME}/.ktx-completion.sh"
 
 printReq "Configuring kubectl, helm, et al..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                              KUBERNETES                                 ###
-##############################################################################
+###############################################################################
+###                              KUBERNETES                                 ###
+###############################################################################
 alias kube='/usr/local/bin/kubectl'
-source <(kubectl completion bash | sed 's/kubectl/kube/g')
-source "\${HOME}/.ktx-completion.sh"
-source "\${HOME}/.ktx"
-source <(kubectl completion bash)
+source <(kubectl  completion bash | sed 's/kubectl/kube/g')
 source <(minikube completion bash)
- --------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 export HELM_HOME="\$HOME/.helm"
 source <(helm     completion bash)
+# --------------------------------------------------------------------------- #
+source "\${HOME}/.ktx-completion.sh"
+source "\${HOME}/.ktx"
 
 EOF
 
@@ -869,9 +884,9 @@ brew install --cask google-cloud-sdk
 
 printReq "Configuring the Google Cloud SDK..."
 cat << EOF >> "$myZSHExt"
-##############################################################################
-##                        Google Cloud Platform                            ###
-##############################################################################
+###############################################################################
+###                        Google Cloud Platform                            ###
+###############################################################################
 source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
 source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
  --------------------------------------------------------------------------- #
@@ -954,6 +969,7 @@ ln -s "$vimSimpleLocal/vimrc" "$nvimDir/init.vim"
 ###---
 printReq "Configuring the System:"
 
+
 ###---
 ###  Set the hostname(s)
 ###---
@@ -972,6 +988,7 @@ if [[ "$myMBPisFor" == 'personal' ]]; then
     sudo scutil --set LocalHostName "${myHostName%%.*}"
 fi
 
+
 ###---
 ### Storage
 ###---
@@ -980,14 +997,19 @@ printInfo "Save to disk by default (not to iCloud)..."
 defaults read NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
+
 ###---
 ### Disable smart quotes and dashes system-wide
 ### REF: https://apple.stackexchange.com/a/334572/34436
 ###---
 printHead "Disabling smart quotes and dashes system-wide:"
+
+
 ### Disable smart quotes
 printInfo "Disabling smart quotes..."
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+
+
 ### Disable smart dashes
 printInfo "Disabling smart dashes..."
 defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
@@ -1002,6 +1024,7 @@ printHead "Setting Finder Preferences:"
 printInfo "Display all windows in List View..."
 defaults write com.apple.finder FXPreferredViewStyle Nlsv
 
+
 ###---
 ### New window displays home
 ###---
@@ -1009,11 +1032,13 @@ printInfo "Display the home directory by default..."
 defaults write com.apple.finder NewWindowTarget -string "PfLo"
 defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
 
+
 ###---
 ### Show status bar in Finder
 ###---
 printInfo "Display status bar in Finder..."
 defaults write com.apple.finder ShowStatusBar -bool true
+
 
 ###---
 ### Search the current folder by default
@@ -1021,11 +1046,13 @@ defaults write com.apple.finder ShowStatusBar -bool true
 printInfo "Search the current folder by default..."
 defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
 
+
 ###---
 ### Display all file extensions in Finder
 ###---
 printInfo "Display all extensions by default..."
 defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
 
 ###---
 ### Screenshot behavior
@@ -1036,14 +1063,17 @@ if [[ ! -d "$dirScreenshot" ]]; then
     defaults write com.apple.screencapture location "$dirScreenshot"
 fi
 
+
 ### Create a softlink on the Desktop
 if [[ ! -h "$linkScreens" ]]; then
     ln -s "$dirScreenshot" "$linkScreens"
 fi
 
+
 ### Set screenshots without window shadows
 printInfo "Save screenshots without window shadows..."
 defaults write com.apple.screencapture disable-shadow -bool true
+
 
 ###---
 ### Show battery percentage
@@ -1052,11 +1082,13 @@ printInfo "Show battery percentage..."
  defaults read com.apple.menuextra.battery ShowPercent
 defaults write com.apple.menuextra.battery ShowPercent -string 'YES'
 
+
 ###---
 ### Display Configuration
 ###---
 printInfo "Don't show mirroring options in the menu bar..."
 defaults write com.apple.airplay showInMenuBarIfPresent -bool false
+
 
 ###---
 ### Display Date/Time formatted: 'EEE MMM d  h:mm a'
@@ -1065,20 +1097,24 @@ defaults write com.apple.airplay showInMenuBarIfPresent -bool false
 printInfo "Display Day HH:MM AM format..."
 defaults write com.apple.menuextra.clock 'DateFormat' -string 'EEE MMM d  h:mm a'
 
+
 ###---
 ### Network Shares
 ###---
 printInfo "Do NOT create .DS_Store files on network volumes..."
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
+
 ###---
 ### Dialog Box behavior
 ###---
+
 
 ### The Save Dialog Box
 printInfo "Expand Save panel by default..."
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
 defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode2 -bool true
+
 
 ### The Print Dialog Box
 printInfo "Expand Print panel by default..."
@@ -1092,21 +1128,26 @@ defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
 printHead "Setting Dock Preferences:"
 printInfo "Display The Dock at 46px..."
 
+
 ### Set default Tile Size to 42px
 defaults write com.apple.dock tilesize 42
+
 
 ### Auto-Hide the Dock
 printInfo "Auto-hide The Dock..."
 defaults write com.apple.dock autohide -bool true
 
+
 ### Optionally: adjust timing with these settings
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0
+
 
 ###----------------------------------------------------------------------------
 ### Configure Basic OS Security
 ###----------------------------------------------------------------------------
 printHead "Configuring Basic OS Security:"
+
 
 ###---
 ### Disable Guest User at the Login Screen
@@ -1116,16 +1157,19 @@ sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -boo
  sudo defaults read /Library/Preferences/com.apple.loginwindow GuestEnabled
 ### OUTPUT: 0
 
+
 ###---
 ### Apple File Protocol
 ###---
 printInfo "Disable AFP Guest Access..."
 defaults write com.apple.AppleFileServer.plist AllowGuestAccess -int 0
 
+
 ###----------------------------------------------------------------------------
 ### Configure Application Behavior
 ###----------------------------------------------------------------------------
 printHead "Configuring Application Preferences:"
+
 
 ###---
 ### Stop Photos from opening automatically when plugging in iPhone [TEST]
@@ -1133,32 +1177,45 @@ printHead "Configuring Application Preferences:"
 printInfo "Stop Photos from opening automatically..."
 defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
 
+
 ###---
 ### TextEdit
 ###---
 printInfo "TextEdit Preferences: before:"
 defaults read com.apple.TextEdit
 
+
 ### Set Author Name
 printInfo "Setting author name..."
 defaults write com.apple.TextEdit author "$myFullName"
+
+
 ### Use plain text not RichText
 printInfo "Use plain text by default..."
 defaults write com.apple.TextEdit RichText -int 0
+
+
 ### Set Font
 printInfo "We'll use Courier as the font..."
 defaults write com.apple.TextEdit NSFixedPitchFont 'Courier'
+
+
 ### Set Font Size
 printInfo "Courier is set to 14pt..."
 defaults write com.apple.TextEdit NSFixedPitchFontSize -int 14
+
+
 ### Default Window Size
 printInfo "New Windows will open at H:45 x W:100..."
 defaults write com.apple.TextEdit WidthInChars -int 100
 defaults write com.apple.TextEdit HeightInChars -int 45
+
+
 ### Disable SmartDashes and SmartQuotes (defaut)
 printInfo "Disabling SmartDashes and SmartQuotes..."
 defaults write com.apple.TextEdit SmartDashes -int 0
 defaults write com.apple.TextEdit SmartQuotes -int 0
+
 
 printInfo "TextEdit Preferences: after:"
 defaults read com.apple.TextEdit
@@ -1205,16 +1262,22 @@ ln -s ~/.config/admin/logs/mac-ops-config.out config-output.log
 printReq "Cleaning up a bit..."
 brew cleanup
 
+
 ###---
 ### move this garbage to log directory for posterity
 ###---
 sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 
+
+###---
+### Perform some font maintenance
+###---
 printInfo "Refreshing the Fonts directory..."
 atsutil server -ping
 sudo atsutil databases -remove
 atsutil server -shutdown
 atsutil server -ping
+
 
 ###---
 ### Recover the hosts file from backup
@@ -1230,12 +1293,19 @@ if [[ "$myMBPisFor" == 'personal' ]]; then
     fi
 fi
 
+
+###---
+### Ensure ownership of problematic files
+###---
 printInfo "Ensure correct ownership of ~/.viminfo file..."
 if [[ -f ~/.viminfo ]]; then
     sudo chown "$USER:$myGroup" ~/.viminfo
 fi
 
 
+###---
+### Make the config live; preserve the original for future comparisons
+###---
 printInfo "Copy ~/.config/shell/environment.zsh to ~/.oh-my-zsh/custom..."
 cp -f "$myZSHExt" "$myShellEnv"
 
@@ -1278,12 +1348,11 @@ printf '\n%s\n' """
 ### Quick and Dirty duration
 ###----------------------------------------------------------------------------
 # we can't read /etc/paths until the next login; set date location
-gnuDate='/usr/local/opt/coreutils/libexec/gnubin/date'
-timePost=$("$gnuDate" +'%T')
+timePost=$(date +'%T')
 ### Convert time to a duration
-startTime=$("$gnuDate" -u -d "$timePre"  +"%s")
-  endTime=$("$gnuDate" -u -d "$timePost" +"%s")
-procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
+startTime=$(date -u -d "$timePre"  +"%s")
+  endTime=$(date -u -d "$timePost" +"%s")
+procDur="$(date -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
 printf '%s\n' """
     Process start at: $timePre
     Process end   at: $timePost
@@ -1295,3 +1364,4 @@ printf '%s\n' """
 ### Fin~
 ###----------------------------------------------------------------------------
 printInfo
+
