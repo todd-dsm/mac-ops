@@ -19,17 +19,34 @@ If this is your _personal_ laptop that also serves as your work machine, a backu
 
 ## Pre-Game
 
-First, make sure you have a GitHub account then attach your public ssh key to the account, then clone this repo wherever you keep your code and cd into the directory.
+Make sure the ssh keys associated with your GitHub account work as expected:
+
+```shell
+% ssh -T git@github.com
+Hi yourUserName! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+Clone the repo down to your laptop:
+
+`git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/`
+
+### CONFIGURE _YOUR_ VARIABLES
+
+`vi my-vars.env`
+
+***
 
 Assuming this is a fresh macOS, run the [install prep] script to:
 * Get the latest OS Updates
 * Configure `sudo` _properly_
-* Installs: 
+* Installs include: 
   * Homebrew
     * The Xcode CLI Tools are installed as a dependency
-  * The GNU variants of common programs (`sed`, `bash`, `find`, `awk`, etc) 
-    * Configures the system to favor the GNU programs. 
-* Saved some install details.
+  * The GNU variants of common programs (`sed`, `bash`, `find`, `awk`, etc.) 
+    * Configures the system to 
+      * favor the GNU programs.
+      * display man pages for these programs
+* Afterwards, the install log is saved with some other app-related details.
 
 ```shell
 tools/install-prep.sh 2>&1 | tee /tmp/install-prep.out
@@ -54,35 +71,17 @@ The messages should advise you to reboot.
 
 ## Kick-off
 
-Once you're all backed-up, auto-magically configure the new macOS:
-
-Make sure you have your ssh keys restored from backup.
-
-Clone the repo down to your laptop:
-
-`git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/`
-
-***
-
-## CONFIGURE THE VARIABLES
-
-`vi my-vars.env`
-
-***
+Once you're all backed-up, auto-magically configure the new macOS. 
 
 Kick off the script:
 
 `./bootstrap.sh TEST 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out`
 
-*NOTE: remove the argument "TEST" when you're ready.*
+*NOTE: remove the argument `TEST` when you're ready to go live.*
 
 ***
 
 ## Post-Game
-
-Configure the shell
-
-`tools/config-shell.sh TEST`
 
 * Import your Terminal profile, if you have one.
 * Finish any outstanding System Preferences configurations.
