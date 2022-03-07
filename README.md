@@ -1,26 +1,35 @@
 # mac-ops
 
-Automation to build a great MBP with a base configuration for DevOps. Before you can build anything, you first need the tools.
+Before you can build anything, you first need the tools. Herein lies automation to build a great (opinionated) MBP with a base configuration to support **_Systems Engineering_** (SRE/DevOps) work.
 
-This needs refactoring but it's still better than starting from scratch. If you find value in it, please feel free to fork/use it.
+This always needs refactoring but it's still better than starting from scratch. If you find value in it, please feel free to fork/use it.
 
 ***
 
 ## Documentation
 
-Before jumping in, you should probably check the [wiki] first. This may not be for you.
+```shell
+Attention! This may not be for you.
+```
+Before jumping in, you should probably check the docs in the [wiki] first. 
+
+If this is your _personal_ laptop that also serves as your work machine, a backup procedure is strongly recommended; check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup. If this is a new `macOS` laptop/install for work, you can safely skip this step.
 
 ***
 
 ## Pre-Game
 
-If you need to back up first, check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup. You can safely skip this step if this is a **_new_** macOS install.
+First, make sure you have a GitHub account then attach your public ssh key to the account, then clone this repo wherever you keep your code and cd into the directory.
 
 Assuming this is a fresh macOS, run the [install prep] script to:
-* Get the latest OS Updates,
-* Install the Xcode CLI Tools
-* Make sure you have a GitHub account then attach your public ssh key to the account, and
-* Save some details about apps that are currently installed.
+* Get the latest OS Updates
+* Configure `sudo` _properly_
+* Installs: 
+  * Homebrew
+    * The Xcode CLI Tools are installed as a dependency
+  * The GNU variants of common programs (`sed`, `bash`, `find`, `awk`, etc) 
+    * Configures the system to favor the GNU programs. 
+* Saved some install details.
 
 ```shell
 tools/install-prep.sh 2>&1 | tee /tmp/install-prep.out
