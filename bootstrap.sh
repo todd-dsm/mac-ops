@@ -285,6 +285,10 @@ printHead "Some networking and convenience stuff..."
 #    cfssl libressl
 #    #sshfs openssl
 #
+
+### open libressl to the system
+sudo sed -i "\|/usr/local/bin|i /usr/local/opt/libressl/bin" "$sysPaths"
+
 ### Seperate installs for programs with options
 #printHead "Installing tcl-tk with options..."
 #brew install tcl-tk
@@ -579,7 +583,7 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 source /usr/local/bin/aws_zsh_completer.sh
 complete -C "\$(type -P aws_completer)" aws
-export AWS_REGION='yourRegion'
+#export AWS_REGION='yourRegion'
 #export AWS_PROFILE='awsUser'
 export AWS_CONFIG_FILE="\$HOME/.aws/config"
 
