@@ -232,9 +232,9 @@ brew install font-hack
 ###----------------------------------------------------------------------------
 printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
-#brew install --cask \
-#    google-chrome visual-studio-code intellij-idea-ce  \
-#    virtualbox virtualbox-extension-pack wireshark
+brew install --cask \
+    google-chrome visual-studio-code intellij-idea-ce  \
+    virtualbox virtualbox-extension-pack wireshark
 
 
 ###---
@@ -255,23 +255,23 @@ EOF
 
 
 ####---
-### Install the latest version of VMware Fusion
-### Using older versions of Fusion on current macOS never seems to work.
+#### Install the latest version of VMware Fusion
+#### Using older versions of Fusion on current macOS never seems to work.
 ####---
-printHead "Installing VMware Fusion..."
+#printHead "Installing VMware Fusion..."
 #brew install --cask vmware-fusion
-
-###---
-### VMware configurations
-###---
-printHead "Configuring VMware..."
-cat << EOF >> "$myZSHExt"
-###############################################################################
-###                                  VMware                                 ###
-###############################################################################
-export VMWARE_STORAGE="\$HOME/vms/vmware"
-
-EOF
+#
+####---
+#### VMware configurations
+####---
+#printHead "Configuring VMware..."
+#cat << EOF >> "$myZSHExt"
+################################################################################
+####                                  VMware                                 ###
+################################################################################
+#export VMWARE_STORAGE="\$HOME/vms/vmware"
+#
+#EOF
 
 
 ###----------------------------------------------------------------------------
@@ -279,12 +279,12 @@ EOF
 ###----------------------------------------------------------------------------
 printReq  "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
-#brew install \
-#    nmap rsync ssh-copy-id watch tree pstree psgrep                \
-#    sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux         \
-#    cfssl libressl
-#    #sshfs openssl
-#
+brew install \
+    nmap rsync ssh-copy-id watch tree pstree psgrep                \
+    sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux         \
+    cfssl libressl
+    #sshfs openssl
+
 
 ### open libressl to the system
 sudo sed -i "\|/usr/local/bin|i " "$sysPaths"
@@ -306,8 +306,8 @@ sudo sed -i "\|/usr/local/bin|i " "$sysPaths"
 ### Include path for tcpdump
 #printHead "Opening up /usr/local/sbin so we can see tcpdump..."
 #sudo sed -i "\|/usr/bin|i /usr/sbin/tcpdump" "$sysPaths"
-#
-#
+
+
 ###----------------------------------------------------------------------------
 ### RUST
 ###----------------------------------------------------------------------------
@@ -328,93 +328,33 @@ source \$HOME/.cargo/env
 EOF
 
 
-###----------------------------------------------------------------------------
-### PYTHON
-###----------------------------------------------------------------------------
-#printReq "Installing Python..."
-#brew install python
+####----------------------------------------------------------------------------
+#### Ruby
+####----------------------------------------------------------------------------
+#printReq "Installing Ruby..."
+#brew install ruby chruby
 #
-#printHead "Upgrading Python Pip and setuptools..."
-#pip3 install --upgrade pip setuptools wheel
-#pip3 install --upgrade ipython simplejson requests boto Sphinx
+#
+####---
+#### Update/Install Gems
+####---
+#printHead "Updating all Gems..."
+#gem update
+#
 #
 #printHead "Configuring the path..."
-#sudo sed -i "\|/usr/local/bin|i $(brew --prefix)/opt/python/libexec/bin" "$sysPaths"
+#sudo sed -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
 #
-#printHead "Configuring Python..."
+#
+#printHead "Configuring Ruby..."
 #cat << EOF >> "$myZSHExt"
-###############################################################################
-###                                  Python                                 ###
-###############################################################################
-#export PIP_CONFIG_FILE="\$HOME/.config/python/pip.conf"
-# Setup autoenv to your tastes
-#export AUTOENV_AUTH_FILE="\$HOME/.config/python/autoenv_authorized"
-#export AUTOENV_ENV_FILENAME='.env'
-#export AUTOENV_LOWER_FIRST=''
-#source /usr/local/bin/activate.sh
+################################################################################
+####                                   Ruby                                  ###
+################################################################################
+##source /usr/local/opt/chruby/share/chruby/chruby.sh
+##source /usr/local/opt/chruby/share/chruby/auto.sh
 #
 #EOF
-#
-####---
-#### Configure pip
-####---
-#printReq "Configuring pip..."
-#printHead "  Creating pip home..."
-#if [[ ! -d "$configDir/python" ]]; then
-#    mkdir -p "$configDir/python"
-#fi
-#
-#printHead "  Creating the pip config file..."
-#cat << EOF > "$configDir/python/pip.conf"
-# pip configuration
-#[list]
-#format=columns
-#
-#EOF
-#
-####---
-#### Configure autoenv
-####---
-#printHead "Configuring autoenv..."
-#
-#printHead "Creating the autoenv file..."
-#touch "$configDir/python/autoenv_authorized"
-#
-## Source-in and Display changes
-##printHead "python ~/.bashrc changes:"
-##source "$myShellProfile" && tail -5 "$myShellrc"
-#
-#printInfo "Testing pip config..."
-#pip3 list
-
-
-###----------------------------------------------------------------------------
-### Ruby
-###----------------------------------------------------------------------------
-printReq "Installing Ruby..."
-brew install ruby chruby
-
-
-###---
-### Update/Install Gems
-###---
-printHead "Updating all Gems..."
-gem update
-
-
-printHead "Configuring the path..."
-sudo sed -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
-
-
-printHead "Configuring Ruby..."
-cat << EOF >> "$myZSHExt"
-###############################################################################
-###                                   Ruby                                  ###
-###############################################################################
-#source /usr/local/opt/chruby/share/chruby/chruby.sh
-#source /usr/local/opt/chruby/share/chruby/auto.sh
-
-EOF
 
 
 ###----------------------------------------------------------------------------
@@ -660,141 +600,23 @@ export PACKER_NO_COLOR='yes'
 EOF
 
 
-####----------------------------------------------------------------------------
-#### HashiCorp: Vagrant
-####----------------------------------------------------------------------------
-#printReq "Installing Vagrant..."
-##brew install --cask vagrant
-##brew install vagrant-completion
-#
-#printHead "Configuring Vagrant..."
-#cat << EOF >> "$myShellrc"
-################################################################################
-####                                 Vagrant                                 ###
-################################################################################
-##export VAGRANT_LOG=debug
-#export VAGRANT_HOME="\$HOME/vms/vagrant"
-#export VAGRANT_BOXES="\$VAGRANT_HOME/boxes"
-#export VAGRANT_DEFAULT_PROVIDER='virtualbox'
-#
-#EOF
-#
-## Source-in and Display changes
-#printInfo "vagrant ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -8 "$myShellrc"
-#
-#### Handle Licensing
-#printHead "Installing vagrant vmware-fusion license..."
-#printInfo "Reparing plugins first..."
-#vagrant plugin repair
-#
-#printInfo "Installing Fusion plugin..."
-#vagrant plugin install vagrant-vmware-fusion
-#
-#printInfo "All plugins:"
-#vagrant plugin list
-#
-#printInfo "Installing Vagrant license..."
-#vagrant plugin license vagrant-vmware-fusion \
-#    "$HOME/Documents/system/hashicorp/license-vagrant-vmware-fusion.lic"
-
-
-####----------------------------------------------------------------------------
-#### Ansible
-####----------------------------------------------------------------------------
-#### Boto is required for some Ansible/AWS operations
-#printReq "Installing Ansible..."
-#sudo -H python -m pip install ansible paramiko
-#pip3 install --upgrade ansible paramiko
-#
-#printHead "Ansible Version Info:"
-#ansible --version
-#
-#printHead "Configuring Ansible..."
-#cat << EOF >> "$myZSHExt"
-###############################################################################
-###                                 Ansible                                 ###
-###############################################################################
-#export ANSIBLE_CONFIG="\$HOME/.ansible"
-#
-#EOF
-#
-#
-#### Create a home for Ansible
-#printInfo "Creating the Ansible directory..."
-#mkdir -p "$HOME/.ansible/roles"
-#touch "$HOME/.ansible/"{ansible.cfg,hosts}
-#cp -pv 'sources/ansible/ansible.cfg' ~/.ansible/ansible.cfg
-#cp -pv 'sources/ansible/hosts'       ~/.ansible/hosts
-
-
 ###----------------------------------------------------------------------------
 ### Docker
 ###----------------------------------------------------------------------------
 printReq "Installing Docker, et al..."
 ### Includes completion
-#brew install --cask docker
-#brew install docker-compose docker-completion docker-clean \
-#    docker-credential-helper hyperkit
+brew install --cask docker
+brew install docker-compose docker-completion docker-clean \
+    docker-credential-helper hyperkit
 
-
-### Create a vbox VM
-#printHead "Creating the Docker VM..."
-#docker-machine create --driver virtualbox default
 
 printHead "Configuring Docker..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 DOCKER                                  ###
 ###############################################################################
-# command-completions for docker, et al.
-#eval "\$(docker-machine env default)"
 
 EOF
-
-# Source-in and Display changes
-#printInfo "Docker ~/.bashrc changes:"
-#source "$myShellProfile" > /dev/null 2>&1 && tail -5 "$myShellrc"
-
-
-####----------------------------------------------------------------------------
-#### Install the latest git with completions
-####----------------------------------------------------------------------------
-#printReq "Installing Git..."
-#brew install git
-#
-#printReq "Configuring Git..."
-#cat << EOF >> "$myGitConfig"
-###############################################################################
-###                                  GIT                                    ###
-###############################################################################
-#[user]
-#	name = $myFullName
-#	email = $myEmailAdd
-#[core]
-#	editor = vim
-#	pager = cat
-#	excludesfile = ~/.gitignore
-#[color]
-#	ui = true
-#[push]
-#	default = matching
-#[alias]
-#	rlog = log --reverse
-#[pull]
-#	rebase = false
-#EOF
-#
-#
-#### ignore some things universally
-#cat << EOF >> "$myGitIgnore"
-## macOS Stuff
-#.DS_Store
-## Ignore IDE Garbage
-#**/.idea/*
-#**/.vscode/*
-#
-#EOF
 
 
 ###----------------------------------------------------------------------------
@@ -881,20 +703,6 @@ EOF
 ###----------------------------------------------------------------------------
 printReq "Installing the CoreOS Operator SDK..."
 brew install operator-sdk
-#mkdir -p "$GOPATH/src/github.com/operator-framework"
-#cd "$GOPATH/src/github.com/operator-framework" || exit
-#git clone https://github.com/operator-framework/operator-sdk
-#cd operator-sdk || exit
-#git checkout master
-#make dep
-#make all
-#
-## move binary to $goBins
-##sudo mv "$GOPATH/bin/operator-sdk" "$goBins"
-
-
-### head back home
-##cd "$workDir" || exit
 
 
 ###----------------------------------------------------------------------------
