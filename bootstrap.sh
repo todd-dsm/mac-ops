@@ -280,9 +280,10 @@ EOF
 printReq  "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 #brew install \
-#    nmap rsync openssl ssh-copy-id watch tree pstree psgrep                 \
-#    sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux
-#    #sshfs
+#    nmap rsync ssh-copy-id watch tree pstree psgrep                \
+#    sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux         \
+#    cfssl libressl
+#    #sshfs openssl
 #
 ### Seperate installs for programs with options
 #printHead "Installing tcl-tk with options..."
@@ -558,22 +559,18 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 ### Amazon AWS CLI
 ###----------------------------------------------------------------------------
 printReq "Installing the AWS CLI and some Utilities..."
-pip3 install awscli jmespath jmespath-terminal
-# Ignore the following error: 'Calling bottle :unneeded is deprecated!'
-brew tap jmespath/jmespath
-brew install jp jq jid
+brew install jq jid
 
-# install aws aliases: https://github.com/awslabs/awscli-aliases
+
+### install aws aliases: https://github.com/awslabs/awscli-aliases
 git clone git@github.com:awslabs/awscli-aliases.git /tmp/awscli-aliases
 mkdir -p "$HOME/.aws/cli"
 cp /tmp/awscli-aliases/alias "$HOME/.aws/cli/alias"
 
-# install amazon-ecr-credential-helper FIXME
-go get -u github.com/awslabs/amazon-ecr-credential-helper/ecr-login/cli/docker-credential-ecr-Login
-# take it home
-if [[ -f "$HOME/go/bin/docker-credential-ecr-login" ]]; then
-    sudo mv "$HOME/go/bin/docker-credential-ecr-login" "$goBins"
-fi
+
+### install amazon-ecr-credential-helper FIXME
+brew install docker-credential-helper-ecr
+
 
 printHead "Configuring the AWS CLI..."
 cat << EOF >> "$myZSHExt"
@@ -583,7 +580,7 @@ cat << EOF >> "$myZSHExt"
 source /usr/local/bin/aws_zsh_completer.sh
 complete -C "\$(type -P aws_completer)" aws
 export AWS_REGION='yourRegion'
-export AWS_PROFILE='awsUser'
+#export AWS_PROFILE='awsUser'
 export AWS_CONFIG_FILE="\$HOME/.aws/config"
 
 EOF
@@ -591,14 +588,14 @@ EOF
 printHead "Setting the AWS User to your local account name..."
 sed -i "/AWS_PROFILE/ s/awsUser/${USER}/g" "$myZSHExt"
 
-# Restore the AWS configs if there are any
-if [[ ! -d "$myBackups" ]]; then
-    printInfo "There are no AWS settings to restore."
-else
-    printInfo "Restoring AWS directory..."
-    rsync -aEv "$myBackups/.aws" "$HOME/"
-    sudo chown -R "$USER:$myGroup" "$HOME/.aws"
-fi
+#### Restore the AWS configs if there are any                   misguided
+#if [[ ! -d "$myBackups" ]]; then
+#    printInfo "There are no AWS settings to restore."
+#else
+#    printInfo "Restoring AWS directory..."
+#    rsync -aEv "$myBackups/.aws" "$HOME/"
+#    sudo chown -R "$USER:$myGroup" "$HOME/.aws"
+#fi
 
 
 ###----------------------------------------------------------------------------
@@ -734,7 +731,7 @@ printReq "Installing Docker, et al..."
 ### Includes completion
 #brew install --cask docker
 #brew install docker-compose docker-completion docker-clean \
-#    docker-credential-helper
+#    docker-credential-helper hyperkit
 
 
 ### Create a vbox VM
@@ -800,13 +797,22 @@ EOF
 ### Install Kubernetes-related packages
 ###----------------------------------------------------------------------------
 printReq "Installing Kubernetes-related packages..."
+
+
 ### Includes completion
-brew install kubernetes-cli helm kind
+brew install kubernetes-cli helm kind istioctl derailed/k9s/k9s eksctl
 
-### install helper packages
-#brew tap azure/draft && brew install draft
 
+###----------------------------------------------------------------------------
+### install Krew plugins
+###----------------------------------------------------------------------------
+brew tap robscott/tap
+brew install krew robscott/tap/kube-capacity
+
+
+###----------------------------------------------------------------------------
 ### Install ktx; clone the ktx repo
+###----------------------------------------------------------------------------
 git clone https://github.com/heptiolabs/ktx /tmp/ktx
 cd /tmp/ktx || exit
 
@@ -828,12 +834,12 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                              KUBERNETES                                 ###
 ###############################################################################
-alias kube='/usr/local/bin/kubectl'
-source <(kubectl  completion bash | sed 's/kubectl/kube/g')
-source <(minikube completion bash)
+#alias kube='/usr/local/bin/kubectl'
+#source <(kubectl  completion bash | sed 's/kubectl/kube/g')
+#source <(minikube completion bash)
 # --------------------------------------------------------------------------- #
 export HELM_HOME="\$HOME/.helm"
-source <(helm     completion bash)
+#source <(helm     completion bash)
 # --------------------------------------------------------------------------- #
 source "\${HOME}/.ktx-completion.sh"
 source "\${HOME}/.ktx"
