@@ -829,6 +829,17 @@ cp ktx-completion.sh "${HOME}/.ktx-completion.sh"
 source "${HOME}/.ktx-completion.sh"
 
 
+###----------------------------------------------------------------------------
+### Install the weird stuff here
+###----------------------------------------------------------------------------
+kubeSSH='/tmp/kubectl-ssh'
+curl -o "$kubeSSH" \
+    -O https://raw.githubusercontent.com/luksa/kubectl-plugins/master/kubectl-ssh
+chmod +x "$kubeSSH"
+mv "$kubeSSH" /usr/local/bin/
+command -v kubectl-ssh
+
+
 printReq "Configuring kubectl, helm, et al..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
