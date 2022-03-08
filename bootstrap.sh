@@ -287,7 +287,7 @@ printHead "Some networking and convenience stuff..."
 #
 
 ### open libressl to the system
-sudo sed -i "\|/usr/local/bin|i /usr/local/opt/libressl/bin" "$sysPaths"
+sudo sed -i "\|/usr/local/bin|i " "$sysPaths"
 
 ### Seperate installs for programs with options
 #printHead "Installing tcl-tk with options..."
@@ -804,7 +804,21 @@ printReq "Installing Kubernetes-related packages..."
 
 
 ### Includes completion
-brew install kubernetes-cli helm kind istioctl derailed/k9s/k9s eksctl
+brew install kubernetes-cli helm kind istioctl derailed/k9s/k9s eksctl \
+    minikube
+
+
+###----------------------------------------------------------------------------
+### Configure some sensible minikube defaults
+###----------------------------------------------------------------------------
+printInfo "minikube set defaults"
+minikube config set cpus 2
+minikube config set memory 4096
+minikube config set driver hyperkit
+minikube config set WantVirtualBoxDriverWarning false
+
+printInfo "minikube get defaults"
+cat ~/.minikube/config/config.json
 
 
 ###----------------------------------------------------------------------------
