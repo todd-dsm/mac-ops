@@ -538,10 +538,10 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 #   +Lua      (broke)
 #   +mzscheme (broke)
 
+
 printHead "Installing Vim..."
 #brew install luarocks
 brew install vim neovim
-echo "ignore: Error: Vim will not link against both Luajit & Lua message"
 
 
 printHead "Configuring Vim..."
@@ -610,8 +610,8 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                             Remote Access                               ###
 ###############################################################################
- Homebrew / Github
-export HOMEBREW_GITHUB_API_TOKEN=''
+# Homebrew / Github
+#export HOMEBREW_GITHUB_API_TOKEN=''
 
 EOF
 
@@ -805,7 +805,7 @@ printReq "Installing Kubernetes-related packages..."
 
 ### Includes completion
 brew install kubernetes-cli helm kind istioctl derailed/k9s/k9s eksctl \
-    minikube
+    minikube datawire/blackbird/telepresence
 
 
 ###----------------------------------------------------------------------------
