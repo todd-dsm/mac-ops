@@ -856,24 +856,35 @@ brew install operator-sdk
 #
 ## move binary to $goBins
 ##sudo mv "$GOPATH/bin/operator-sdk" "$goBins"
+
+
+### head back home
 ##cd "$workDir" || exit
-#
-####----------------------------------------------------------------------------
-#### Install confd https://github.com/kelseyhightower/confd
-####----------------------------------------------------------------------------
-##printReq "Installing confd..."
-##mkdir -p "$GOPATH/src/github.com/kelseyhightower"
-##confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
-###
-##git clone https://github.com/kelseyhightower/confd.git "$confdDir"
-##cd  "$confdDir" || exit
-##make
-##cd || exit
-###
-### move binary to $goBins
-##sudo mv "$confdDir/bin/confd" "$goBins"
-##cd - || exit
-#
+
+
+###----------------------------------------------------------------------------
+### Install confd https://github.com/kelseyhightower/confd
+###----------------------------------------------------------------------------
+printReq "Installing confd..."
+confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
+
+### pull the latest code
+git clone https://github.com/kelseyhightower/confd.git "$confdDir"
+cd "$confdDir" || exit
+go mod init
+go mod tidy
+go mod vendor
+
+if ! make build; then
+    printInfo "There was a build issue with confd."
+else
+    make install
+fi
+
+### head back home
+cd "$workDir" || exit
+
+
 ###----------------------------------------------------------------------------
 ### Install Google Cloud Platform client
 ###----------------------------------------------------------------------------
