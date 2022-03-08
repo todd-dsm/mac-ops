@@ -1,4 +1,4 @@
-# mac-ops
+# mac-ops - Big Sur
 
 Before you can build anything, you first need the tools. Herein lies automation to build a great (opinionated) MBP with a base configuration to support **_Systems Engineering_** (SRE/DevOps) work.
 
