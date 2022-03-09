@@ -125,6 +125,7 @@ brew install --cask \
 ###---
 printHead "Configuring VirtualBox..."
 printInfo "Setting the machinefolder property..."
+mkdir -p "$HOME/vms/vbox"
 vboxmanage setproperty machinefolder "$HOME/vms/vbox"
 
 printHead "Setting VirtualBox environment variables..."
@@ -198,7 +199,7 @@ printReq "Installing Rust..."
 brew install rust
 
 printHead "Configuring the Rust path..."
-sudo sed -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"
+sudo sed -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"	       # FIXME?
 
 
 printHead "Configuring Rust..."
@@ -206,7 +207,7 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Rust                                  ###
 ###############################################################################
-source \$HOME/.cargo/env
+#source \$HOME/.cargo/env
 
 EOF
 
@@ -344,7 +345,7 @@ vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 ### Amazon AWS CLI
 ###----------------------------------------------------------------------------
 printReq "Installing the AWS CLI and some Utilities..."
-brew install jq jid
+brew install awscli jq jid
 
 
 ### install aws aliases: https://github.com/awslabs/awscli-aliases
@@ -421,7 +422,7 @@ EOF
 ### HashiCorp: Packer
 ###----------------------------------------------------------------------------
 printReq "Installing Packer..."
-#brew install hashicorp/tap/packer
+brew install hashicorp/tap/packer
 #brew install packer-completion
 
 printHead "Configuring Packer..."
@@ -584,7 +585,7 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
 source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
- --------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
 
 EOF
 
@@ -1001,7 +1002,7 @@ fi
 ###---
 ### Make the config live; preserve the original for future comparisons
 ###---
-printInfo "Copy ~/.config/shell/environment.zsh to ~/.oh-my-zsh/custom..."
+printInfo "Coping ~/.config/shell/environment.zsh to ~/.oh-my-zsh/custom..."
 cp -f "$myZSHExt" "$myShellEnv"
 
 
