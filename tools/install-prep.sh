@@ -88,6 +88,13 @@ softwareupdate --all --install --force
 curl -Ls t.ly/ZXH8 | zsh
 
 
+### Create the admin directory if it doesn't exist
+if [[ ! -d "$adminDir" ]]; then
+    printf '\n%s\n' "Creating a space for admin logs..."
+    mkdir -p "$adminDir/"{logs,backup}
+fi
+
+
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
@@ -389,13 +396,6 @@ fi
 ### REF: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Saving some pre-install app/lib details..."
-
-
-### Create the admin directory if it doesn't exist
-if [[ ! -d "$adminDir" ]]; then
-    printf '\n%s\n' "Creating a space for admin logs..."
-    mkdir -p "$adminDir/"{logs,backup}
-fi
 
 
 ### Save list of all OS-related apps
