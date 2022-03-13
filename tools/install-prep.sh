@@ -24,25 +24,31 @@ set -x
 ### ENV Stuff
 theENV="$1"
 stage='pre'
-source my-vars.env > /dev/null 2>&1
+source my-vars.env "$theENV" > /dev/null 2>&1
 set -x
 ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
 ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
 pyVers='3.10'
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
+timePre="$(date +'%T')"
+
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
 ###----------------------------------------------------------------------------
 source lib/print-message-formatting.sh
-set -x
 
 
 ###----------------------------------------------------------------------------
 ### MAIN PROGRAM
 ###----------------------------------------------------------------------------
+### Enable debugging while testing
 printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
+
+if [[ "$theENV" == 'TEST' ]]; then
+    set -x
+fi
 
 if [[ "$myFullName" == 'fName lName' ]]; then
     printf '\n%s\n' "you didnt configure my-vars.env; do that first."
@@ -89,6 +95,8 @@ curl -Ls t.ly/ZXH8 | zsh
 
 
 ### Create the admin directory if it doesn't exist
+### We'll be using the XDG Base Directory Spec
+### https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 if [[ ! -d "$adminDir" ]]; then
     printf '\n%s\n' "Creating a space for admin logs..."
     mkdir -p "$adminDir/"{logs,backup}
@@ -470,8 +478,22 @@ printf '\n\n%s\n' """
     sudo shutdown -r now
 """
 
+### Convert time to a duration
+startTime=$(date -u -d "$timePre"  +"%s")
+  endTime=$(date -u -d "$timePost" +"%s")
+procDur="$(date -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
+printf '%s\n' """
+    Process start at: $timePre
+    Process end   at: $timePost
+    Process duration: $procDur
+"""
+
+
 ### Save the install-prep log
 mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
+
+### Create a link to the log file
+ln -s "$adminLogs/install-prep.log" install-prep.log
 
 
 ###---
