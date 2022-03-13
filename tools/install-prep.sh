@@ -439,6 +439,7 @@ diff ~/.zshrc sources/zshrc-custom
 ###----------------------------------------------------------------------------
 ### Announcements
 ###----------------------------------------------------------------------------
+set +x
 printf '\n\n%s\n' """
 
 	You are now prepped for the mac-ops process.
