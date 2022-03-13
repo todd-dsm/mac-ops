@@ -72,11 +72,11 @@ The messages should advise you to reboot.
 
 Once you're all backed-up, auto-magically configure the new macOS. 
 
-Kick off the script:
+Kick off the script: (`~32` minutes to complete)
 
 `./bootstrap.sh TEST 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out`
 
-*NOTE: remove the argument `TEST` when you're ready to go live.*
+*NOTE: remove the argument `TEST` to go live.*
 
 ***
 
