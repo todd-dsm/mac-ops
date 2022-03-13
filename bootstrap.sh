@@ -363,8 +363,8 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 Amazon                                  ###
 ###############################################################################
-source /usr/local/bin/aws_zsh_completer.sh
-complete -C "\$(type -P aws_completer)" aws
+#source /usr/local/share/zsh/site-functions/aws_zsh_completer.sh
+#complete -C "$(command -v aws_completer)" aws
 #export AWS_REGION='yourRegion'
 #export AWS_PROFILE='awsUser'
 export AWS_CONFIG_FILE="\$HOME/.aws/config"
