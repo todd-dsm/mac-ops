@@ -69,9 +69,8 @@ ZSH_THEME=''
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(git ansible aws colorize colored-man-pages common-aliases \
+# FIXME common-aliases has an issue; add it back after the fix.
+plugins=(git ansible aws colorize colored-man-pages \
 	docker docker-compose encode64 gcloud genpass gitignore gradle helm \
 	history kubectl minikube nmap pip rust terraform)
 

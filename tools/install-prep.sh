@@ -58,34 +58,6 @@ else
 fi
 
 
-####----------------------------------------------------------------------------
-#### Update the OS
-#### FIXME: https://github.com/todd-dsm/mac-ops/issues/63
-####----------------------------------------------------------------------------
-printf '\n%s\n' "Updating macOS..."
-softwareupdate --all --install --force
-
-
-####----------------------------------------------------------------------------
-#### Install the Xcode CLI Tools
-#### UPDATE: this will get installed as a dependency to Homebrew
-#### FIXME: https://github.com/todd-dsm/mac-ops/issues/33
-####----------------------------------------------------------------------------
-#echo "Watch for on-screen prompts about sshd-keygen-wrapper: Accept"
-#
-#xcode-select --install
-#
-#sleep 10
-#osascript <<EOD
-#    tell application "System Events"
-#      tell process "Install Command Line Developer Tools"
-#        keystroke return
-#        click button "Agree" of window "License Agreement"
-#      end tell
-#    end tell
-#EOD
-
-
 ###----------------------------------------------------------------------------
 ### Set some foundational basics
 ###----------------------------------------------------------------------------
@@ -99,8 +71,16 @@ curl -Ls t.ly/ZXH8 | zsh
 ### https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 if [[ ! -d "$adminDir" ]]; then
     printf '\n%s\n' "Creating a space for admin logs..."
-    mkdir -p "$adminDir/"{logs,backup}
+    mkdir -p "${adminDir}/"{logs,backup}
+    mkdir -p "${myShellDir}"
 fi
+
+
+###---
+### Update the OS
+###---
+printf '\n%s\n' "Updating macOS..."
+softwareupdate --all --install --force
 
 
 ###----------------------------------------------------------------------------
@@ -458,13 +438,13 @@ else
 fi
 
 
-### save differences to the log for posterity
-diff ~/.zshrc sources/zshrc-custom
-
-
 ### add advanced configuration
 cp sources/zshrc-custom "$myShellrc"
-sed -i "s/temp-user/$USER/g" "$myShellrc"
+"$gnuSed" -i "s/temp-user/$USER/g" "$myShellrc"
+
+
+### save differences to the log for posterity
+diff ~/.zshrc sources/zshrc-custom
 
 
 ###----------------------------------------------------------------------------

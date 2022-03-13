@@ -4,7 +4,7 @@
 ###----------------------------------------------------------------------------
 ### Variables
 ###----------------------------------------------------------------------------
-source './my-vars.env' > /dev/null 2>&1
+source my-vars.env > /dev/null 2>&1
 ohmyzshMisc="$HOME/.oh-my-zsh/lib/misc.zsh"
 gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
 
@@ -22,11 +22,6 @@ printf '\n%s\n' "Disabling default theme..."
 # Default to NO THEME
 printf '\n%s\n' "Enabling NO theme..."
 "$gnuSed" -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
-
-# source-in personal zsh configs
-printf '\n%s\n' "Adding path to ZSH_CUSTOM settings..."
-"$gnuSed" -i "/^#\ ZSH_CUSTOM/ s|^#\ ||g" "$myShellrc"
-"$gnuSed" -i "/^ZSH_CUSTOM/ s|/path/to/new-custom-folder|$myZSHExt|g" "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
