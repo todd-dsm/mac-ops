@@ -46,10 +46,6 @@ source lib/print-message-formatting.sh
 ### Enable debugging while testing
 printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
 
-if [[ "$theENV" == 'TEST' ]]; then
-    set -x
-fi
-
 if [[ "$myFullName" == 'fName lName' ]]; then
     printf '\n%s\n' "you didnt configure my-vars.env; do that first."
     exit 1
@@ -57,6 +53,7 @@ else
     printf '\n%s\n' "  Configuring this macOS for $myFullName."
 fi
 
+set -x
 
 ###----------------------------------------------------------------------------
 ### Set some foundational basics
@@ -369,15 +366,6 @@ printf '\n%s\n' "Ansible Version Info:"
 ansible --version
 
 
-###---
-### RESET TEST ENVIRONMENT
-###---
-if [[ "$theENV" == 'TEST' ]]; then
-    sudo cp "$backupDir/paths"    /etc/paths
-    sudo cp "$backupDir/manpaths" /etc/manpaths
-fi
-
-
 ###----------------------------------------------------------------------------
 ### Save installed package and library details before the install
 ### We will use the $XDG_CONFIG_HOME like a good POSIX system should.
@@ -459,9 +447,9 @@ printf '\n\n%s\n' """
 """
 
 ### Convert time to a duration
-startTime=$(date -u -d "$timePre"  +"%s")
-  endTime=$(date -u -d "$timePost" +"%s")
-procDur="$(date -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
+startTime=$("$gnuDate" -u -d "$timePre"  +"%s")
+  endTime=$("$gnuDate" -u -d "$timePost" +"%s")
+procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
 printf '%s\n' """
     Process start at: $timePre
     Process end   at: $timePost
@@ -474,6 +462,16 @@ mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
 
 ### Create a link to the log file
 ln -s "$adminLogs/install-prep.log" install-prep.log
+
+
+###----------------------------------------------------------------------------
+### RESET TEST ENVIRONMENT
+###----------------------------------------------------------------------------
+#if [[ "$theENV" == 'TEST' ]]; then
+#    sudo cp "$backupDir/paths"    /etc/paths
+#    sudo cp "$backupDir/manpaths" /etc/manpaths
+#fi
+
 
 
 ###---

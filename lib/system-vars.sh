@@ -31,6 +31,7 @@ sourceDir='sources'
 nvimDir="$configDir/nvim"
 sysShells='/etc/shells'
 gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
+gnuDate='/usr/local/opt/coreutils/libexec/gnubin/date'
 hostRemote='github.com'
 rawGHContent='https://raw.githubusercontent.com'
 myAnsibleDir="$HOME/.ansible"
