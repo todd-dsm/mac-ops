@@ -22,6 +22,7 @@ set -x
 ### VARIABLES
 ###----------------------------------------------------------------------------
 ### ENV Stuff
+: "${1:-LIVE}"
 theENV="$1"
 stage='pre'
 source my-vars.env "$theENV" > /dev/null 2>&1
@@ -43,7 +44,7 @@ source lib/print-message-formatting.sh
 ###----------------------------------------------------------------------------
 ### MAIN PROGRAM
 ###----------------------------------------------------------------------------
-### Enable debugging while testing
+### The opening salvo
 printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
 
 if [[ "$myFullName" == 'fName lName' ]]; then
