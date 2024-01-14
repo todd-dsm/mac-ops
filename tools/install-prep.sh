@@ -97,6 +97,19 @@ brew cleanup
 brew doctor
 
 
+printf '\n%s\n' "  Injecting brew location into ~/.zprofile..."
+cat >> "$myShellProfile"  <<EOF
+# Make sure we can always find homebrew
+eval "\$(/opt/homebrew/bin/brew shellenv)"
+EOF
+
+
+# Initialize a new shell and pull in ENV VARS
+zsh
+source my-vars.env
+which brew
+
+
 ###----------------------------------------------------------------------------
 ### System: pre-game
 ###----------------------------------------------------------------------------
@@ -123,21 +136,21 @@ sudo cp /etc/*paths "$backupDir"
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Configuring base ZSH options..."
-printf '\n%s\n' "Configuring $myShellProfile ..."
-
-if [[ -e "$myShellProfile" ]]; then
-    cp "$myShellProfile" "$backupDir"
-fi
-
-cat << EOF >> "$myShellProfile"
-# URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
-#      With the advent of ZSH, this config seems unnecessary: RESEARCH
-if [ -f ~/.zshrc ]; then
-	. ~/.zshrc
-fi
-
-EOF
+#printf '\n%s\n' "Configuring base ZSH options..."
+#printf '\n%s\n' "Configuring $myShellProfile ..."
+#
+#if [[ -e "$myShellProfile" ]]; then
+#    cp "$myShellProfile" "$backupDir"
+#fi
+#
+#cat << EOF >> "$myShellProfile"
+## URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
+##      With the advent of ZSH, this config seems unnecessary: RESEARCH
+#if [ -f ~/.zshrc ]; then
+#	. ~/.zshrc
+#fi
+#
+#EOF
 
 
 ###----------------------------------------------------------------------------
