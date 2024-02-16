@@ -29,7 +29,6 @@ source my-vars.env "$theENV" > /dev/null 2>&1
 set -x
 ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
 ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
-pyVers='3.10'
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
 timePre="$(date +'%T')"
@@ -103,11 +102,7 @@ cat >> "$myShellProfile"  <<EOF
 eval "\$(/opt/homebrew/bin/brew shellenv)"
 EOF
 
-
 # Initialize a new shell and pull in ENV VARS
-zsh
-source my-vars.env
-which brew
 
 
 ###----------------------------------------------------------------------------
@@ -231,7 +226,7 @@ brew install shellcheck dash bash-completion@2
 ### Softlink sh to dash
 ###---
 printf '\n%s\n' "Creating a softlink from sh to dash..."
-ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
+ln -sf "${HOMEBREW_PREFIX}/bin/dash" "${HOMEBREW_PREFIX}/bin/sh"
 
 
 ###----------------------------------------------------------------------------
@@ -240,7 +235,7 @@ ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
 printReq "Installing Git..."
 brew install git
 
-printReq "Configuring Git..."
+printReq "Writing ~/.gitconfig..."
 cat << EOF >> "$myGitConfig"
 ##############################################################################
 ##                                  GIT                                    ###
@@ -264,6 +259,7 @@ EOF
 
 
 ### ignore some things universally
+printReq "Writing ~/.gitignore..."
 cat << EOF >> "$myGitIgnore"
 # macOS Stuff
 .DS_Store
@@ -277,11 +273,11 @@ EOF
 ###----------------------------------------------------------------------------
 ### Install/Configure Ansible
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Ansible (and Python as a dependency)..."
+printReq "Installing Ansible (and Python as a dependency)..."
 brew install ansible
 
 
-printf '\n%s\n' "Configuring Ansible..."
+printReq "Configuring Ansible..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 Ansible                                 ###
@@ -299,37 +295,64 @@ mkdir -p "$myAnsibleDir/roles"
 ### Pull the latest configs
 printf '\n%s\n' "Pulling the latest Ansible configs..."
 curl -o "$myAnsibleHosts" "$ghAnsibleHosts" > /dev/null 2>&1
-curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
+#curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
+ansible-config init --disabled > "$ghAnsibleCFG" > /dev/null 2>&1
 
 
 ### Point Ansible to its config file
-"$gnuSed" -i '\|^#inventory.*hosts$| s|#inventory.*hosts$|inventory       = \$HOME/.ansible/hosts,/etc/ansible/hosts|g' "$myAnsibleCFG"
-"$gnuSed" -i '\|^#host_key_checking| s|#host_key_checking.*|host_key_checking = False|g' "$myAnsibleCFG"
+"$gnuSed" -i '\|^;inventory=| s|/etc/ansible/hosts|\$HOME/.ansible/hosts|' "$myAnsibleCFG"
+"$gnuSed" -i '\|^;host_key_checking=| s|True|False|' "$myAnsibleCFG"
 
 
 ###----------------------------------------------------------------------------
 ### Configure Python
 ###----------------------------------------------------------------------------
+printReq "Currently installed Python versions:"
+# shellcheck disable=SC2086
+pPath1="$(ls -d ${HOMEBREW_PREFIX}/opt/python@*)"
+# shellcheck disable=SC2086
+ls -d ${HOMEBREW_PREFIX}/opt/python@*
+
+# Test the number of found paths
+if [[ ${#pPath1[@]} -ne 1 ]]; then
+    echo "Too many paths; I need an adult!"
+else
+    echo "Need 1 - got 1!"
+fi
+
+# assign variables
+pythonPath="$(find "${HOMEBREW_PREFIX}/opt" -type l -name 'python@*')"
+
+# stop if paths don't match
+if [[ "$pythonPath" != "$pPath1" ]]; then
+    echo "the Python paths are funky"
+    exit 1
+else
+    echo "the Python paths match!"
+fi
+
+# continue to assign variables
+pythonVers="${pythonPath##*@}"
+pythonBins="${HOMEBREW_PREFIX}/opt/python@${pythonVers}/libexec/bin"
+pythonLibs="${HOMEBREW_PREFIX}/lib/python${pythonVers}/site-packages"
+versPython="${HOMEBREW_PREFIX}/bin/python${pythonVers}"
+myPip="$pythonBins/pip"
+
 printf '\n%s\n' "Configuring the path..."
-pythonBin="$(brew info python@${pyVers} | grep '/usr/local/opt/python@.*python3$' | tr -d ' ')"
-pyPackages="$(brew info python@${pyVers} | grep site-packages$ | tr -d ' ')"
-
-sudo "$gnuSed" -i "\|/usr/local/bin|i ${pythonBin%/*}" "$sysPaths"
-sudo "$gnuSed" -i "\|/usr/local/bin|i $pyPackages"     "$sysPaths"
-
-PATH="${pythonBin%/*}:${pyPackages}:$PATH"
+sudo "$gnuSed" -i "\|/usr/local/bin|i ${pythonBins}" "$sysPaths"
+sudo "$gnuSed" -i "\|/usr/local/bin|i ${pythonLibs}" "$sysPaths"
 
 printf '\n%s\n' "Display paths and Python version:"         # FIXME
-echo "$PATH"
-python3 --version
+"$myPython" --version
 sleep 3s
 
-printf '\n%s\n' "Upgrading Python Pip and setuptools..."
-python3 -m pip install --upgrade pip setuptools wheel
-python3 -m pip install --upgrade boto ipython simplejson requests boto Sphinx
+printReq "Upgrading Python Pip and setuptools..."
+"$versPython" -m pip install --upgrade pip --break-system-packages
+"$myPip" install --upgrade setuptools wheel --break-system-packages
+"$myPip" install --upgrade ipython simplejson requests sphinx --break-system-packages
 
 
-printf '\n%s\n' "Configuring Python..."
+printReq "Configuring Python..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  Python                                 ###
@@ -347,7 +370,7 @@ EOF
 ###---
 ### Configure pip
 ###---
-printf '\n%s\n' "Configuring pip..."
+printReq "Configuring pip..."
 printf '\n%s\n' "  Creating pip home..."
 if [[ ! -d "$configDir/python" ]]; then
     mkdir -p "$configDir/python"
@@ -365,18 +388,18 @@ EOF
 ###---
 ### Configure autoenv
 ###---
-printf '\n%s\n' "Configuring autoenv..."
+printReq "Configuring autoenv..."
 
 
 printf '\n%s\n' "Creating the autoenv file..."
 touch "$configDir/python/autoenv_authorized"
 
 
-printf '\n%s\n' "Testing pip config..."
-pip3 list
+printReq "Testing pip config..."
+"$myPip" list
 
 
-printf '\n%s\n' "Ansible Version Info:"
+printInfo "Ansible Version Info:"
 ansible --version
 
 
@@ -385,7 +408,7 @@ ansible --version
 ### We will use the $XDG_CONFIG_HOME like a good POSIX system should.
 ### REF: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Saving some pre-install app/lib details..."
+printReq "Saving some pre-install app/lib details..."
 
 
 ### Save list of all OS-related apps
@@ -450,9 +473,20 @@ diff ~/.zshrc sources/zshrc-custom
 
 
 ###----------------------------------------------------------------------------
+### Janitorial stuff
+###----------------------------------------------------------------------------
+timePost="$(date +'%T')"
+
+### Save the install-prep log
+mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
+
+### Create a link to the log file
+ln -s "$adminLogs/install-prep.log" install-prep.log
+
+#
+###----------------------------------------------------------------------------
 ### Announcements
 ###----------------------------------------------------------------------------
-set +x
 printf '\n\n%s\n' """
 
 	You are now prepped for the mac-ops process.
@@ -464,19 +498,12 @@ printf '\n\n%s\n' """
 ### Convert time to a duration
 startTime=$("$gnuDate" -u -d "$timePre"  +"%s")
   endTime=$("$gnuDate" -u -d "$timePost" +"%s")
-procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
+ procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
 printf '%s\n' """
     Process start at: $timePre
     Process end   at: $timePost
     Process duration: $procDur
 """
-
-
-### Save the install-prep log
-mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
-
-### Create a link to the log file
-ln -s "$adminLogs/install-prep.log" install-prep.log
 
 
 ###----------------------------------------------------------------------------

@@ -30,8 +30,16 @@ myShellDir="${configDir}/shell"
 sourceDir='sources'
 nvimDir="$configDir/nvim"
 sysShells='/etc/shells'
-gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
-gnuDate='/usr/local/opt/coreutils/libexec/gnubin/date'
+myOS="$(uname -p)"
+if [[ "$myOS" == 'arm' ]]; then
+    echo "Apple Silicon"
+    HOMEBREW_PREFIX='/opt/homebrew'
+else
+    echo "Intel Mac"
+    HOMEBREW_PREFIX='/usr/local'
+fi
+gnuSed="${HOMEBREW_PREFIX}/opt/gnu-sed/libexec/gnubin/sed"
+gnuDate="${HOMEBREW_PREFIX}/opt/coreutils/libexec/gnubin/date"
 hostRemote='github.com'
 rawGHContent='https://raw.githubusercontent.com'
 myAnsibleDir="$HOME/.ansible"
