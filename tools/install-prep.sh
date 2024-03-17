@@ -142,7 +142,6 @@ brew install gnu-sed grep gawk bash findutils coreutils tree gnu-which \
     wget make automake gnu-tar gnu-time gzip gnupg diffutils gettext \
     gnu-indent
 
-exit
 
 ### Read list of programs from a file
 while read -r gnuProgram; do
