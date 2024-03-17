@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1071,SC1091,SC2154,SC2016
+# shellcheck disable=SC1091,SC2016,SC2154,SC2317
 #  PURPOSE: Get updates, Xcode CLI Tools, and some package details without pain.
 #           For use with a new macOS install.
 #           ONLY TAKES ONE ARG=TEST; wil run with no args.
@@ -91,18 +91,22 @@ else
     printf '\n%s\n' "  Homebrew is already installed."
 fi
 
-printf '\n%s\n' "  Running 'brew doctor'..."
-brew cleanup
-brew doctor
-
-
+###----------------------------------------------------------------------------
+### Configure the Shell: base options
+###----------------------------------------------------------------------------
+printf '\n%s\n' "Configuring base ZSH options..."
 printf '\n%s\n' "  Injecting brew location into ~/.zprofile..."
 cat >> "$myShellProfile"  <<EOF
-# Make sure we can always find homebrew
-eval "\$(/opt/homebrew/bin/brew shellenv)"
+# so we can always find homebrew
+eval "\$($brewPath shellenv)"
 EOF
 
 # Initialize a new shell and pull in ENV VARS
+eval "$($brewPath shellenv)"
+
+printf '\n%s\n' "  Running 'brew doctor'..."
+brew cleanup
+brew doctor
 
 
 ###----------------------------------------------------------------------------
@@ -129,26 +133,6 @@ sudo cp /etc/*paths "$backupDir"
 
 
 ###----------------------------------------------------------------------------
-### Configure the Shell: base options
-###----------------------------------------------------------------------------
-#printf '\n%s\n' "Configuring base ZSH options..."
-#printf '\n%s\n' "Configuring $myShellProfile ..."
-#
-#if [[ -e "$myShellProfile" ]]; then
-#    cp "$myShellProfile" "$backupDir"
-#fi
-#
-#cat << EOF >> "$myShellProfile"
-## URL: https://www.gnu.org/software/bash/manual/bashref.html#Bash-Startup-Files
-##      With the advent of ZSH, this config seems unnecessary: RESEARCH
-#if [ -f ~/.zshrc ]; then
-#	. ~/.zshrc
-#fi
-#
-#EOF
-
-
-###----------------------------------------------------------------------------
 ### Let's Get Open: Install GNU Programs
 ###----------------------------------------------------------------------------
 printf '\n%s\n' "Let's get open..."
@@ -157,6 +141,8 @@ printf '\n%s\n' "Let's get open..."
 brew install gnu-sed grep gawk bash findutils coreutils tree gnu-which \
     wget make automake gnu-tar gnu-time gzip gnupg diffutils gettext \
     gnu-indent
+
+exit
 
 ### Read list of programs from a file
 while read -r gnuProgram; do

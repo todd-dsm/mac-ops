@@ -33,10 +33,12 @@ sysShells='/etc/shells'
 myOS="$(uname -p)"
 if [[ "$myOS" == 'arm' ]]; then
     echo "Apple Silicon"
-    HOMEBREW_PREFIX='/opt/homebrew'
+    export HOMEBREW_PREFIX='/opt/homebrew'
+    export brewPath="${HOMEBREW_PREFIX}/bin/brew"
 else
     echo "Intel Mac"
-    HOMEBREW_PREFIX='/usr/local'
+    export HOMEBREW_PREFIX='/usr/local'
+    export brewPath="${HOMEBREW_PREFIX}/bin/brew"
 fi
 gnuSed="${HOMEBREW_PREFIX}/opt/gnu-sed/libexec/gnubin/sed"
 gnuDate="${HOMEBREW_PREFIX}/opt/coreutils/libexec/gnubin/date"
