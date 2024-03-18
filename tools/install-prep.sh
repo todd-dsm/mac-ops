@@ -44,13 +44,13 @@ source lib/print-message-formatting.sh
 ### MAIN PROGRAM
 ###----------------------------------------------------------------------------
 ### The opening salvo
-printf '\n%s\n' "Prepping the OS for mac-ops configuration..."
+printInfo '\n%s\n' "Prepping the OS for mac-ops configuration..."
 
 if [[ "$myFullName" == 'fName lName' ]]; then
-    printf '\n%s\n' "you didnt configure my-vars.env; do that first."
+    printInfo '\n%s\n' "you didnt configure my-vars.env; do that first."
     exit 1
 else
-    printf '\n%s\n' "  Configuring this macOS for $myFullName."
+    printInfo '\n%s\n' "  Configuring this macOS for $myFullName."
 fi
 
 set -x
@@ -67,7 +67,7 @@ curl -Ls t.ly/ZXH8 | zsh
 ### We'll be using the XDG Base Directory Spec
 ### https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 if [[ ! -d "$adminDir" ]]; then
-    printf '\n%s\n' "Creating a space for admin logs..."
+    printInfo '\n%s\n' "Creating a space for admin logs..."
     mkdir -p "${adminDir}/"{logs,backup}
     mkdir -p "${myShellDir}"
 fi
@@ -76,26 +76,26 @@ fi
 ###---
 ### Update the OS
 ###---
-printf '\n%s\n' "Updating macOS..."
+printInfo '\n%s\n' "Updating macOS..."
 softwareupdate --all --install --force
 
 
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Homebrew..."
+printReq '\n%s\n' "Installing Homebrew..."
 
 if ! type -P brew > /dev/null 2>&1; then
     yes | CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
-    printf '\n%s\n' "  Homebrew is already installed."
+    printInfo '\n%s\n' "  Homebrew is already installed."
 fi
 
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Configuring base ZSH options..."
-printf '\n%s\n' "  Injecting brew location into ~/.zprofile..."
+printInfo '\n%s\n' "Configuring base ZSH options..."
+printInfo '\n%s\n' "  Injecting brew location into ~/.zprofile..."
 cat >> "$myShellProfile"  <<EOF
 # so we can always find homebrew
 eval "\$($brewPath shellenv)"
@@ -104,7 +104,7 @@ EOF
 # Initialize a new shell and pull in ENV VARS
 eval "$($brewPath shellenv)"
 
-printf '\n%s\n' "  Running 'brew doctor'..."
+printInfo '\n%s\n' "  Running 'brew doctor'..."
 brew cleanup
 brew doctor
 
@@ -114,18 +114,18 @@ brew doctor
 ###----------------------------------------------------------------------------
 ### Display some defaults for the log
 ###---
-printf '\n%s\n' "Default macOS paths:"
-printf '\n%s\n' "  System Paths:"
+printInfo '\n%s\n' "Default macOS paths:"
+printInfo '\n%s\n' "  System Paths:"
 cat "$sysPaths"
-printf '\n%s\n' "\$PATH=$PATH"
+printInfo '\n%s\n' "\$PATH=$PATH"
 
-printf '\n%s\n' "System man paths:"
+printInfo '\n%s\n' "System man paths:"
 cat "$sysManPaths"
 if [[ -z "$MANPATH" ]]; then
     # at this stage it's always empty
-    printf '\n%s\n' "The MANPATH Environmental Variable is empty!"
+    printInfo '\n%s\n' "The MANPATH Environmental Variable is empty!"
 else
-    printf '\n%s\n' "\$MANPATH=$MANPATH"
+    printInfo '\n%s\n' "\$MANPATH=$MANPATH"
 fi
 
 ### Backup paths/manpaths files
@@ -135,7 +135,7 @@ sudo cp /etc/*paths "$backupDir"
 ###----------------------------------------------------------------------------
 ### Let's Get Open: Install GNU Programs
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Let's get open..."
+printInfo '\n%s\n' "Let's get open..."
 
 ### install programs
 brew install gnu-sed grep gawk bash findutils coreutils tree gnu-which \
@@ -153,12 +153,12 @@ done < "$paramsFile"
 ###---
 ### Configure PATHs
 ###---
-printf '\n\n%s\n' "Adding paths for new GNU programs..."
+printInfo '\n\n%s\n' "Adding paths for new GNU programs..."
 
 ### Add paths for all elements in the gnuProgs array
 for myProg in "${gnuProgs[@]}"; do
     gnuPath="$(brew --prefix "$myProg")"
-    printf '%s\n' "  $gnuPath"
+    printInfo '%s\n' "  $gnuPath"
     sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
 done
 
@@ -171,10 +171,10 @@ done
 sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"
 
 ### Add manpaths for the GNU Manuals
-printf '\n\n%s\n' "Adding manpaths for new GNU manuals..."
+printInfo '\n\n%s\n' "Adding manpaths for new GNU manuals..."
 for myProg in "${gnuProgs[@]}"; do
     gnuPath="$(brew --prefix "$myProg")"
-    printf '%s\n' "  $gnuPath"
+    printInfo '%s\n' "  $gnuPath"
     sudo "$gnuSed" -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
 done
 
@@ -182,7 +182,7 @@ done
 ###---
 ### Display results for logging
 ###---
-printf '\n%s\n' "The new paths: (available after opening a new Terminal window)"
+printInfo '\n%s\n' "The new paths: (available after opening a new Terminal window)"
 cat "$sysPaths"
 
 
@@ -191,26 +191,26 @@ cat "$sysPaths"
 ###   * System:   /usr/share/man
 ###   * Homebrew: /usr/local/share/man
 ###---
-printf '\n%s\n' "The new manpaths: (available after opening a new Terminal window)"
+printInfo '\n%s\n' "The new manpaths: (available after opening a new Terminal window)"
 cat "$sysManPaths"
 
 
 ### Copy personal configs to $myShellDir
-printf '\n%s\n' "Configuring GNU Coreutils..."
+printReq '\n%s\n' "Configuring GNU Coreutils..."
 cp sources/{aliases,functions}.zsh "$myShellDir"
 
 
 ###----------------------------------------------------------------------------
 ### Installing and Configuring Shells
 ###----------------------------------------------------------------------------
-printf '\n%s\n' "Installing Dash, et al..."
+printReq '\n%s\n' "Installing Dash, et al..."
 brew install shellcheck dash bash-completion@2
 
 
 ###---
 ### Softlink sh to dash
 ###---
-printf '\n%s\n' "Creating a softlink from sh to dash..."
+printInfo '\n%s\n' "Creating a softlink from sh to dash..."
 ln -sf "${HOMEBREW_PREFIX}/bin/dash" "${HOMEBREW_PREFIX}/bin/sh"
 
 
@@ -273,12 +273,12 @@ EOF
 
 
 ### Create a home for Ansible
-printf '\n%s\n' "Creating the Ansible directory..."
+printInfo '\n%s\n' "Creating the Ansible directory..."
 mkdir -p "$myAnsibleDir/roles"
 
 
 ### Pull the latest configs
-printf '\n%s\n' "Pulling the latest Ansible configs..."
+printInfo '\n%s\n' "Pulling the latest Ansible configs..."
 curl -o "$myAnsibleHosts" "$ghAnsibleHosts" > /dev/null 2>&1
 #curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
 ansible-config init --disabled > "$ghAnsibleCFG" > /dev/null 2>&1
@@ -323,11 +323,11 @@ pythonLibs="${HOMEBREW_PREFIX}/lib/python${pythonVers}/site-packages"
 versPython="${HOMEBREW_PREFIX}/bin/python${pythonVers}"
 myPip="$pythonBins/pip"
 
-printf '\n%s\n' "Configuring the path..."
+printInfo '\n%s\n' "Configuring the path..."
 sudo "$gnuSed" -i "\|/usr/local/bin|i ${pythonBins}" "$sysPaths"
 sudo "$gnuSed" -i "\|/usr/local/bin|i ${pythonLibs}" "$sysPaths"
 
-printf '\n%s\n' "Display paths and Python version:"         # FIXME
+printInfo '\n%s\n' "Display paths and Python version:"         # FIXME
 "$myPython" --version
 sleep 3s
 
@@ -356,12 +356,12 @@ EOF
 ### Configure pip
 ###---
 printReq "Configuring pip..."
-printf '\n%s\n' "  Creating pip home..."
+printInfo '\n%s\n' "  Creating pip home..."
 if [[ ! -d "$configDir/python" ]]; then
     mkdir -p "$configDir/python"
 fi
 
-printf '\n%s\n' "  Creating the pip config file..."
+printInfo '\n%s\n' "  Creating the pip config file..."
 cat << EOF > "$configDir/python/pip.conf"
 # pip configuration
 [list]
@@ -376,7 +376,7 @@ EOF
 printReq "Configuring autoenv..."
 
 
-printf '\n%s\n' "Creating the autoenv file..."
+printInfo '\n%s\n' "Creating the autoenv file..."
 touch "$configDir/python/autoenv_authorized"
 
 
@@ -397,38 +397,38 @@ printReq "Saving some pre-install app/lib details..."
 
 
 ### Save list of all OS-related apps
-printf '%s\n' "  Apps to a list..."
+printInfo '%s\n' "  Apps to a list..."
 find /Applications -maxdepth 1 -type d -print | \
     sed 's|/Applications/||'    \
     > "$adminLogs/apps-find-all-$stage-install.log"
 
 
 ### Save log of all dotDirectories in your HOME directory
-printf '%s\n\n' "  \$HOME dot directories to a list..."
+printInfo '%s\n\n' "  \$HOME dot directories to a list..."
 find "$HOME" -maxdepth 1 \( -type d -o -type l \) -name ".*" | \
     sed "s|^$HOME/||" > "$adminLogs/apps-home-dot-dirs-$stage-install.log"
 
 
 ### Save log of all Homebrew-installed programs
-printf '%s\n' "  Homebrew programs to a list..."
+printInfo '%s\n' "  Homebrew programs to a list..."
 brew leaves > "$adminLogs/apps-homebrew-$stage-install.log"
 
 
 ### Save log of all OS-related apps
-printf '%s\n' "  PAID Apps to a list..."
+printInfo '%s\n' "  PAID Apps to a list..."
 find /Applications -maxdepth 4 -path '*Contents/_MASReceipt/receipt' -print | \
     sed 's|.app/Contents/_MASReceipt/receipt|.app|g; s|/Applications/||' \
     > "$adminLogs/apps-paid-$stage-install.log"
 
 
 ### Save minimal application and library output
-printf '\n%s\n' "Saving all..."
-printf '%s\n' "  Apps to a list: pkgutil..."
+printInfo '\n%s\n' "Saving all..."
+printInfo '%s\n' "  Apps to a list: pkgutil..."
 pkgutil --pkgs > "$adminLogs/apps-pkgutil-$stage-install.log"
 
 
 ### Save log of all Python-related libs
-printf '%s\n' "  Python libraries (Homebrew) to a list..."
+printInfo '%s\n' "  Python libraries (Homebrew) to a list..."
 pip3 list > "$adminLogs/libs-pip-python-$stage-install.log"
 
 
@@ -436,7 +436,7 @@ pip3 list > "$adminLogs/libs-pip-python-$stage-install.log"
 ### Install Oh My Zsh!
 ### REF: https://ohmyz.sh/ | GitHub: https://github.com/ohmyzsh/ohmyzsh
 ###----------------------------------------------------------------------------
-printf '\n\n%s\n' """
+printInfo '\n\n%s\n' """
     Pulling the latest Oh My Zsh build...
 """
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
@@ -444,7 +444,7 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     tools/config-shell.sh
     cp "${myShellDir}"/*.zsh "$myShellEnv"
 else
-    printf '\n%s\n' "Oh My ZSH is already installed."
+    printInfo '\n%s\n' "Oh My ZSH is already installed."
 fi
 
 
@@ -472,7 +472,7 @@ ln -s "$adminLogs/install-prep.log" install-prep.log
 ###----------------------------------------------------------------------------
 ### Announcements
 ###----------------------------------------------------------------------------
-printf '\n\n%s\n' """
+printInfo '\n\n%s\n' """
 
 	You are now prepped for the mac-ops process.
 
@@ -484,7 +484,7 @@ printf '\n\n%s\n' """
 startTime=$("$gnuDate" -u -d "$timePre"  +"%s")
   endTime=$("$gnuDate" -u -d "$timePost" +"%s")
  procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
-printf '%s\n' """
+printInfo '%s\n' """
     Process start at: $timePre
     Process end   at: $timePost
     Process duration: $procDur
