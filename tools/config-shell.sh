@@ -6,7 +6,7 @@
 ###----------------------------------------------------------------------------
 source my-vars.env > /dev/null 2>&1
 ohmyzshMisc="$HOME/.oh-my-zsh/lib/misc.zsh"
-gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
+
 
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
