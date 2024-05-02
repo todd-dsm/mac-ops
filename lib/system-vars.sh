@@ -32,11 +32,11 @@ nvimDir="$configDir/nvim"
 sysShells='/etc/shells'
 myOS="$(uname -p)"
 if [[ "$myOS" == 'arm' ]]; then
-    echo "Apple Silicon"
+    echo "Apple Silicon/arm"
     export HOMEBREW_PREFIX='/opt/homebrew'
     export brewPath="${HOMEBREW_PREFIX}/bin/brew"
 else
-    echo "Intel Mac"
+    echo "Intel Mac/i386"
     export HOMEBREW_PREFIX='/usr/local'
     export brewPath="${HOMEBREW_PREFIX}/bin/brew"
 fi
