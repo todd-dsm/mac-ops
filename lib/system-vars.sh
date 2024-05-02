@@ -30,8 +30,9 @@ myShellDir="${configDir}/shell"
 sourceDir='sources'
 nvimDir="$configDir/nvim"
 sysShells='/etc/shells'
-myOS="$(uname -p)"
-if [[ "$myOS" == 'arm' ]]; then
+osVersion="$(sw_vers --productVersion)"
+myArch="$(uname -p)"
+if [[ "$myArch" == 'arm' ]]; then
     echo "Apple Silicon/arm"
     export HOMEBREW_PREFIX='/opt/homebrew'
     export brewPath="${HOMEBREW_PREFIX}/bin/brew"
