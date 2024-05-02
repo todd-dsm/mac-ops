@@ -116,20 +116,24 @@ brew install font-hack
 printReq "Installing GUI (cask) Apps..."
 printHead "Installing Utilities..."
 brew install --cask \
-    google-chrome visual-studio-code intellij-idea-ce  \
-    virtualbox virtualbox-extension-pack wireshark
+    firefox google-chrome visual-studio-code intellij-idea-ce wireshark
 
 
-###---
-### VirtualBox configurations
-###---
-printHead "Configuring VirtualBox..."
-printInfo "Setting the machinefolder property..."
-mkdir -p "$HOME/vms/vbox"
-vboxmanage setproperty machinefolder "$HOME/vms/vbox"
+if [[ "$myArch" != 'arm' ]]; then
+    ###---
+    ### VirtualBox configurations
+    ###---
+    printHead "Installing VirtualBox..."
+    brew install --cask virtualbox
+    brew install virtualbox-extension-pack
 
-printHead "Setting VirtualBox environment variables..."
-cat << EOF >> "$myZSHExt"
+    printHead "Configuring VirtualBox..."
+    printInfo "Setting the machinefolder property..."
+    mkdir -p "$HOME/vms/vbox"
+    vboxmanage setproperty machinefolder "$HOME/vms/vbox"
+
+    printHead "Setting VirtualBox environment variables..."
+    cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                VirtualBox                               ###
 ###############################################################################
@@ -137,26 +141,7 @@ export VBOX_USER_HOME="\$HOME/vms/vbox"
 
 EOF
 
-
-####---
-#### Install the latest version of VMware Fusion
-#### Using older versions of Fusion on current macOS never seems to work.
-####---
-#printHead "Installing VMware Fusion..."
-#brew install --cask vmware-fusion
-#
-####---
-#### VMware configurations
-####---
-#printHead "Configuring VMware..."
-#cat << EOF >> "$myZSHExt"
-################################################################################
-####                                  VMware                                 ###
-################################################################################
-#export VMWARE_STORAGE="\$HOME/vms/vmware"
-#
-#EOF
-
+fi
 
 ###----------------------------------------------------------------------------
 ### Useful System Utilities
@@ -164,32 +149,12 @@ EOF
 printReq  "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 brew install \
-    nmap rsync ssh-copy-id watch tree pstree psgrep                \
-    sipcalc whatmask ipcalc dos2unix testdisk tcpdump tmux         \
+    nmap rsync ssh-copy-id watch tree pstree psgrep \
+    sipcalc ipcalc dos2unix testdisk tcpdump tmux   \
     cfssl libressl
-    #sshfs openssl
-
 
 ### open libressl to the system
-sudo sed -i "\|/usr/local/bin|i " "$sysPaths"
-
-### Seperate installs for programs with options
-#printHead "Installing tcl-tk with options..."
-#brew install tcl-tk
-#
-### Include path for tcl-tk
-#printHead "Opening up /usr/local/opt/tcl-tk/bin so we can see tcl..."
-#sudo sed -i "\|/usr/bin|i /usr/local/opt/tcl-tk/bin" "$sysPaths"
-#
-#printHead "Installing tcpdump with options..."
-#brew install tcpdump
-#
-#printHead "Installing tmux with options..."
-#brew install tmux
-#
-### Include path for tcpdump
-#printHead "Opening up /usr/local/sbin so we can see tcpdump..."
-#sudo sed -i "\|/usr/bin|i /usr/sbin/tcpdump" "$sysPaths"
+sudo sed -i "\|.*ssh-copy-id.*|i $(brew --prefix)/opt/libressl/bin" "$sysPaths"
 
 
 ###----------------------------------------------------------------------------
@@ -199,7 +164,6 @@ printReq "Installing Rust..."
 brew install rust
 
 printHead "Configuring the Rust path..."
-sudo sed -i "\|/usr/local/bin|i \$HOME/.cargo/bin" "$sysPaths"	       # FIXME?
 
 
 printHead "Configuring Rust..."
@@ -207,38 +171,11 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Rust                                  ###
 ###############################################################################
-#source \$HOME/.cargo/env
-
+# https://doc.rust-lang.org/cargo/reference/environment-variables.html
+#export CARGO_HOME=/tmp/cargo.log
+#export CARGO_LOG=/tmp/cargo.log
+#export CARGO_TARGET_DIR=whatever
 EOF
-
-
-####----------------------------------------------------------------------------
-#### Ruby
-####----------------------------------------------------------------------------
-#printReq "Installing Ruby..."
-#brew install ruby chruby
-#
-#
-####---
-#### Update/Install Gems
-####---
-#printHead "Updating all Gems..."
-#gem update
-#
-#
-#printHead "Configuring the path..."
-#sudo sed -i "\|/usr/local/bin|i /usr/local/opt/ruby/bin" "$sysPaths"
-#
-#
-#printHead "Configuring Ruby..."
-#cat << EOF >> "$myZSHExt"
-################################################################################
-####                                   Ruby                                  ###
-################################################################################
-##source /usr/local/opt/chruby/share/chruby/chruby.sh
-##source /usr/local/opt/chruby/share/chruby/auto.sh
-#
-#EOF
 
 
 ###----------------------------------------------------------------------------
@@ -251,14 +188,18 @@ brew install cmake bazel
 
 ##----------------------------------------------------------------------------
 ## golang
-##----------------------------------------------------------------------------
+#gnuPath#----------------------------------------------------------------------------
 printReq "Installing the Go Programming Language..."
-brew install go dep
+brew install go
 
-# Create the code path
+# Create the paths
 printHead "Creating the \$GOPATH directory..."
 export GOPATH="$HOME/go"
-mkdir -p "$GOPATH"
+export goBins="${GOPATH}/bin"
+mkdir -p "$goBins"
+
+# Open go-bins up to the system
+sudo sed -i "\|/usr/local/bin|i $goBins" "$sysPaths"
 
 printHead "Configuring Go..."
 cat << EOF >> "$myZSHExt"
@@ -266,39 +207,24 @@ cat << EOF >> "$myZSHExt"
 ###                                    Go                                   ###
 ###############################################################################
 export GOPATH="\$HOME/go"
-alias mygo="cd \$GOPATH"
 
 EOF
-
-###---
-### Go bins
-### Until there is some consistency we'll move compiled go binaries elsewhere
-###---
-goBins='/opt/go-bins'
-printHead "Opening up $goBins so we can see local go programs..."
-sudo mkdir -p "$goBins"
-
-# Open go-bins up to the system
-sudo sed -i "\|/usr/bin|i       $goBins"                 "$sysPaths"
-sudo sed -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
-
 
 ###----------------------------------------------------------------------------
 ### nodejs and npm
 ###----------------------------------------------------------------------------
 printReq "Installing the Node.js and npm..."
-brew install node
+brew install node pnmp
 
-### install/configure yarn
-brew install yarn
-yarn global add yarn
-
+### install/configure *smarter* package management
+brew install pnmp
 
 printHead "Configuring npm..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                  npm                                    ###
 ###############################################################################
+source $(brew --prefix)/share/zsh/site-functions/_pnpm
 
 EOF
 
@@ -312,26 +238,16 @@ printReq "Upgrading to full-blown Vim..."
 printHead "Checking Apple's Vim..."
 vim --version | grep  -E --color 'VIM|Compiled|python|ruby|perl|tcl'
 
-# Install Vim with support for:
-#   Use this version over the system one
-#   w/o NLS (National Language Support)
-#   +Python   (v3; default)
-#   +Ruby     (default)
-#   +Lua      (broke)
-#   +mzscheme (broke)
-
-
 printHead "Installing Vim..."
 #brew install luarocks
 brew install vim neovim
-
 
 printHead "Configuring Vim..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Vim                                   ###
 ###############################################################################
-export EDITOR="$(type -P vim)"
+export EDITOR="$(whence vim)"
 alias -g vi="\$EDITOR"
 
 EOF
@@ -363,11 +279,11 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                 Amazon                                  ###
 ###############################################################################
+export AWS_CONFIG_FILE="\$HOME/.aws/config"
 #source /usr/local/share/zsh/site-functions/aws_zsh_completer.sh
 #complete -C "$(command -v aws_completer)" aws
 #export AWS_REGION='yourRegion'
 #export AWS_PROFILE='awsUser'
-export AWS_CONFIG_FILE="\$HOME/.aws/config"
 
 EOF
 
@@ -449,23 +365,27 @@ printReq "Installing Docker, et al..."
 ### Includes completion
 brew install --cask docker
 brew install docker-compose docker-completion docker-clean \
-    docker-credential-helper hyperkit
+    docker-credential-helper
+
+# Intel Installs
+if [[ "$myArch" != 'arm' ]]; then
+    brew install hyperkit
+fi
 
 
-printHead "Configuring Docker..."
-cat << EOF >> "$myZSHExt"
-###############################################################################
-###                                 DOCKER                                  ###
-###############################################################################
-
-EOF
+#printHead "Configuring Docker..."
+#cat << EOF >> "$myZSHExt"
+################################################################################
+####                                 DOCKER                                  ###
+################################################################################
+#
+#EOF
 
 
 ###----------------------------------------------------------------------------
 ### Install Kubernetes-related packages
 ###----------------------------------------------------------------------------
 printReq "Installing Kubernetes-related packages..."
-
 
 ### Includes completion
 brew install kubernetes-cli helm kind istioctl derailed/k9s/k9s eksctl \
@@ -478,8 +398,12 @@ brew install kubernetes-cli helm kind istioctl derailed/k9s/k9s eksctl \
 printInfo "minikube set defaults"
 minikube config set cpus 2
 minikube config set memory 4096
-minikube config set driver hyperkit
-minikube config set WantVirtualBoxDriverWarning false
+
+if [[ "$myArch" != 'arm' ]]; then
+    echo "Configuring minikube to use hyperkit..."
+    minikube config set driver hyperkit
+    minikube config set WantVirtualBoxDriverWarning false
+fi
 
 printInfo "minikube get defaults"
 cat ~/.minikube/config/config.json
@@ -518,7 +442,7 @@ kubeSSH='/tmp/kubectl-ssh'
 curl -o "$kubeSSH" \
     -O https://raw.githubusercontent.com/luksa/kubectl-plugins/master/kubectl-ssh
 chmod +x "$kubeSSH"
-mv "$kubeSSH" /usr/local/bin/
+sudo mv "$kubeSSH" /usr/local/bin/
 command -v kubectl-ssh
 
 
@@ -543,31 +467,15 @@ EOF
 ###----------------------------------------------------------------------------
 ### Install the CoreOS Operator SDK
 ###----------------------------------------------------------------------------
-printReq "Installing the CoreOS Operator SDK..."
-brew install operator-sdk
+#printReq "Installing the CoreOS Operator SDK..."
+#brew install operator-sdk
 
 
 ###----------------------------------------------------------------------------
 ### Install confd https://github.com/kelseyhightower/confd
 ###----------------------------------------------------------------------------
 printReq "Installing confd..."
-confdDir="$GOPATH/src/github.com/kelseyhightower/confd"
-
-### pull the latest code
-git clone https://github.com/kelseyhightower/confd.git "$confdDir"
-cd "$confdDir" || exit
-go mod init
-go mod tidy
-go mod vendor
-
-if ! make build; then
-    printInfo "There was a build issue with confd."
-else
-    make install
-fi
-
-### head back home
-cd "$workDir" || exit
+brew install confd
 
 
 ###----------------------------------------------------------------------------
@@ -583,6 +491,8 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                        Google Cloud Platform                            ###
 ###############################################################################
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+export GOOGLE_APPLICATION_CREDENTIALS="$HOME/.config/gcloud/application_default_credentials.json"
 source $(brew --prefix)/share/google-cloud-sdk/path.zsh.inc
 source $(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc
 # --------------------------------------------------------------------------- #
@@ -746,8 +656,8 @@ defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
 ###---
 ### Display all file extensions in Finder
 ###---
-printInfo "Display all extensions by default..."
-defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+#printInfo "Display all extensions by default..."
+#defaults write NSGlobalDomain AppleShowAllExtensions -bool true
 
 
 ###---
@@ -967,12 +877,15 @@ sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 
 ###---
 ### Perform some font maintenance
+###   Sonoma: ATS is not supported starting macOS 14.
 ###---
-printInfo "Refreshing the Fonts directory..."
-atsutil server -ping
-sudo atsutil databases -remove
-atsutil server -shutdown
-atsutil server -ping
+if [[ "${osVersion%%.*}" -le 14  ]]; then
+    printInfo "Refreshing the Fonts directory..."
+    atsutil server -ping
+    sudo atsutil databases -remove
+    atsutil server -shutdown
+    atsutil server -ping
+fi
 
 
 ###---
@@ -1002,8 +915,8 @@ fi
 ###---
 ### Make the config live; preserve the original for future comparisons
 ###---
-printInfo "Coping ~/.config/shell/environment.zsh to ~/.oh-my-zsh/custom..."
-cp -f "$myZSHExt" "$myShellEnv"
+#printInfo "Copying ~/.config/shell/environment.zsh to ~/.oh-my-zsh/custom..."
+#cp -f "$myZSHExt" "$myShellEnv"
 
 ###----------------------------------------------------------------------------
 ### Announcements
