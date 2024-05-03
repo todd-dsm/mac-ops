@@ -22,6 +22,7 @@ myPath=''
 myMans=''
 configDir="${HOME}/.config"
 adminDir="${configDir}/admin"
+secFile="${configDir}/sec"
 shellConfig="${configDir}/shell"
 adminLogs="${adminDir}/logs"
 backupDir="${adminDir}/backup"

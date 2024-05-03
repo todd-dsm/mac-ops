@@ -149,9 +149,12 @@ fi
 printReq  "Installing system-admin utilities..."
 printHead "Some networking and convenience stuff..."
 brew install \
-    nmap rsync ssh-copy-id watch tree pstree psgrep \
+    nmap rsync ssh-copy-id watch pstree psgrep \
     sipcalc ipcalc dos2unix testdisk tcpdump tmux   \
     cfssl libressl
+
+### open ssh-copy-id to the system
+sudo sed -i "\|.*.gnu-indent*|a $(brew --prefix)/opt/ssh-copy-id/bin" "$sysPaths"
 
 ### open libressl to the system
 sudo sed -i "\|.*ssh-copy-id.*|i $(brew --prefix)/opt/libressl/bin" "$sysPaths"
@@ -214,7 +217,7 @@ EOF
 ### nodejs and npm
 ###----------------------------------------------------------------------------
 printReq "Installing the Node.js and npm..."
-brew install node pnmp
+brew install node pnpm
 
 ### install/configure *smarter* package management
 brew install pnmp
@@ -308,10 +311,13 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                             Remote Access                               ###
 ###############################################################################
-# Homebrew / Github
-#export HOMEBREW_GITHUB_API_TOKEN=''
+# Security-related cofigurations: ~/.config/sec
+source "\$HOME/.config/sec"
 
 EOF
+
+### Create the sec file
+touch "$secFile"
 
 
 ###----------------------------------------------------------------------------
@@ -879,7 +885,7 @@ sudo find "$HOME" -type f -name 'AT.postflight*' -exec mv {} "$adminLogs" \;
 ### Perform some font maintenance
 ###   Sonoma: ATS is not supported starting macOS 14.
 ###---
-if [[ "${osVersion%%.*}" -le 14  ]]; then
+if [[ "${osVersion%%.*}" -lt 14  ]]; then
     printInfo "Refreshing the Fonts directory..."
     atsutil server -ping
     sudo atsutil databases -remove
@@ -917,6 +923,14 @@ fi
 ###---
 #printInfo "Copying ~/.config/shell/environment.zsh to ~/.oh-my-zsh/custom..."
 #cp -f "$myZSHExt" "$myShellEnv"
+
+
+###---
+### Install and configure some new tools
+###---
+printInfo "Unleash the bat..."
+sed -i '/bat/ s/^#//g' "$myZSHAlias"
+
 
 ###----------------------------------------------------------------------------
 ### Announcements

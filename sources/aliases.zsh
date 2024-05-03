@@ -20,7 +20,7 @@ alias mv='mv -v'
 # --------------------------------------------------------------------------- #
 #                                    utils                                    #
 # --------------------------------------------------------------------------- #
-alias cat='bat --style=plain' 2>/dev/null
+#alias cat='bat --style=plain' 2>/dev/null
 alias grep='grep --color=auto' 2>/dev/null
 alias kube="$(whence kubectl)"
 

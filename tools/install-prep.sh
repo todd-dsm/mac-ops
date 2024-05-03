@@ -203,7 +203,7 @@ cp sources/{aliases,functions}.zsh "$myShellDir"
 ###----------------------------------------------------------------------------
 ### Installing and Configuring Shells
 ###----------------------------------------------------------------------------
-printReq '\n%s\n' "Installing Dash, bat et al..."
+printReq '\n%s\n' "Installing Bash, Dash, et al..."
 brew install shellcheck dash bash-completion@2 bat
 
 
