@@ -926,10 +926,10 @@ fi
 
 
 ###---
-### Install and configure some new tools
+### Configure some new tools
 ###---
 printInfo "Unleash the bat..."
-sed -i '/bat/ s/^#//g' "$myZSHAlias"
+sed -i '/bat/ s/^#//g' "$myShellEnv/aliases.zsh"
 
 
 ###----------------------------------------------------------------------------

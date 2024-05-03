@@ -468,7 +468,7 @@ mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
 ### Create a link to the log file
 ln -s "$adminLogs/install-prep.log" install-prep.log
 
-#
+
 ###----------------------------------------------------------------------------
 ### Announcements
 ###----------------------------------------------------------------------------
