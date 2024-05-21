@@ -945,8 +945,6 @@ printf '\n%s\n' """
     1) The AWS client profile:
             Use this guide to setup your AWS cli profile:
             https://github.com/todd-dsm/mac-ops/wiki/Install-awscli
-            * If you already had this setup then these settings have already
-            been restored to ~/.aws/
 
     2) Sidebar elements have been added but I still haven't figured out how to
        remove stuff; customize this to your tastes:
@@ -955,11 +953,8 @@ printf '\n%s\n' """
     3) You still have to open System Preferences and verify your settings. I
        can't see any other way to set these preference than the manual way.
 
-    4) If build is PERSONAL, verify data restoration:
-         a) Check for any data restore errors by:
-            less /tmp/rsycn-errors.out
-         b) Check for any data that is not owned by you:
-            less /tmp/find-out.log
+    4) Set the python path with version number:
+        /opt/homebrew/opt/python@${versNo}/libexec/bin
 
     That's basically it. Now get back to work :-)
 
