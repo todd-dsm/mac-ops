@@ -27,7 +27,7 @@ theENV="$1"
 stage='pre'
 source my-vars.env "$theENV" > /dev/null 2>&1
 set -x
-ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
+#ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
 ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
@@ -53,14 +53,13 @@ else
     printInfo '\n%s\n' "  Configuring this macOS for $myFullName."
 fi
 
-set -x
 
 ###----------------------------------------------------------------------------
 ### Set some foundational basics
 ###----------------------------------------------------------------------------
 ### Enable the script
 ###---
-curl -Ls t.ly/ZXH8 | zsh
+curl -Ls t.ly/NUEer | zsh
 
 
 ### Create the admin directory if it doesn't exist
@@ -281,7 +280,7 @@ mkdir -p "$myAnsibleDir/roles"
 printInfo '\n%s\n' "Pulling the latest Ansible configs..."
 curl -o "$myAnsibleHosts" "$ghAnsibleHosts" > /dev/null 2>&1
 #curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
-ansible-config init --disabled > "$ghAnsibleCFG" > /dev/null 2>&1
+ansible-config init --disabled > "$myAnsibleCFG" > /dev/null 2>&1
 
 
 ### Point Ansible to its config file
@@ -294,7 +293,7 @@ ansible-config init --disabled > "$ghAnsibleCFG" > /dev/null 2>&1
 ###----------------------------------------------------------------------------
 printReq "Currently installed Python versions:"
 # shellcheck disable=SC2086
-pPath1="$(ls -d ${HOMEBREW_PREFIX}/opt/python@*)"
+pPath1="$(ls -d ${HOMEBREW_PREFIX}/opt/python@3.*)"
 # shellcheck disable=SC2086
 ls -d ${HOMEBREW_PREFIX}/opt/python@*
 
@@ -306,7 +305,7 @@ else
 fi
 
 # assign variables
-pythonPath="$(find "${HOMEBREW_PREFIX}/opt" -type l -name 'python@*')"
+pythonPath="$(find "${HOMEBREW_PREFIX}/opt" -type l -name 'python@3.*')"
 
 # stop if paths don't match
 if [[ "$pythonPath" != "$pPath1" ]]; then
@@ -327,9 +326,11 @@ printInfo '\n%s\n' "Configuring the path..."
 sudo "$gnuSed" -i "\|/usr/local/bin|i ${pythonBins}" "$sysPaths"
 sudo "$gnuSed" -i "\|/usr/local/bin|i ${pythonLibs}" "$sysPaths"
 
-printInfo '\n%s\n' "Display paths and Python version:"         # FIXME
-"$myPython" --version
-sleep 3s
+# FIXME: the myPython variable is broken
+#        Take some time to solve for Python in general; it's just wonky
+#printInfo '\n%s\n' "Display paths and Python version:"
+#"$myPython" --version
+#sleep 3s
 
 printReq "Upgrading Python Pip and setuptools..."
 "$versPython" -m pip install --upgrade pip --break-system-packages
@@ -443,6 +444,7 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     tools/config-shell.sh
     cp "${myShellDir}"/*.zsh "$myShellEnv"
+    exit
 else
     printInfo '\n%s\n' "Oh My ZSH is already installed."
 fi
