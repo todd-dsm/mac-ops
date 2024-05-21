@@ -444,7 +444,6 @@ if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     tools/config-shell.sh
     cp "${myShellDir}"/*.zsh "$myShellEnv"
-    exit
 else
     printInfo '\n%s\n' "Oh My ZSH is already installed."
 fi
