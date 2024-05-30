@@ -249,7 +249,7 @@ cat << EOF >> "$myZSHExt"
 ###############################################################################
 ###                                   Vim                                   ###
 ###############################################################################
-export EDITOR="$(whence vim)"
+export EDITOR="\$(whence vim)"
 alias -g vi="\$EDITOR"
 
 EOF
@@ -953,7 +953,7 @@ printf '\n%s\n' """
        can't see any other way to set these preference than the manual way.
 
     4) Set the python path with version number:
-        /opt/homebrew/opt/python@${versNo}/libexec/bin
+        /opt/homebrew/opt/python@\$versNo/libexec/bin
 
     That's basically it. Now get back to work :-)
 
