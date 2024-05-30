@@ -106,8 +106,7 @@ fi
 ### https://github.com/Homebrew/homebrew-cask-fonts
 ###----------------------------------------------------------------------------
 printHead "Installing font: Hack..."
-brew tap homebrew/cask-fonts
-brew install font-hack
+brew install --cask font-hack
 
 
 ###----------------------------------------------------------------------------
