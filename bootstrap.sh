@@ -920,8 +920,8 @@ fi
 ###---
 ### Make the config live; preserve the original for future comparisons
 ###---
-#printInfo "Copying ~/.config/shell/environment.zsh to ~/.oh-my-zsh/custom..."
-#cp -f "$myZSHExt" "$myShellEnv"
+printInfo "Copying ~/.config/shell/environment.zsh -> ~/.oh-my-zsh/custom/environment.zsh"
+cp -f "$myZSHExt" "$myShellEnv"
 
 
 ###---
