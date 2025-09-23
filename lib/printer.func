@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+#  PURPOSE: printer.func - screen printing library; supports:
+#            * goals: 1st-tier in the hierarchy: install thing
+#            * req:    2nd-tier: requirements that build towards satisfying goals
+#            * error:   3rd-tier: prints error messages on non-0 statuses
+#            * pass:    3rd-tier: prints success message if exit 0
+# -----------------------------------------------------------------------------
+#  EXECUTE: source scripts/lib/printer.func
+# -----------------------------------------------------------------------------
+#   AUTHOR: todd-dsm (github)
+# -----------------------------------------------------------------------------
+#set -x
+
+# Prevent multiple sourcing
+if [[ -n ${__PRINTER_FUNC_LOADED:-} ]]; then
+    return 0
+fi
+readonly __PRINTER_FUNC_LOADED=true
+
+# Positive goal announcement (hyphens for UNIX tradition)
+print_goal() {
+    local theMessage="$*"
+    local line_length='80'
+    local border_char='-'
+    local border_line
+    local padded_message
+
+    # Create the border line (80 hyphens)
+    printf -v border_line '%*s' "$line_length" ''
+    border_line="${border_line// /$border_char}"
+
+    # Calculate padding for centering
+    local message_length=${#theMessage}
+    local total_padding=$((line_length - message_length))
+    local left_padding=$((total_padding / 2))
+    local right_padding=$((total_padding - left_padding))
+
+    # Create the padded message line
+    printf -v padded_message '%*s%s%*s' "$left_padding" '' "$theMessage" "$right_padding" ''
+
+    # Print the goal announcement with spacing above
+    printf '\n\n'
+    printf '%s\n' "$border_line"
+    printf '%s\n' "$padded_message"
+    printf '%s\n' "$border_line"
+}
+
+# Requirements utility (indented messages with newline above)
+print_req() {
+    local theMessage="$*"
+    printf '\n  %s\n' "$theMessage"
+}
+
+# Pass utility (4-space indent, green, for successful tests)
+print_pass() {
+    local green='\033[0;32m'
+    local reset='\033[0m'
+    printf '    %btest passed%b\n' "$green" "$reset"
+}
+
+
+# Error announcement utility (tildes for error visibility)
+print_error() {
+    local theMessage="$*"
+    local line_length='80'
+    local border_char='~'
+    local border_line
+    local padded_message
+    local red='\033[0;31m'
+    local reset='\033[0m'
+
+    # Create the border line (80 tildes)
+    printf -v border_line '%*s' "$line_length" ''
+    border_line="${border_line// /$border_char}"
+
+    # Calculate padding for centering
+    local message_length=${#theMessage}
+    local total_padding=$((line_length - message_length))
+    local left_padding=$((total_padding / 2))
+    local right_padding=$((total_padding - left_padding))
+
+    # Create the padded message line
+    printf -v padded_message '%*s%s%*s' "$left_padding" '' "$theMessage" "$right_padding" ''
+
+    # Print the error announcement to stderr in red
+    printf "${red}%s\n" "$border_line" >&2
+    printf "%s\n" "$padded_message" >&2
+    printf "%s${reset}\n" "$border_line" >&2
+    printf '\n' >&2
+    exit 1
+}
+
