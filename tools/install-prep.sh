@@ -27,6 +27,15 @@ paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
 timePre="$(date +'%T')"
 
+# The dirty bits
+if [[ "$(uname -m)" == 'arm64' ]]; then
+    # Apple Silicon
+    brew_path='/opt/homebrew'
+else
+    # Intel
+    brew_path='/usr/local'
+fi
+
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
@@ -80,12 +89,21 @@ printReq "Updating macOS..."
 ###----------------------------------------------------------------------------
 printReq "Installing Homebrew..."
 
-if ! type -P brew > /dev/null 2>&1; then
+#if ! type -P brew > /dev/null 2>&1; then
+if [[ ! -x "${brew_path}/bin/brew" ]]; then
     yes | CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    eval "$(brew --prefix)/bin/brew shellenv"
+    # make sure we can find Homebrew
+    PATH="$PATH:${brew_path}/bin"
 else
     printf '\n%s\n' "  Homebrew is already installed."
 fi
+
+# make sure humans can always find homebrew
+printf '\n%s\n' "  Injecting brew location into ~/.zprofile..."
+cat > "$myShellProfile"  <<EOF
+# homebrew location
+eval "\$(/opt/homebrew/bin/brew shellenv)"
+EOF
 
 # Find brew and use it
 if [[ ! -x "$(brew --prefix)/bin/brew" ]]; then
@@ -93,22 +111,31 @@ if [[ ! -x "$(brew --prefix)/bin/brew" ]]; then
     exit 1
 else
     printf '\n%s\n' "  Homebrew installed successfully at: $(which brew)"
+    eval "$(brew --prefix)/bin/brew shellenv" > /dev/null 2>&1
 fi
-
-
-# make sure we can always find homebrew
-printf '\n%s\n' "  Injecting brew location into ~/.zprofile..."
-cat > "$myShellProfile"  <<EOF
-# homebrew location
-eval "\$(/opt/homebrew/bin/brew shellenv)"
-EOF
 
 printf '\n%s\n' "  Running 'brew doctor'..."
 brew cleanup
 brew doctor
 
 
-###----------------------------------------------------------------------------
+# Create homebrew env config
+printf '\n%s\n' "  Creating the homebrew.zsh env file..."
+cat > "$shellConfig/homebrew.zsh"  <<EOF
+##############################################################################
+###                               HOMEBREW                                 ###
+##############################################################################
+export HOMEBREW_PREFIX='/opt/homebrew'
+export HOMEBREW_CELLAR='/opt/homebrew/Cellar'
+export HOMEBREW_REPOSITORY='/opt/homebrew'
+eval "\$(/usr/bin/env PATH_HELPER_ROOT="/opt/homebrew" /usr/libexec/path_helper -s)"
+[ -z "\${MANPATH-}" ] || export MANPATH=":\${MANPATH#:}";
+export INFOPATH="/opt/homebrew/share/info:\${INFOPATH:-}"
+
+EOF
+exit
+
+###---------------------------------------------------------------------------
 ### System: pre-game
 ###----------------------------------------------------------------------------
 ### Display some defaults for the log
