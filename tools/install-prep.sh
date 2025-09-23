@@ -133,7 +133,7 @@ eval "\$(/usr/bin/env PATH_HELPER_ROOT="/opt/homebrew" /usr/libexec/path_helper 
 export INFOPATH="/opt/homebrew/share/info:\${INFOPATH:-}"
 
 EOF
-exit
+
 
 ###---------------------------------------------------------------------------
 ### System: pre-game
