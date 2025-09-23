@@ -82,6 +82,7 @@ printReq "Installing Homebrew..."
 
 if ! type -P brew > /dev/null 2>&1; then
     yes | CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    eval "$(brew --prefix)/bin/brew shellenv"
 else
     printf '\n%s\n' "  Homebrew is already installed."
 fi
@@ -92,7 +93,6 @@ if [[ ! -x "$(brew --prefix)/bin/brew" ]]; then
     exit 1
 else
     printf '\n%s\n' "  Homebrew installed successfully at: $(which brew)"
-    eval "$(brew --prefix)/bin/brew shellenv"
 fi
 
 
