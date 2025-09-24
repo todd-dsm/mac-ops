@@ -22,7 +22,8 @@ sed -i '' 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
 # Default to NO THEME
 printf '\n%s\n' "Enabling NO theme..."
 sed -i '' '/^#ZSH_THEME="robbyrussell"/a\
-ZSH_THEME=""' "$myShellrc"
+ZSH_THEME=""
+' "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
