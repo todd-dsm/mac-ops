@@ -92,13 +92,14 @@ printReq "Installing Homebrew..."
 #if ! type -P brew > /dev/null 2>&1; then
 if [[ ! -x "${brew_path}/bin/brew" ]]; then
     yes | CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    # make sure we can find Homebrew
-    PATH="$PATH:${brew_path}/bin"
 else
     printf '\n%s\n' "  Homebrew is already installed."
 fi
 
-# make sure humans can always find homebrew
+# make sure the robots can find Homebrew
+PATH="$PATH:${brew_path}/bin"
+
+# make sure the humans can always find homebrew
 printf '\n%s\n' "  Injecting brew location into ~/.zprofile..."
 cat > "$myShellProfile"  <<EOF
 # homebrew location
@@ -162,31 +163,37 @@ sudo cp /etc/*paths "$backupDir"
 
 ###----------------------------------------------------------------------------
 ### Let's Get Open: Install GNU Programs
+###   * We'll use BSD sed to enable GNU programs
 ###----------------------------------------------------------------------------
 printReq "Let's get open..."
 
-### Read list of programs from a file
+### Read programs from list and add them to an array
 while read -r gnuProgram; do
-    # send name to gnuProgs array
     gnuProgs+=("$gnuProgram")
 done < "$paramsFile"
 
-# Read programs from file and install them all at once
+# Install GNU Programs
 printf '\n%s\n' "Installing GNU programs: ${gnuProgs[*]}"
 brew install "${gnuProgs[@]}"
 
 # Configure paths and manpaths in single loop
 printf '\n%s\n' "Configuring paths and manpaths..."
-sudo "$gnuSed" -i -n '2{h;n;G};p' "$sysManPaths"  # Move system manpaths down first
+sudo sed -i '' '1{h;d;};2{G;};' "$sysManPaths"
 
 # Add the paths
+set -x
 for prog in "${gnuProgs[@]}"; do
     gnuPath="$(brew --prefix "$prog")"
     printf '%s\n' "  Adding: $gnuPath"
-    sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
-    sudo "$gnuSed" -i "\|/usr/share/man|i $gnuPath/libexec/gnuman" "$sysManPaths"
+    # BSD sed requires a hard return halfway through for some reason
+    sudo sed -i '' "/\/usr\/local\/bin/i\\
+$gnuPath/libexec/gnubin\\
+" "$sysPaths"
+    sudo sed -i '' "/\/usr\/share\/man/i\\
+$gnuPath/libexec/gnuman\\
+" "$sysManPaths"
 done
-
+set +x
 # Display final state for audit
 printf '\n%s\n' "Configured system paths:" && cat "$sysPaths"
 printf '\n%s\n' "Configured system manpaths:" && cat "$sysManPaths"
@@ -196,7 +203,7 @@ printf '\n%s\n' "Configured system manpaths:" && cat "$sysManPaths"
 ##printf '\n%s\n' "Configuring GNU shell extensions..."
 ##cp sources/{aliases,functions}.zsh "$myShellDir"
 
-
+exit
 ###----------------------------------------------------------------------------
 ### Installing and Configuring Shells
 ###----------------------------------------------------------------------------
