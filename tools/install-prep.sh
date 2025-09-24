@@ -9,7 +9,7 @@
 # -----------------------------------------------------------------------------
 #  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | zsh | tee /tmp/install-prep.out
 # -----------------------------------------------------------------------------
-set -x
+#set -x
 
 
 ###----------------------------------------------------------------------------
@@ -25,7 +25,9 @@ source my-vars.env "$theENV" > /dev/null 2>&1
 #pyVers='3.10'
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
-timePre="$(date +'%T')"
+timeStart=$(date +%s)
+
+sleep 5s
 
 # The dirty bits
 if [[ "$(uname -m)" == 'arm64' ]]; then
@@ -425,7 +427,6 @@ fi
 ###----------------------------------------------------------------------------
 ### Announcements
 ###----------------------------------------------------------------------------
-set +x
 printf '\n\n%s\n' """
 
 	You are now prepped for the mac-ops process.
@@ -435,21 +436,24 @@ printf '\n\n%s\n' """
 """
 
 ### Convert time to a duration
-startTime=$("$gnuDate" -u -d "$timePre"  +"%s")
-  endTime=$("$gnuDate" -u -d "$timePost" +"%s")
-procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
+
+# At the end of your script
+timeEnd=$(date +%s)
+duration=$((timeEnd - timeStart))
+
+# Convert to readable format
+hours=$((duration / 3600))
+minutes=$(((duration % 3600) / 60))
+seconds=$((duration % 60))
+
 printf '%s\n' """
-    Process start at: $timePre
-    Process end   at: $timePost
-    Process duration: $procDur
+    Process duration: ${hours}h ${minutes}m ${seconds}s
 """
 
 
 ### Save the install-prep log
+printReq "The install log: $adminLogs/install-prep.log "
 mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
-
-### Create a link to the log file
-ln -s "$adminLogs/install-prep.log" install-prep.log
 
 
 ###----------------------------------------------------------------------------
