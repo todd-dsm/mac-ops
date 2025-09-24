@@ -422,15 +422,6 @@ else
 fi
 
 
-### add advanced configuration
-cp sources/zshrc-custom "$myShellrc"
-"$gnuSed" -i "s/temp-user/$USER/g" "$myShellrc"
-
-
-### save differences to the log for posterity
-diff ~/.zshrc sources/zshrc-custom
-
-
 ###----------------------------------------------------------------------------
 ### Announcements
 ###----------------------------------------------------------------------------
