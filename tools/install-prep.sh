@@ -173,7 +173,7 @@ while read -r gnuProgram; do
 done < "$paramsFile"
 
 # Install GNU Programs
-printf '\n%s\n' "Installing GNU programs: ${gnuProgs[*]}"
+printf '\n%s\n' "Installing GNU programs..."
 brew install "${gnuProgs[@]}"
 
 # Configure paths and manpaths in single loop
@@ -188,7 +188,7 @@ for prog in "${gnuProgs[@]}"; do
     sudo sed -i '' "/\/usr\/local\/bin/i\\
 $gnuPath/libexec/gnubin\\
 " "$sysPaths"
-    sudo sed -i '' "/\/usr\/share\/man/i\\
+    sudo sed -i '' "/\/usr\/local\/share\/man/i\\
 $gnuPath/libexec/gnuman\\
 " "$sysManPaths"
 done
@@ -213,7 +213,7 @@ brew install shellcheck dash bash-completion@2
 ### Softlink sh to dash
 ###---
 printf '\n%s\n' "Creating a softlink from sh to dash..."
-ln -sf '/usr/local/bin/dash' '/usr/local/bin/sh'
+sudo ln -sf "${brew_path}/bin/dash" '/usr/local/bin/sh'
 
 
 ###----------------------------------------------------------------------------
