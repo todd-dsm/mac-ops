@@ -181,7 +181,6 @@ printf '\n%s\n' "Configuring paths and manpaths..."
 sudo sed -i '' '1{h;d;};2{G;};' "$sysManPaths"
 
 # Add the paths
-set -x
 for prog in "${gnuProgs[@]}"; do
     gnuPath="$(brew --prefix "$prog")"
     printf '%s\n' "  Adding: $gnuPath"
@@ -193,7 +192,6 @@ $gnuPath/libexec/gnubin\\
 $gnuPath/libexec/gnuman\\
 " "$sysManPaths"
 done
-set +x
 # Display final state for audit
 printf '\n%s\n' "Configured system paths:" && cat "$sysPaths"
 printf '\n%s\n' "Configured system manpaths:" && cat "$sysManPaths"
@@ -203,7 +201,7 @@ printf '\n%s\n' "Configured system manpaths:" && cat "$sysManPaths"
 ##printf '\n%s\n' "Configuring GNU shell extensions..."
 ##cp sources/{aliases,functions}.zsh "$myShellDir"
 
-exit
+
 ###----------------------------------------------------------------------------
 ### Installing and Configuring Shells
 ###----------------------------------------------------------------------------
