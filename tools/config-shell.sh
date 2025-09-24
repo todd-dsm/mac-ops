@@ -5,8 +5,8 @@
 ### Variables
 ###----------------------------------------------------------------------------
 source my-vars.env > /dev/null 2>&1
+set -x
 ohmyzshMisc="$HOME/.oh-my-zsh/lib/misc.zsh"
-gnuSed='/usr/local/opt/gnu-sed/libexec/gnubin/sed'
 
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
@@ -17,17 +17,19 @@ cp "$myShellrc" "${backupDir}/zshrc"
 
 # Bounce the default theme
 printf '\n%s\n' "Disabling default theme..."
-"$gnuSed" -i 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
+sed -i '' 's/^ZSH_THEME/#ZSH_THEME/g' "$myShellrc"
 
 # Default to NO THEME
 printf '\n%s\n' "Enabling NO theme..."
-"$gnuSed" -i "\|^#ZSH_THEME|a ZSH_THEME=''" "$myShellrc"
+sed -i '' '/^#ZSH_THEME="robbyrussell"/a\
+ZSH_THEME=""' "$myShellrc"
 
 
 ###----------------------------------------------------------------------------
 ### Configure: ~/.oh-my-zsh/lib/misc.zsh
 ###----------------------------------------------------------------------------
-"$gnuSed" -i '/PAGER\|LESS/ s/^/#/g' "$ohmyzshMisc"
+cp "$ohmyzshMisc" "${backupDir}/omzsh-misc.zsh"
+sed -i '' -e '/PAGER/s/^/#/' -e '/LESS/s/^/#/' "$ohmyzshMisc"
 
 
 ###----------------------------------------------------------------------------
