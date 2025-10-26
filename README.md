@@ -4,19 +4,28 @@ Sequoia (`macOS v15.x`) marks the rebirth of mac-ops.
 
 ---
 
-Before you can build anything, you first need the tools. Herein lies automation to build a great (opinionated) MBP with a base configuration to support **_Systems Engineering_** (SRE/DevOps) work.
+Before you can build anything, you first need the tools. Herein lies automation to build a great (opinionated) MBP with a base configuration to support **Platform Engineering_** (SRE/DevOps) work. This build assumes: 2 pre-conditions, either:
 
-This always needs refactoring but it's still better than starting from scratch. If you find value in it, please feel free to fork/use it.
+1. you are peeling the cellophane off the new MacBook Pro box with Apple defaults, or
+2. you are backing up a currently-configured system and applying this automation
+
+In either case, you are covered. In the second case your current configs will be backed up (locally) and replacedl; you lose nothing.
+
+Use this if you are:
+
+* a consultant that needs to configure client laptops on an adequetly annoying basis.
+* a new user and trying to learn Platform Engineering.
+  * fighting on 2 fronts (workstation and systems) is a great learning experience but is really just a distraction from work.
+
+> *If your job requires much different tools then perhaps a fork is best?*
 
 ---
-
-## Attention! This may not be for you
 
 ## Documentation
 
 Before jumping in, you should probably check the docs in the [wiki] first.
 
-If this is your _personal_ laptop that also serves as your work machine, a backup procedure is strongly recommended; check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup. If this is a new `macOS` laptop/install for work, you can safely skip the `rsync` step.
+If this is your *personal* laptop that also serves as your work machine, a backup procedure is strongly recommended; check the [rsync-backups] page. The restore process in the `bootstrap.sh` script relies on a consistent backup. If this is a new `macOS` laptop/install for work, you can safely skip the `rsync` step.
 
 ---
 
@@ -33,7 +42,7 @@ Clone the repo down to your laptop:
 
 `git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/`
 
-### CONFIGURE _YOUR_ VARIABLES
+### CONFIGURE *YOUR* VARIABLES
 
 `vi my-vars.env`
 
@@ -41,7 +50,7 @@ Clone the repo down to your laptop:
 
 Assuming this is a fresh macOS, run the [install prep] script to:
 * Get the latest OS Updates
-* Configure `sudo` _properly_
+* Configure `sudo` *properly*
 * Installs include:
   * Homebrew
     * The Xcode CLI Tools are installed as a dependency
