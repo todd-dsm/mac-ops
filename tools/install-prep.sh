@@ -23,7 +23,6 @@
 ### ENV Stuff
 stage='pre'
 source my-vars.env > /dev/null 2>&1
-source lib/printer.func > /dev/null 2>&1
 
 #ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
 ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
@@ -35,7 +34,7 @@ timePre="$(date +'%s')"
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
 ###----------------------------------------------------------------------------
-source lib/print-message-formatting.sh
+source lib/printer.func > /dev/null 2>&1
 
 
 ###----------------------------------------------------------------------------
@@ -366,7 +365,6 @@ print_info """
 
 ### make the announcement
 print_req """
-
 	You are now prepped for the mac-ops process.
 
 	Review /tmp/install-prep.log for errors. Then...
