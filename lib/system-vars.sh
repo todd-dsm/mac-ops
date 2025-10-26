@@ -31,6 +31,7 @@ myShellDir="${configDir}/shell"
 sourceDir='sources'
 nvimDir="$configDir/nvim"
 sysShells='/etc/shells'
+<<<<<<< HEAD
 osVersion="$(sw_vers --productVersion)"
 myArch="$(uname -p)"
 if [[ "$myArch" == 'arm' ]]; then
@@ -44,6 +45,10 @@ else
 fi
 gnuSed="${HOMEBREW_PREFIX}/opt/gnu-sed/libexec/gnubin/sed"
 gnuDate="${HOMEBREW_PREFIX}/opt/coreutils/libexec/gnubin/date"
+=======
+gnuSed="$(brew --prefix)/opt/gnu-sed/libexec/gnubin/sed"
+gnuDate="$(brew --prefix)/opt/coreutils/libexec/gnubin/date"
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 hostRemote='github.com'
 rawGHContent='https://raw.githubusercontent.com'
 myAnsibleDir="$HOME/.ansible"

@@ -9,13 +9,7 @@
 # -----------------------------------------------------------------------------
 #  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | zsh | tee /tmp/install-prep.out
 # -----------------------------------------------------------------------------
-#     TODO: 1)
-#           2)
-#           3)
-# -----------------------------------------------------------------------------
-#   AUTHOR: todd-dsm
-# -----------------------------------------------------------------------------
-set -x
+#set -x
 
 
 ###----------------------------------------------------------------------------
@@ -26,25 +20,48 @@ set -x
 theENV="$1"
 stage='pre'
 source my-vars.env "$theENV" > /dev/null 2>&1
+<<<<<<< HEAD
 set -x
 #ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
 ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
+=======
+#ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
+#ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
+#pyVers='3.10'
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
-timePre="$(date +'%T')"
+timeStart=$(date +%s)
+
+sleep 5s
+
+# The dirty bits
+if [[ "$(uname -m)" == 'arm64' ]]; then
+    # Apple Silicon
+    brew_path='/opt/homebrew'
+else
+    # Intel
+    brew_path='/usr/local'
+fi
 
 
 ###----------------------------------------------------------------------------
 ### FUNCTIONS
 ###----------------------------------------------------------------------------
 source lib/print-message-formatting.sh
+# Load print functions: print_goal, print_req, print_pass, print_error
+#source lib/printer.func
 
 
 ###----------------------------------------------------------------------------
 ### MAIN PROGRAM
 ###----------------------------------------------------------------------------
 ### The opening salvo
+<<<<<<< HEAD
 printInfo '\n%s\n' "Prepping the OS for mac-ops configuration..."
+=======
+printReq "Prepping the OS for mac-ops configuration..."
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 
 if [[ "$myFullName" == 'fName lName' ]]; then
     printInfo '\n%s\n' "you didnt configure my-vars.env; do that first."
@@ -59,7 +76,11 @@ fi
 ###----------------------------------------------------------------------------
 ### Enable the script
 ###---
+<<<<<<< HEAD
 curl -Ls t.ly/NUEer | zsh
+=======
+curl -Ls https://bit.ly/3I9ze7G | zsh
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 
 
 ### Create the admin directory if it doesn't exist
@@ -75,21 +96,32 @@ fi
 ###---
 ### Update the OS
 ###---
+<<<<<<< HEAD
 printInfo '\n%s\n' "Updating macOS..."
 softwareupdate --all --install --force
+=======
+printReq "Updating macOS..."
+#softwareupdate --all --install --force
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 
 
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
+<<<<<<< HEAD
 printReq '\n%s\n' "Installing Homebrew..."
+=======
+printReq "Installing Homebrew..."
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 
-if ! type -P brew > /dev/null 2>&1; then
+#if ! type -P brew > /dev/null 2>&1; then
+if [[ ! -x "${brew_path}/bin/brew" ]]; then
     yes | CI=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 else
     printInfo '\n%s\n' "  Homebrew is already installed."
 fi
 
+<<<<<<< HEAD
 ###----------------------------------------------------------------------------
 ### Configure the Shell: base options
 ###----------------------------------------------------------------------------
@@ -109,10 +141,54 @@ brew doctor
 
 
 ###----------------------------------------------------------------------------
+=======
+# make sure the robots can find Homebrew
+PATH="$PATH:${brew_path}/bin"
+
+# make sure the humans can always find homebrew
+printf '\n%s\n' "  Injecting brew location into ~/.zprofile..."
+cat > "$myShellProfile"  <<EOF
+# homebrew location
+eval "\$(/opt/homebrew/bin/brew shellenv)"
+EOF
+
+# Find brew and use it
+if [[ ! -x "$(brew --prefix)/bin/brew" ]]; then
+    printf '\n%s\n' "ERROR: Homebrew installation failed - brew binary not found"
+    exit 1
+else
+    printf '\n%s\n' "  Homebrew installed successfully at: $(which brew)"
+    eval "$(brew --prefix)/bin/brew shellenv" > /dev/null 2>&1
+fi
+
+printf '\n%s\n' "  Running 'brew doctor'..."
+brew cleanup
+brew doctor
+
+
+# Create homebrew env config
+printf '\n%s\n' "  Creating the homebrew.zsh env file..."
+cat > "$shellConfig/homebrew.zsh"  <<EOF
+##############################################################################
+###                               HOMEBREW                                 ###
+##############################################################################
+export HOMEBREW_PREFIX='/opt/homebrew'
+export HOMEBREW_CELLAR='/opt/homebrew/Cellar'
+export HOMEBREW_REPOSITORY='/opt/homebrew'
+eval "\$(/usr/bin/env PATH_HELPER_ROOT="/opt/homebrew" /usr/libexec/path_helper -s)"
+[ -z "\${MANPATH-}" ] || export MANPATH=":\${MANPATH#:}";
+export INFOPATH="/opt/homebrew/share/info:\${INFOPATH:-}"
+
+EOF
+
+
+###---------------------------------------------------------------------------
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 ### System: pre-game
 ###----------------------------------------------------------------------------
 ### Display some defaults for the log
 ###---
+<<<<<<< HEAD
 printInfo '\n%s\n' "Default macOS paths:"
 printInfo '\n%s\n' "  System Paths:"
 cat "$sysPaths"
@@ -120,6 +196,17 @@ printInfo '\n%s\n' "\$PATH=$PATH"
 
 printInfo '\n%s\n' "System man paths:"
 cat "$sysManPaths"
+=======
+printReq "Display default macOS paths:"
+
+# Display current state for audit
+printf '\n%s\n' "Current system paths:" && cat "$sysPaths"
+
+printf '\n%s\n' "\$PATH=$PATH"
+
+printf '\n%s\n' "Current system manpaths:" && cat "$sysManPaths"
+
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 if [[ -z "$MANPATH" ]]; then
     # at this stage it's always empty
     printInfo '\n%s\n' "The MANPATH Environmental Variable is empty!"
@@ -133,7 +220,9 @@ sudo cp /etc/*paths "$backupDir"
 
 ###----------------------------------------------------------------------------
 ### Let's Get Open: Install GNU Programs
+###   * We'll use BSD sed to enable GNU programs
 ###----------------------------------------------------------------------------
+<<<<<<< HEAD
 printInfo '\n%s\n' "Let's get open..."
 
 ### install programs
@@ -143,12 +232,20 @@ brew install gnu-sed grep gawk bash findutils coreutils tree gnu-which \
 
 
 ### Read list of programs from a file
+=======
+printReq "Let's get open..."
+
+### Read programs from list and add them to an array
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 while read -r gnuProgram; do
-    # send name to gnuProgs array
     gnuProgs+=("$gnuProgram")
 done < "$paramsFile"
 
+# Install GNU Programs
+printf '\n%s\n' "Installing GNU programs..."
+brew install "${gnuProgs[@]}"
 
+<<<<<<< HEAD
 ###---
 ### Configure PATHs
 ###---
@@ -159,9 +256,30 @@ for myProg in "${gnuProgs[@]}"; do
     gnuPath="$(brew --prefix "$myProg")"
     printInfo '%s\n' "  $gnuPath"
     sudo "$gnuSed" -i "\|/usr/local/bin|i $gnuPath/libexec/gnubin" "$sysPaths"
+=======
+# Configure paths and manpaths in single loop
+printf '\n%s\n' "Configuring paths and manpaths..."
+sudo sed -i '' '1{h;d;};2{G;};' "$sysManPaths"
+
+# Add the paths
+for prog in "${gnuProgs[@]}"; do
+    gnuPath="$(brew --prefix "$prog")"
+    printf '%s\n' "  Adding: $gnuPath"
+    # BSD sed requires a hard return halfway through for some reason
+    sudo sed -i '' "/\/usr\/local\/bin/i\\
+$gnuPath/libexec/gnubin\\
+" "$sysPaths"
+    sudo sed -i '' "/\/usr\/local\/share\/man/i\\
+$gnuPath/libexec/gnuman\\
+" "$sysManPaths"
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 done
+# Display final state for audit
+printf '\n%s\n' "Configured system paths:" && cat "$sysPaths"
+printf '\n%s\n' "Configured system manpaths:" && cat "$sysManPaths"
 
 
+<<<<<<< HEAD
 ###---
 ### Configure MANPATHs
 ###---
@@ -197,20 +315,35 @@ cat "$sysManPaths"
 ### Copy personal configs to $myShellDir
 printReq '\n%s\n' "Configuring GNU Coreutils..."
 cp sources/{aliases,functions}.zsh "$myShellDir"
+=======
+## Copy shell configurations
+##printf '\n%s\n' "Configuring GNU shell extensions..."
+##cp sources/{aliases,functions}.zsh "$myShellDir"
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 
 
 ###----------------------------------------------------------------------------
 ### Installing and Configuring Shells
 ###----------------------------------------------------------------------------
+<<<<<<< HEAD
 printReq '\n%s\n' "Installing Bash, Dash, et al..."
 brew install shellcheck dash bash-completion@2 bat
+=======
+printReq "Installing Dash, et al..."
+brew install shellcheck dash bash-completion@2
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 
 
 ###---
 ### Softlink sh to dash
 ###---
+<<<<<<< HEAD
 printInfo '\n%s\n' "Creating a softlink from sh to dash..."
 ln -sf "${HOMEBREW_PREFIX}/bin/dash" "${HOMEBREW_PREFIX}/bin/sh"
+=======
+printf '\n%s\n' "Creating a softlink from sh to dash..."
+sudo ln -sf "${brew_path}/bin/dash" '/usr/local/bin/sh'
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 
 
 ###----------------------------------------------------------------------------
@@ -261,6 +394,7 @@ printReq "Installing Ansible (and Python as a dependency)..."
 brew install ansible
 
 
+<<<<<<< HEAD
 printReq "Configuring Ansible..."
 cat << EOF >> "$myZSHExt"
 ###############################################################################
@@ -383,6 +517,101 @@ touch "$configDir/python/autoenv_authorized"
 
 printReq "Testing pip config..."
 "$myPip" list
+=======
+#printf '\n%s\n' "Configuring Ansible..."
+#cat << EOF >> "$myZSHExt"
+################################################################################
+####                                 Ansible                                 ###
+################################################################################
+#export ANSIBLE_CONFIG="\$HOME/.ansible"
+#
+#EOF
+#
+#
+#### Create a home for Ansible
+#printf '\n%s\n' "Creating the Ansible directory..."
+#mkdir -p "$myAnsibleDir/roles"
+#
+#
+#### Pull the latest configs
+#printf '\n%s\n' "Pulling the latest Ansible configs..."
+#curl -o "$myAnsibleHosts" "$ghAnsibleHosts" > /dev/null 2>&1
+#curl -o "$myAnsibleCFG"   "$ghAnsibleCFG"   > /dev/null 2>&1
+#
+#
+#### Point Ansible to its config file
+#"$gnuSed" -i '\|^#inventory.*hosts$| s|#inventory.*hosts$|inventory       = \$HOME/.ansible/hosts,/etc/ansible/hosts|g' "$myAnsibleCFG"
+#"$gnuSed" -i '\|^#host_key_checking| s|#host_key_checking.*|host_key_checking = False|g' "$myAnsibleCFG"
+#
+#
+####----------------------------------------------------------------------------
+#### Configure Python
+####----------------------------------------------------------------------------
+#printf '\n%s\n' "Configuring the path..."
+#pythonBin="$(brew info python@${pyVers} | grep '/usr/local/opt/python@.*python3$' | tr -d ' ')"
+#pyPackages="$(brew info python@${pyVers} | grep site-packages$ | tr -d ' ')"
+#
+#sudo "$gnuSed" -i "\|/usr/local/bin|i ${pythonBin%/*}" "$sysPaths"
+#sudo "$gnuSed" -i "\|/usr/local/bin|i $pyPackages"     "$sysPaths"
+#
+#PATH="${pythonBin%/*}:${pyPackages}:$PATH"
+#
+#printf '\n%s\n' "Display paths and Python version:"         # FIXME
+#echo "$PATH"
+#python3 --version
+#sleep 3s
+#
+#printf '\n%s\n' "Upgrading Python Pip and setuptools..."
+#python3 -m pip install --upgrade pip setuptools wheel
+#python3 -m pip install --upgrade boto ipython simplejson requests boto Sphinx
+#
+#
+#printf '\n%s\n' "Configuring Python..."
+#cat << EOF >> "$myZSHExt"
+################################################################################
+####                                  Python                                 ###
+################################################################################
+#export PIP_CONFIG_FILE="\$HOME/.config/python/pip.conf"
+## Setup autoenv to your tastes
+##export AUTOENV_AUTH_FILE="\$HOME/.config/python/autoenv_authorized"
+##export AUTOENV_ENV_FILENAME='.env'
+##export AUTOENV_LOWER_FIRST=''
+##source /usr/local/bin/activate.sh
+#
+#EOF
+#
+#
+####---
+#### Configure pip
+####---
+#printf '\n%s\n' "Configuring pip..."
+#printf '\n%s\n' "  Creating pip home..."
+#if [[ ! -d "$configDir/python" ]]; then
+#    mkdir -p "$configDir/python"
+#fi
+#
+#printf '\n%s\n' "  Creating the pip config file..."
+#cat << EOF > "$configDir/python/pip.conf"
+## pip configuration
+#[list]
+#format=columns
+#
+#EOF
+#
+#
+####---
+#### Configure autoenv
+####---
+#printf '\n%s\n' "Configuring autoenv..."
+#
+#
+#printf '\n%s\n' "Creating the autoenv file..."
+#touch "$configDir/python/autoenv_authorized"
+#
+#
+#printf '\n%s\n' "Testing pip config..."
+#pip3 list
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 
 
 printInfo "Ansible Version Info:"
@@ -449,15 +678,6 @@ else
 fi
 
 
-### add advanced configuration
-cp sources/zshrc-custom "$myShellrc"
-"$gnuSed" -i "s/temp-user/$USER/g" "$myShellrc"
-
-
-### save differences to the log for posterity
-diff ~/.zshrc sources/zshrc-custom
-
-
 ###----------------------------------------------------------------------------
 ### Janitorial stuff
 ###----------------------------------------------------------------------------
@@ -473,7 +693,11 @@ ln -s "$adminLogs/install-prep.log" install-prep.log
 ###----------------------------------------------------------------------------
 ### Announcements
 ###----------------------------------------------------------------------------
+<<<<<<< HEAD
 printInfo '\n\n%s\n' """
+=======
+printf '\n\n%s\n' """
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 
 	You are now prepped for the mac-ops process.
 
@@ -482,6 +706,7 @@ printInfo '\n\n%s\n' """
 """
 
 ### Convert time to a duration
+<<<<<<< HEAD
 startTime=$("$gnuDate" -u -d "$timePre"  +"%s")
   endTime=$("$gnuDate" -u -d "$timePost" +"%s")
  procDur="$("$gnuDate" -u -d "0 $endTime sec - $startTime sec" +"%H:%M:%S")"
@@ -492,6 +717,28 @@ printInfo '%s\n' """
 """
 
 
+=======
+
+# At the end of your script
+timeEnd=$(date +%s)
+duration=$((timeEnd - timeStart))
+
+# Convert to readable format
+hours=$((duration / 3600))
+minutes=$(((duration % 3600) / 60))
+seconds=$((duration % 60))
+
+printf '%s\n' """
+    Process duration: ${hours}h ${minutes}m ${seconds}s
+"""
+
+
+### Save the install-prep log
+printReq "The install log: $adminLogs/install-prep.log "
+mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
+
+
+>>>>>>> 0221da25024ce83f7bfa43399f127a157878dc06
 ###----------------------------------------------------------------------------
 ### RESET TEST ENVIRONMENT
 ###----------------------------------------------------------------------------
