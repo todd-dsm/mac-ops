@@ -1,0 +1,6 @@
+{
+    "WantVirtualBoxDriverWarning": false,
+    "cpus": 4,
+    "driver": "docker",
+    "memory": "8192"
+}

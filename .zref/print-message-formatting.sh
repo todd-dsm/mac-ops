@@ -71,7 +71,7 @@ printInfo() {
 
 
 ###---
-### TEST In the script
+### Test print functions in the script
 ###---
 #printReq  "Requirement"
 #printHead "Headline"

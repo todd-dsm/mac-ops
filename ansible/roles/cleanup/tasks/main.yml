@@ -1,0 +1,95 @@
+# Cleanup and final system maintenance
+# Post-installation logging, cleanup, and reporting
+---
+- name: Ensure admin logs directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.adminLogs }}"
+    state: directory
+    mode: '0755'
+
+- name: Run post-install application inventory script
+  ansible.builtin.command:
+    cmd: "{{ ansible_env.PWD }}/../../tools/admin-app-details.sh post"
+  register: app_inventory_script
+  changed_when: false
+
+- name: Run Homebrew cleanup
+  ansible.builtin.command: brew cleanup
+  register: brew_cleanup_result
+  changed_when: brew_cleanup_result.rc == 0
+
+- name: Find SSH private keys
+  ansible.builtin.find:
+    paths: "{{ ansible_env.HOME }}/.ssh"
+    patterns:
+      - "id_*"
+      - "*_rsa"
+      - "*_ed25519"
+      - "*_ecdsa"
+    excludes:
+      - "*.pub"
+      - "known_hosts*"
+      - "config"
+  register: ssh_private_keys
+
+- name: Verify SSH private key permissions
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: '0600'
+  loop: "{{ ssh_private_keys.files }}"
+  register: ssh_permissions_fixed
+  when: ssh_private_keys.files | length > 0
+
+- name: Calculate automation duration
+  shell: echo $(( $(date +%s) - $(cat /tmp/ansible_start_time) ))
+  register: duration_calc
+  changed_when: false
+
+- name: Set duration fact
+  set_fact:
+    automation_duration: "{{ duration_calc.stdout | int }}"
+
+- name: Convert duration to human readable format
+  set_fact:
+    duration_hours: "{{ (automation_duration | int // 3600) }}"
+    duration_minutes: "{{ ((automation_duration | int % 3600) // 60) }}"
+    duration_seconds: "{{ (automation_duration | int % 60) }}"
+
+# Display summary
+- name: Display cleanup and automation summary
+  debug:
+    msg:
+      - ""
+      - "═══════════════════════════════════════════════════════════════════════"
+      - "                   MACOS AUTOMATION COMPLETED"
+      - "═══════════════════════════════════════════════════════════════════════"
+      - ""
+      - "AUTOMATION SUMMARY:"
+      - "  Duration: {{ duration_hours }}h {{ duration_minutes }}m {{ duration_seconds }}s"
+      - "  See Logs: {{ ansible_env.adminLogs }}/"
+      - "=== CLEANUP SUMMARY ==="
+      - "  - Homebrew cleanup: {% if brew_cleanup_result.changed %}completed{% else %}no cleanup needed{% endif %}"
+      - "  - SSH key permissions: {% if ssh_permissions_fixed.changed %}{{ ssh_permissions_fixed.results | selectattr('changed') | list | length }} keys fixed{% else %}all keys properly secured{% endif %}"
+      - ""
+      - "NEXT STEPS:"
+      - "  • Review manual configuration steps in: docs/post-install.md"
+      - "     • some common steps are listed here: https://bit.ly/4oyzkF7"
+      - ""
+      - "═══════════════════════════════════════════════════════════════════════"
+      - "  IMPORT THE TERMINAL SETTINGS AND THEME"
+      - "═══════════════════════════════════════════════════════════════════════"
+      - ""
+      - "  1. Open Terminal > Preferences (⌘,)"
+      - "  2. Click 'Profiles' tab"
+      - "  3. Click gear icon > Import..."
+      - "  4. Navigate to {{ ansible_env.termStuff }}/solarized/osx-terminal.app-colors-solarized/"
+      - "  5. Import your preferred Solarized theme"
+      - ""
+      - "THEN:"
+      - "  • Verify/set settings in System Preferences"
+      - "  • Reboot system: sudo shutdown -r now"
+      - ""
+      - "═══════════════════════════════════════════════════════════════════════"
+      - "                      YOU ARE NOW READY TO WORK!"                      
+      - "═══════════════════════════════════════════════════════════════════════"
+      - ""

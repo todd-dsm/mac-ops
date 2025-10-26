@@ -1,0 +1,143 @@
+---
+# System utilities installation
+- name: Install networking and system utilities
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - bat
+    - bazel
+    - cfssl
+    - cmake
+    - dockutil
+    - dos2unix
+    - fd
+    - fzf
+    - git-extras
+    - ipcalc
+    - jid
+    - jq
+    - libressl
+    - nmap
+    - psgrep
+    - pstree
+    - ripgrep
+    - rsync
+    - sipcalc
+    - ssh-copy-id
+    - tcpdump
+    - testdisk
+    - tmux
+    - tree
+    - watch
+    - whatmask
+    - yq
+  register: network_utils
+
+- name: Install build utilities
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - cmake
+    - bazel
+  register: build_utils
+
+- name: Check if /etc/paths exists
+  ansible.builtin.stat:
+    path: /etc/paths
+  register: paths_check
+
+- name: Add libressl to system path
+  ansible.builtin.lineinfile:
+    path: /etc/paths
+    line: "/opt/homebrew/opt/libressl/bin"
+    insertbefore: "/usr/local/bin"
+    create: no
+  become: yes
+  when: paths_check.stat.exists
+  register: libressl_path
+
+# -----------------------------------------------------------------------------
+# Add OMZSH plugins
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Add OMZSH plugins - OPTIMIZED APPROACH
+# -----------------------------------------------------------------------------
+- name: Get current Oh My ZSH plugin list
+  ansible.builtin.shell: grep '^plugins=' "{{ ansible_env.HOME }}/.zshrc" | sed 's/^plugins=(\(.*\))$/\1/'
+  register: current_plugins
+  changed_when: false
+  failed_when: false
+
+- name: Set desired utility plugins
+  set_fact:
+    utility_plugins:
+      - aws
+      - brew
+      - colored-man-pages
+      - common-aliases
+      - encode64
+      - fzf
+      - genpass
+      - git-extras
+      - gitignore
+      - gradle
+      - helm
+      - history
+      - nmap
+      - pip       # FIXME: move to python
+      - terraform
+
+- name: Build complete plugin list
+  set_fact:
+    all_plugins: "{{ (current_plugins.stdout.split() + utility_plugins) | unique | sort }}"
+  when: current_plugins.rc == 0
+
+- name: Update Oh My ZSH plugins in ~/.zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\(.*\)$'
+    line: "plugins=({{ all_plugins | join(' ') }})"
+  when: current_plugins.rc == 0
+  register: plugins_updated
+# -----------------------------------------------------------------------------
+# Add OMZSH Custom aliases and functions
+# -----------------------------------------------------------------------------
+- name: Copy custom shell aliases to Oh My ZSH
+  ansible.builtin.copy:
+    src: ../../../../configs/aliases.zsh
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/aliases.zsh"
+    mode: '0644'
+  register: aliases_copy
+
+- name: Copy custom shell functions to Oh My ZSH
+  ansible.builtin.copy:
+    src: ../../../../configs/functions.zsh
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/functions.zsh"
+    mode: '0644'
+  register: functions_copy
+
+- name: Copy custom shellcheckrc rules to ~/.shellcheckrc
+  ansible.builtin.copy:
+    src: ../../../../configs/shellcheckrc.sh
+    dest: "{{ ansible_env.HOME }}/.shellcheckrc"
+    mode: '0644'
+  register: shellcheckrc_copy
+
+# -----------------------------------------------------------------------------
+# Display status
+# -----------------------------------------------------------------------------
+- name: Display system utilities installation status
+  debug:
+    msg:
+      - "System utilities installation completed:"
+      - "  - Network utilities: {% if network_utils.changed %}installed{% else %}already present{% endif %}"
+      - "  - Build utilities: {% if build_utils.changed %}installed{% else %}already present{% endif %}"
+      - "  - LibreSSL path: {% if libressl_path.changed %}added{% else %}already present{% endif %}"
+      - "Shell configuration:"
+      - "  - Oh My ZSH plugins: {% if plugins_updated.changed %}updated ({{ utility_plugins | length }} plugins){% else %}already configured{% endif %}"
+      - "Shell aliases and functions configured:"
+      - "  - Aliases: {% if aliases_copy.changed %}updated{% else %}already present{% endif %}"
+      - "  - Functions: {% if functions_copy.changed %}updated{% else %}already present{% endif %}"
+      - "  - Global shellcheckrc: {% if shellcheckrc_copy.changed %}deployed{% else %}already present{% endif %}"

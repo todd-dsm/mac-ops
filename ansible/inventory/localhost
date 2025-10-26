@@ -1,0 +1,5 @@
+[local]
+localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3
+
+[remote_macos]
+macosvm.local ansible_python_interpreter=/usr/bin/python3

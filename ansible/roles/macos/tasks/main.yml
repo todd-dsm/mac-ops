@@ -1,0 +1,286 @@
+# macOS system configuration
+---
+# -----------------------------------------------------------------------------
+# Configure Host Naming Settings
+# -----------------------------------------------------------------------------
+- name: Configure hostname settings (personal MBP only)
+  block:
+    - name: Set macOS hostnames
+      ansible.builtin.command:
+        cmd: "scutil --set {{ item.type }} {{ item.value }}"
+      become: yes
+      loop:
+        - { type: "ComputerName", value: "{{ ansible_env.myHostName }}" }
+        - { type: "HostName", value: "{{ ansible_env.myHostName.split('.')[0] }}" }
+        - { type: "LocalHostName", value: "{{ ansible_env.myHostName.split('.')[0] }}" }
+      register: hostname_results
+  #     changed_when: true
+  # when: ansible_env.myMBPisFor == "personal"
+
+# -----------------------------------------------------------------------------
+# Preferences: Finder Security
+# -----------------------------------------------------------------------------
+- name: Configure security settings
+  block:
+    - name: Disable guest user at login screen
+      community.general.osx_defaults:
+        domain: /Library/Preferences/com.apple.loginwindow
+        key: GuestEnabled
+        type: bool
+        value: false
+      become: yes
+      register: guest_disabled
+
+    - name: Disable AFP guest access
+      community.general.osx_defaults:
+        domain: com.apple.AppleFileServer
+        key: AllowGuestAccess
+        type: int
+        value: 0
+      register: afp_guest
+
+# -----------------------------------------------------------------------------
+# Configure Finder preferences
+# -----------------------------------------------------------------------------
+- name: Configure Finder preferences
+  community.general.osx_defaults:
+    domain: com.apple.finder
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+  loop:
+    # List view by default
+    - { key: "FXPreferredViewStyle", type: "string", value: "Nlsv" }
+    # Show file extensions
+    - { key: "AppleShowAllExtensions", type: "bool", value: true }
+    # Write files locally (as opposed to iCloud) by default
+    - { key: "NSDocumentSaveNewDocumentsToCloud", type: "bool", value: false }
+    # Disable smart quotes and dashes by default
+    - { key: "NSAutomaticQuoteSubstitutionEnabled", type: "bool", value: false }
+    - { key: "NSAutomaticDashSubstitutionEnabled", type: "bool", value: false }
+    # Open home in new window
+    - { key: "NewWindowTarget", type: "string", value: "PfLo" }
+    - { key: "NewWindowTargetPath", type: "string", value: "file://{{ ansible_env.HOME }}/" }
+    # Show path bar and status bar by default
+    - { key: "ShowPathbar", type: "bool", value: true }
+    - { key: "ShowStatusBar", type: "bool", value: true }
+    # Search current folder by default
+    - { key: "FXDefaultSearchScope", type: "string", value: "SCcf" }
+  register: finder_prefs
+
+- name: Restart Finder for extension visibility
+  ansible.builtin.command:
+    cmd: killall Finder
+  when: finder_prefs.changed
+  ignore_errors: yes
+
+# -----------------------------------------------------------------------------
+# Preferences: Dialog Box
+# Fixes some annoying dialog box behaviors on Save or Save As.
+# -----------------------------------------------------------------------------
+- name: Configure dialog box preferences
+  community.general.osx_defaults:
+    domain: NSGlobalDomain
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+  loop:
+    # Dialog expansion
+    - { key: "NSNavPanelExpandedStateForSaveMode", type: "bool", value: true }
+    - { key: "NSNavPanelExpandedStateForSaveMode2", type: "bool", value: true }
+    - { key: "PMPrintingExpandedStateForPrint", type: "bool", value: true }
+    - { key: "PMPrintingExpandedStateForPrint2", type: "bool", value: true }
+
+    # Dialog view modes - List view by default
+    - { key: "NSNavPanelFileLastListModeForOpenModeKey", type: "int", value: 3 }
+    - { key: "NSNavPanelFileLastListModeForSaveModeKey", type: "int", value: 2 }
+    - { key: "NSNavPanelFileListModeForOpenMode2", type: "int", value: 3 }
+    - { key: "NSNavPanelFileListModeForSaveMode2", type: "int", value: 2 }
+    - { key: "NavPanelFileListModeForOpenMode", type: "int", value: 2 }
+    - { key: "NavPanelFileListModeForSaveMode", type: "int", value: 2 }
+  register: dialog_prefs
+
+# Force applications to restart to pick up dialog changes
+# - name: Restart common applications for dialog changes
+#   ansible.builtin.command:
+#     cmd: "killall {{ item }}"
+#   loop:
+#     - "TextEdit"
+#     - "Preview"
+#   when: dialog_prefs.changed
+#   ignore_errors: yes
+#   register: app_restarts
+
+# -----------------------------------------------------------------------------
+# Configure Network Shares Behavior
+# There aren't typically any network shares; no sense in saving to them.
+# -----------------------------------------------------------------------------
+- name: Configure network shares behavior
+  community.general.osx_defaults:
+    domain: com.apple.desktopservices
+    key: DSDontWriteNetworkStores
+    type: bool
+    value: true
+  register: network_stores
+
+# -----------------------------------------------------------------------------
+# Configure Screenshot Settings
+# -----------------------------------------------------------------------------
+- name: Configure screenshot settings
+  block:
+    - name: Create screenshots directory
+      ansible.builtin.file:
+        path: "{{ ansible_env.myPics }}/screens"
+        state: directory
+        mode: '0755'
+      register: screenshot_dir
+
+    - name: Configure screenshot preferences
+      community.general.osx_defaults:
+        domain: com.apple.screencapture
+        key: "{{ item.key }}"
+        type: "{{ item.type }}"
+        value: "{{ item.value }}"
+      loop:
+        - { key: "location", type: "string", value: "{{ ansible_env.myPics }}/screens" }
+        - { key: "disable-shadow", type: "bool", value: true }
+      register: screenshot_prefs
+
+    - name: Create screenshots symlink on Desktop
+      ansible.builtin.file:
+        src: "{{ ansible_env.myPics }}/screens"
+        dest: "{{ ansible_env.myDesktop }}/screens"
+        state: link
+      register: screenshot_symlink
+
+- name: Restart Finder to show changes
+  ansible.builtin.command:
+    cmd: killall Finder
+  ignore_errors: yes
+  register: finder_restart
+
+# -----------------------------------------------------------------------------
+# Preferences: Menu Bar FIXME
+# -----------------------------------------------------------------------------
+# - name: Display Battery
+#   community.general.osx_defaults:
+#     domain: com.apple.menuextra.battery
+#     key: ShowPercent
+#     type: string
+#     value: "YES"
+#   register: battery_display
+
+# - name: Configure menu bar clock format
+#   community.general.osx_defaults:
+#     domain: com.apple.menuextra.clock
+#     key: DateFormat
+#     type: string
+#     value: "EEE MMM d  h:mm a"
+#   register: clock_format
+
+# -----------------------------------------------------------------------------
+# Preferences: Dock
+# FIXME: restart the Dock: killall Dock
+# -----------------------------------------------------------------------------
+- name: Add applications to Dock
+  ansible.builtin.shell: "dockutil --add {{ item }} --no-restart"
+  loop:
+    - "/Applications/Utilities/Terminal.app"
+    - "/Applications/Google Chrome.app"
+    - "/Applications/Slack.app"
+    - "/Applications/Discord.app"
+  register: dock_apps_added
+  failed_when: false
+  changed_when: dock_apps_added.rc == 0
+  #notify: restart_dock
+
+- name: Configure Dock preferences
+  community.general.osx_defaults:
+    domain: com.apple.dock
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+  loop:
+    - { key: "tilesize", type: "float", value: 42.0 }
+    - { key: "autohide", type: "bool", value: false }
+    - { key: "autohide-delay", type: "float", value: 0.0 }
+    - { key: "autohide-time-modifier", type: "float", value: 0.0 }
+  register: dock_prefs
+
+- name: Restart Dock to show changes
+  ansible.builtin.command:
+    cmd: killall Dock
+  when: dock_apps_added.changed
+  ignore_errors: yes
+  register: dock_restart
+
+# -----------------------------------------------------------------------------
+# Preferences: Photos
+# There was an odd connection to the Photos app and some other thing FIXME.
+# -----------------------------------------------------------------------------
+- name: Configure Photos app behavior
+  community.general.osx_defaults:
+    domain: com.apple.ImageCapture
+    key: disableHotPlug
+    type: bool
+    value: true
+    host: currentHost
+  register: photos_hotplug
+
+# -----------------------------------------------------------------------------
+# Preferences: TextEdit
+# Not sure why this annoys me but it does.
+# -----------------------------------------------------------------------------
+- name: Configure TextEdit preferences
+  community.general.osx_defaults:
+    domain: com.apple.TextEdit
+    key: "{{ item.key }}"
+    type: "{{ item.type }}"
+    value: "{{ item.value }}"
+  loop:
+    - { key: "author", type: "string", value: "{{ ansible_env.myFullName }}" }
+    - { key: "RichText", type: "int", value: 0 }
+    - { key: "NSFixedPitchFont", type: "string", value: "Hack-Regular" }
+    - { key: "NSFixedPitchFontSize", type: "string", value: 14 }
+    - { key: "WidthInChars", type: "int", value: 100 }
+    - { key: "HeightInChars", type: "int", value: 45 }
+    - { key: "SmartDashes", type: "int", value: 0 }
+    - { key: "SmartQuotes", type: "int", value: 0 }
+  register: textedit_prefs
+
+
+- name: Display macOS configuration status
+  debug:
+    msg:
+      - "macOS Hostname configured:"
+      - "  - Hostname: {% if hostname_results.changed %}configured{% else %}already set{% endif %}"
+
+      - "Security configuration configured:"
+      - "  - Guest user at login screen: {% if guest_disabled.changed %}configured{% else %}already set{% endif %}"
+      - "  - AFP guest access: {% if afp_guest.changed %}configured{% else %}already set{% endif %}"
+
+      - "macOS Finder preferences configured:"
+      - "  - Finder preferences: {% if finder_prefs.changed %}configured{% else %}already set{% endif %}"
+      - "  - Network shares behavior: {% if network_stores.changed %}configured{% else %}already set{% endif %}"
+
+      - "Display macOS configuration status:"
+      - "  - Dialog preferences: {% if dialog_prefs.changed %}configured for expansion and List view{% else %}already set{% endif %}"
+      # - "  - Applications restarted: {% if app_restarts.changed %}yes{% else %}not needed{% endif %}"
+
+      - "Screenshot configuration configured:"
+      - "  - Directory: {% if screenshot_dir.changed %}created{% else %}already exists{% endif %} ({{ ansible_env.myPics }}/screens)"
+      - "  - Preferences: {% if screenshot_prefs.changed %}configured{% else %}already set{% endif %}"
+      - "  - Desktop symlink: {% if screenshot_symlink.changed %}created{% else %}already exists{% endif %} ({{ ansible_env.myDesktop }}/screens)"
+      - "  - Finder restart: {% if finder_restart.changed %}restarted{% else %}already running{% endif %}"
+
+      # - "Menu bar configuration configured:"
+      # - "  - Battery percentage: {% if battery_display.changed %}configured{% else %}already set{% endif %}"
+      # - "  - Clock format: {% if clock_format.changed %}configured{% else %}already set{% endif %}"
+
+      - "Dock configuration configured:"
+      - "  - Dock applications: {% if dock_apps_added.changed %}added{% else %}already present{% endif %}"
+      - "  - Dock preferences: {% if dock_prefs.changed %}configured{% else %}already set{% endif %}"
+
+      - "Applications configuration configured:"
+      - "  - Photos app behavior: {% if photos_hotplug.changed %}configured{% else %}already set{% endif %}"
+      - "  - TextEdit preferences: {% if textedit_prefs.changed %}configured{% else %}already set{% endif %}"

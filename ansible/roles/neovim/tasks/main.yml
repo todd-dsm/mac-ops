@@ -1,0 +1,101 @@
+# Install and configure nvim-simple
+---
+- name: Install neovim via Homebrew
+  community.general.homebrew:
+    name: neovim
+    state: present
+  register: nvim_install
+
+# Install plugin dependencies BEFORE bootstrapping
+- name: Install neovim plugin dependencies
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - ripgrep
+    - fd
+    - shfmt
+    - shellcheck
+  register: nvim_deps_install
+
+- name: Install bash-language-server via npm
+  community.general.npm:
+    name: bash-language-server
+    global: yes
+    state: present
+  register: bash_lsp_install
+
+- name: Ensure code directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/code"
+    state: directory
+    mode: '0755'
+  register: code_dir
+
+- name: Check if nvim-simple repository exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/code/nvim-simple/.git"
+  register: nvim_repo_check
+
+- name: Clone nvim-simple repository
+  ansible.builtin.git:
+    repo: https://github.com/todd-dsm/nvim-simple.git
+    dest: "{{ ansible_env.HOME }}/code/nvim-simple"
+    update: no
+  register: nvim_repo
+  when: not nvim_repo_check.stat.exists
+
+# Backup existing neovim configuration
+- name: Check for existing neovim config directory
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.config/nvim"
+  register: existing_nvim_dir
+
+- name: Backup existing neovim config directory
+  ansible.builtin.command:
+    cmd: mv "{{ ansible_env.HOME }}/.config/nvim" "{{ ansible_env.adminDir }}/backup/nvim"
+  when:
+    - existing_nvim_dir.stat.exists
+    - not existing_nvim_dir.stat.islnk
+  register: nvim_dir_backup
+
+# Create symlink
+- name: Symlink nvim-simple to config directory
+  ansible.builtin.file:
+    src: "{{ ansible_env.HOME }}/code/nvim-simple"
+    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    state: link
+    force: yes
+  register: nvim_link
+
+# Install lazy.nvim and plugins (auto-bootstrap on first launch)
+- name: Check if lazy.nvim exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.local/share/nvim/lazy/lazy.nvim"
+  register: lazy_nvim_check
+
+- name: Bootstrap lazy.nvim and install plugins
+  ansible.builtin.shell: |
+    nvim --headless "+Lazy! sync" +qa
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "{{ ansible_env.HOME }}"
+  register: lazy_install
+  changed_when: lazy_install.rc == 0
+  failed_when: false
+  when: not lazy_nvim_check.stat.exists
+
+- name: Display neovim setup status
+  debug:
+    msg:
+      - "nvim-simple setup completed:"
+      - "  - Neovim package: {% if nvim_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Dependencies: {% if nvim_deps_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - bash-language-server: {% if bash_lsp_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Repository: {% if nvim_repo.changed %}cloned/updated{% else %}already present{% endif %}"
+      - "  - Config backup: {% if nvim_dir_backup.changed %}created{% else %}not needed{% endif %}"
+      - "  - Symlink: {% if nvim_link.changed %}created{% else %}already present{% endif %}"
+      - "  - lazy.nvim: {% if lazy_install.changed %}installed{% else %}already present{% endif %}"
+      - ""
+      - "Launch 'nvim' to start using nvim-simple"

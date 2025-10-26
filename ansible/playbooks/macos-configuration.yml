@@ -1,0 +1,13 @@
+# macOS system configuration
+---
+- name: macOS System Configuration
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Configure macOS system preferences
+      include_role:
+        name: macos
+        apply:
+          tags: [macos, configuration]
+      tags: [macos, configuration]

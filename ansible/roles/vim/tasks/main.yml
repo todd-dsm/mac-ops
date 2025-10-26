@@ -1,0 +1,131 @@
+# Install and configure vim-simple
+---
+- name: Install vim via Homebrew
+  community.general.homebrew:
+    name: vim
+    state: present
+  register: vim_install
+
+- name: Ensure code directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/code"
+    state: directory
+    mode: '0755'
+  register: code_dir
+
+- name: Clone vim-simple repository
+  ansible.builtin.git:
+    repo: https://github.com/todd-dsm/vim-simple.git
+    dest: "{{ ansible_env.HOME }}/code/vim-simple"
+    update: yes
+  register: vim_repo
+
+# Backup existing vim configuration
+- name: Check for existing vimrc
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.vimrc"
+  register: existing_vimrc
+
+- name: Backup existing vimrc
+  ansible.builtin.command:
+    cmd: mv "{{ ansible_env.HOME }}/.vimrc" "{{ ansible_env.adminDir }}/backup/vimrc"
+  when: 
+    - existing_vimrc.stat.exists
+    - not existing_vimrc.stat.islnk
+  register: vimrc_backup
+
+- name: Check for existing vim directory
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.vim"
+  register: existing_vim_dir
+
+- name: Backup existing vim directory
+  ansible.builtin.command:
+    cmd: mv "{{ ansible_env.HOME }}/.vim" "{{ ansible_env.adminDir }}/backup/vim"
+  when:
+    - existing_vim_dir.stat.exists
+    - not existing_vim_dir.stat.islnk
+  register: vim_dir_backup
+
+# Create symlinks
+- name: Symlink vimrc to home directory
+  ansible.builtin.file:
+    src: "{{ ansible_env.HOME }}/code/vim-simple/vimrc"
+    dest: "{{ ansible_env.HOME }}/.vimrc"
+    state: link
+    force: yes
+  register: vimrc_link
+
+- name: Symlink vim directory to home directory
+  ansible.builtin.file:
+    src: "{{ ansible_env.HOME }}/code/vim-simple/vim"
+    dest: "{{ ansible_env.HOME }}/.vim"
+    state: link
+    force: yes
+  register: vim_dir_link
+
+# Install vim-plug and plugins
+- name: Check if vim-plug autoload exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.vim/autoload/plug.vim"
+  register: vim_plug_check
+
+- name: Install vim plugins via vim-plug
+  ansible.builtin.shell: |
+    vim +'PlugInstall --sync' +qall
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "{{ ansible_env.HOME }}"
+  register: plugin_install
+  changed_when: plugin_install.rc == 0
+  failed_when: false
+
+# Disable conflicting bundled snippets
+- name: Check if vim-snippets plugin exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.vim/plugged/vim-snippets/snippets"
+  register: vim_snippets_dir
+
+- name: Check which snippet files exist
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.vim/plugged/vim-snippets/snippets/{{ item }}.snippets"
+  loop:
+    - bash
+    - sh
+    - zsh
+  register: snippet_files
+  when: vim_snippets_dir.stat.exists
+
+- name: Disable conflicting bundled snippets
+  ansible.builtin.command:
+    cmd: mv "{{ ansible_env.HOME }}/.vim/plugged/vim-snippets/snippets/{{ item.item }}.snippets" "{{ ansible_env.HOME }}/.vim/plugged/vim-snippets/snippets/{{ item.item }}.snippets.disabled"
+  loop: "{{ snippet_files.results }}"
+  when:
+    - vim_snippets_dir.stat.exists
+    - item.stat is defined
+    - item.stat.exists
+    - not item.stat.path.endswith('.disabled')
+  register: snippets_disabled
+  failed_when: false
+
+- name: Copy vim environment configuration
+  ansible.builtin.copy:
+    src: vim.zsh
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/vim.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display vim setup status
+  debug:
+    msg:
+      - "vim-simple setup completed:"
+      - "  - Vim package: {% if vim_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Repository: {% if vim_repo.changed %}cloned/updated{% else %}already present{% endif %}"
+      - "  - vimrc backup: {% if vimrc_backup.changed %}created{% else %}not needed{% endif %}"
+      - "  - vim dir backup: {% if vim_dir_backup.changed %}created{% else %}not needed{% endif %}"
+      - "  - Symlinks: {% if vimrc_link.changed or vim_dir_link.changed %}created{% else %}already present{% endif %}"
+      - "  - Plugins: {% if plugin_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Snippets disabled: {% if snippets_disabled.changed %}yes{% else %}not needed{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+      - "Launch 'vim' to start using vim-simple"

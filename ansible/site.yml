@@ -1,0 +1,8 @@
+# Master playbook - maintains bootstrap.sh execution order
+---
+- import_playbook: playbooks/foundation.yml
+- import_playbook: playbooks/development-tools.yml
+- import_playbook: playbooks/system-utilities.yml
+- import_playbook: playbooks/applications.yml
+- import_playbook: playbooks/macos-configuration.yml
+- import_playbook: playbooks/cleanup.yml

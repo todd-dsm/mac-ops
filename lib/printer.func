@@ -51,6 +51,12 @@ print_req() {
     printf '\n  %s\n' "$theMessage"
 }
 
+# Requirements utility (indented messages with newline above)
+print_info() {
+    local theMessage="$*"
+    printf '%s\n' "    $theMessage"
+}
+
 # Pass utility (4-space indent, green, for successful tests)
 print_pass() {
     local green='\033[0;32m'

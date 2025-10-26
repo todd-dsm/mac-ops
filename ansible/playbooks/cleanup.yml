@@ -1,0 +1,13 @@
+# Cleanup and final configuration
+---
+- name: Cleanup and Final Configuration
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Run cleanup operations
+      include_role:
+        name: cleanup
+        apply:
+          tags: [cleanup, final]
+      tags: [cleanup, final]

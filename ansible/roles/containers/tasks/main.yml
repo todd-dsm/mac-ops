@@ -1,0 +1,58 @@
+# Install and configure containerization tools
+---
+- name: Install Docker Desktop
+  community.general.homebrew:
+    name: docker
+    state: present
+  register: app_install
+
+- name: Copy environment configuration
+  ansible.builtin.copy:
+    src: containers.zsh
+    dest: "$HOME/.oh-my-zsh/custom/containers.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Check if OMZSH/Docker plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*docker.*'
+    state: absent
+  check_mode: yes
+  register: docker_plugin_check
+  changed_when: false
+
+- name: Add OMZSH docker plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 docker)'
+    backrefs: yes
+  when: not docker_plugin_check.found
+
+- name: Add buildpacks tap
+  community.general.homebrew_tap:
+    name: buildpacks/tap
+    state: present
+  register: buildpacks_tap
+
+- name: Install Docker utilities
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - docker-clean
+    - docker-credential-helper-ecr
+    - buildpacks/tap/pack
+    - dive
+  register: docker_utils
+
+- name: Display Containerization setup status
+  debug:
+    msg:
+      - "Containerization setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - OMZSH/Docker plugin: {% if docker_plugin_check.changed %}configured{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+      - "  - Buildpacks tap: {% if buildpacks_tap.changed %}added{% else %}already present{% endif %}"
+      - "  - Docker utilities: {% if docker_utils.changed %}installed{% else %}already present{% endif %}"

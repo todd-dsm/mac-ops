@@ -1,0 +1,65 @@
+# Install and configure Golang programming language
+---
+- name: Install Golang
+  community.general.homebrew:
+    name: golang
+    state: present
+  register: app_install
+
+# Create Go bin directory
+- name: Create Go bin directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/go/bin"
+    state: directory
+    mode: '0755'
+  register: create_bin_dir
+
+# Add Go binary path to system paths so we can find our own binaries
+- name: Configure Golang system path
+  ansible.builtin.lineinfile:
+    path: /etc/paths
+    insertbefore: '^/usr/local/bin$'
+    line: "{{ ansible_env.HOME }}/go/bin"
+  become: yes
+  register: sys_path
+
+- name: Copy Golang environment configuration
+  ansible.builtin.copy:
+    src: golang.zsh
+    dest: "$HOME/.oh-my-zsh/custom/golang.zsh"
+    mode: '0644'
+  register: env_config
+
+# -----------------------------------------------------------------------------
+# Add OMZSH plugin
+# -----------------------------------------------------------------------------
+- name: Check if OMZSH/golang plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*golang.*'
+    state: absent
+  check_mode: yes
+  register: golang_plugin_check
+  changed_when: false
+
+- name: Add OMZSH golang plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 golang)'
+    backrefs: yes
+  when: not golang_plugin_check.found
+
+# -----------------------------------------------------------------------------
+# Display status
+# -----------------------------------------------------------------------------
+- name: Display Golang setup status
+  debug:
+    msg:
+      - "Golang setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Go bin directory: {% if create_bin_dir.changed %}created{% else %}already exists{% endif %}"
+      - "  - System path: {% if sys_path.changed %}configured{% else %}already configured{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+      - "Added:"
+      - "  - OMZSH/golang plugin: {% if golang_plugin_check.changed %}configured{% else %}already present{% endif %}"

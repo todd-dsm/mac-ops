@@ -1,0 +1,23 @@
+# GUI Applications installation
+---
+- name: Install GUI applications via Homebrew cask
+  community.general.homebrew_cask:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - google-chrome
+    - firefox
+    - slack
+    - discord
+    - obsidian
+    - font-hack
+    - cursor
+    - postman
+    - wireshark
+  register: gui_apps
+
+- name: Display GUI applications installation status
+  debug:
+    msg:
+      - "GUI Applications installation completed:"
+      - "  - GUI applications: {% if gui_apps.changed %}installed{% else %}already present{% endif %}"

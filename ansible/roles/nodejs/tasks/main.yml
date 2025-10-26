@@ -1,0 +1,47 @@
+# Install and configure Node.js programming language
+#   * Homebrew installs npm with nodejs
+# File: roles/rust/tasks/main.yml
+---
+- name: Install Node.js
+  community.general.homebrew:
+    name: nodejs
+    state: present
+  register: app_install
+
+- name: Copy Node.js environment configuration
+  ansible.builtin.copy:
+    src: nodejs.zsh
+    dest: "$HOME/.oh-my-zsh/custom/nodejs.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display Node.js setup status
+  debug:
+    msg:
+      - "Node.js setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+
+# # -----------------------------------------------------------------------------
+# ---
+# - name: Install nmpm
+#   community.general.npm:
+#     name: nmpm
+#     global: yes
+#     state: present
+#   register: nmpm_install
+
+# # - name: Copy nmpm environment configuration
+# #   ansible.builtin.copy:
+# #     src: nmpm.zsh
+# #     dest: "$HOME/.oh-my-zsh/custom/nmpm.zsh"
+# #     mode: '0644'
+# #   register: env_config
+
+# - name: Display Node.js setup status
+#   debug:
+#     msg:
+#       - "Node.js setup completed:"
+#       - "  - Package: {% if nmpm_install.changed %}installed{% else %}already present{% endif %}"
+#       - "  - System path: {% if sys_path.changed %}configured{% else %}already configured{% endif %}"
+#       - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"

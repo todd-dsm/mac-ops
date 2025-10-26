@@ -1,0 +1,53 @@
+# Foundational setup
+---
+- name: Foundation Setup
+  hosts: local
+  gather_facts: yes
+  vars:
+    homebrew_no_env_hints: true
+
+  environment:
+    HOMEBREW_NO_ENV_HINTS: "{{ homebrew_no_env_hints }}"
+
+  tasks:
+    - name: Kick-off message
+      debug:
+        msg: |
+          Configuring this macOS for {{ ansible_env.myFullName }}
+          Start time: {{ ansible_date_time.time }}
+
+    - name: Pre-flight validation
+      include_tasks:
+        file: ../tasks/validate/prereqs.yml
+        apply:
+          tags: [foundation]
+      tags: [foundation]
+
+    # SSH key management (now with base tag)
+    - name: Configure SSH keys
+      include_tasks:
+        file: ../tasks/configure/ssh-keys.yml
+        apply:
+          tags: [base]
+      tags: [base]
+
+    # Terminal setup prerequisites
+    - name: Setup terminal prerequisites
+      include_tasks:
+        file: ../tasks/configure/terminal-support.yml
+        apply:
+          tags: [base]
+      tags: [base]
+
+    # # Post-configuration validation
+    # - name: Foundation validation
+    #   include_tasks:
+    #     file: ../tasks/validate/foundation-complete.yml
+    #     apply:
+    #       tags: [foundation]
+    #   tags: [foundation]
+
+    # Confirm Success
+    - name: Display foundation completion
+      debug:
+        msg: "Foundation setup completed successfully"
