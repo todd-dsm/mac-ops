@@ -4,7 +4,7 @@ Sequoia (`macOS v15.x`) marks the rebirth of mac-ops.
 
 ## TL;DR
 
-You need the tools before you can build anything. Herein lies automation to configure a full-featured (and highly opinionated) macOS that aims to support **Platform Engineering_** (SRE/DevOps) work. Read the [full breakdown] if you care.
+You need the tools before you can build anything. Herein lies automation to configure a full-featured (and highly opinionated) macOS that aims to support **Platform Engineering** (SRE/DevOps) work. Read the [full breakdown] if you care.
 
 ## Pre-Game
 
@@ -19,7 +19,15 @@ Hi yourUserName! You've successfully authenticated, but GitHub does not provide 
 
 Clone the repo down to your laptop:
 
-`git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/`
+```shell
+gclonecd git@github.com:todd-dsm/mac-ops.git
+```
+
+Or, if this is your first time:
+
+```shell
+git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/
+```
 
 ### CONFIGURE *YOUR* VARIABLES
 
@@ -35,10 +43,9 @@ Manually:
 
 ```shell
 tools/install-prep.sh 2>&1 | tee /tmp/install-prep.out
-# duration: ~03:30
 ```
 
-When it's all over, you will see:
+This is all over in `~03:30`; when it's all over, you will see:
 
 ```shell
          __                                     __
@@ -61,12 +68,11 @@ This is the final step.
 
 ```shell
 ./bootstrap.sh ANSIBLE_NOCOLOR=True 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
-# duration: ~14:30
 ```
 
-Again, follow the ons-screen instructions, or continue to [post-install] steps.
+This step lasts `~14:30`; again, follow the ons-screen instructions, or continue to [post-install] steps.
 
-Then you're ready to start working.
+In under an hour, you're ready to start working.
 
 <!-- docs/refs -->
 
