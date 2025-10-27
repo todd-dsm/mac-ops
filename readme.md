@@ -49,6 +49,7 @@ Clone the repo down to your laptop:
 ---
 
 Assuming this is a fresh macOS, run the [install prep] script to:
+
 * Get the latest OS Updates
 * Configure `sudo` *properly*
 * Installs include:
@@ -62,6 +63,7 @@ Assuming this is a fresh macOS, run the [install prep] script to:
 
 ```shell
 tools/install-prep.sh 2>&1 | tee /tmp/install-prep.out
+# duration: ~03:30
 ```
 
 When it's all over, you will see something like:
@@ -77,7 +79,7 @@ When it's all over, you will see something like:
 
 To back out of the new Oh My ZSH shell just press: `CTRL+d`
 
-The messages should advise you to reboot.
+Follow the ons-screen instructions.
 
 ---
 
@@ -87,7 +89,10 @@ Once you're all backed-up, auto-magically configure the new macOS.
 
 Kick off the script: (`~32` minutes to complete)
 
-`./bootstrap.sh TEST 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out`
+```shell
+./bootstrap.sh ANSIBLE_NOCOLOR=True 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
+# duration: ~14:30
+```
 
 *NOTE: remove the argument `TEST` to go live.*
 
