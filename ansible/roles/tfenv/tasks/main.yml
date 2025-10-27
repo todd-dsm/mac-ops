@@ -1,0 +1,77 @@
+# Install and configure Terraform via tfenv version manager
+# File: roles/terraform/tasks/main.yml
+---
+- name: Check if terraform is installed via Homebrew
+  ansible.builtin.command: brew list terraform
+  register: terraform_check
+  failed_when: false
+  changed_when: false
+
+- name: Unlink existing Homebrew terraform
+  community.general.homebrew:
+    name: terraform
+    state: unlinked
+  when: terraform_check.rc == 0
+
+- name: Uninstall existing Homebrew terraform
+  community.general.homebrew:
+    name: terraform
+    state: absent
+  when: terraform_check.rc == 0
+
+- name: Install tfenv
+  community.general.homebrew:
+    name: tfenv
+    state: present
+  register: tfenv_install
+
+- name: Install latest Terraform version via tfenv
+  ansible.builtin.command: tfenv install latest
+  environment:
+    TFENV_SKIP_VERIFIES: "true"
+  register: tfenv_install_latest
+  changed_when: "'already installed' not in tfenv_install_latest.stdout"
+
+- name: Set latest Terraform version as default
+  ansible.builtin.command: tfenv use latest
+  changed_when: true
+
+- name: Get installed Terraform version
+  ansible.builtin.command: terraform version
+  register: terraform_version
+  changed_when: false
+
+- name: Check if OMZSH/Terraform plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*terraform.*'
+    state: absent
+  check_mode: yes
+  register: terraform_plugin_check
+  changed_when: false
+
+- name: Add OMZSH terraform plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 terraform)'
+    backrefs: yes
+  when: not terraform_plugin_check.found
+
+- name: Copy Terraform environment configuration
+  ansible.builtin.copy:
+    src: terraform.zsh
+    dest: "$HOME/.oh-my-zsh/custom/terraform.zsh"
+    mode: '0644'
+  register: terraform_config
+
+- name: Display Terraform setup status
+  debug:
+    msg:
+      - "Terraform setup completed:"
+      - "  - Existing terraform: {% if terraform_check.rc == 0 %}removed{% else %}not found{% endif %}"
+      - "  - tfenv: {% if tfenv_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Latest terraform: {% if tfenv_install_latest.changed %}installed{% else %}already installed{% endif %}"
+      - "  - Active version: {{ terraform_version.stdout_lines[0] }}"
+      - "  - OMZSH/Terraform plugin: {% if terraform_plugin_check.changed %}configured{% else %}already present{% endif %}"
+      - "  - Shell config: {% if terraform_config.changed %}deployed{% else %}already present{% endif %}"

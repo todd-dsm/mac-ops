@@ -1,0 +1,13 @@
+# Additional applications and configurations
+---
+- name: Applications Configuration
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Install GUI applications
+      include_role:
+        name: gui-apps
+        apply:
+          tags: [gui, applications]
+      tags: [gui, applications]

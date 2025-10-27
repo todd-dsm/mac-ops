@@ -1,0 +1,104 @@
+# Development tools installation
+---
+- name: Development Tools Installation
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Rust
+      include_role:
+        name: rust
+        apply:
+          tags: [rust, development-tools]
+      tags: [rust, development-tools]
+
+    - name: Golang
+      include_role:
+        name: golang
+        apply:
+          tags: [golang, development-tools]
+      tags: [golang, development-tools]
+
+    - name: Node.js and npm
+      include_role:
+        name: nodejs
+        apply:
+          tags: [nodejs, development-tools]
+      tags: [nodejs, development-tools]
+
+    - name: Bun JavaScript runtime
+      include_role:
+        name: bun
+        apply:
+          tags: [bun, development-tools]
+      tags: [bun, development-tools]
+
+    - name: Amazon AWS CLI
+      include_role:
+        name: awscli
+        apply:
+          tags: [awscli, development-tools]
+      tags: [awscli, development-tools]
+
+    - name: HashiCorp Terraform via tfenv
+      include_role:
+        name: tfenv
+        apply:
+          tags: [tfenv, development-tools]
+      tags: [tfenv, development-tools]
+
+    - name: HashiCorp Packer
+      include_role:
+        name: packer
+        apply:
+          tags: [packer, development-tools]
+      tags: [packer, development-tools]
+
+    - name: HashiCorp Vault
+      include_role:
+        name: vault
+        apply:
+          tags: [vault, development-tools]
+      tags: [vault, development-tools]
+
+    - name: Google Cloud SDK
+      include_role:
+        name: google-cloud-sdk
+        apply:
+          tags: [gcp, development-tools]
+      tags: [gcp, development-tools]
+
+    - name: Containerization Tools
+      include_role:
+        name: containers
+        apply:
+          tags: [containers, development-tools]
+      tags: [containers, development-tools]
+
+    - name: Kubernetes CLI
+      include_role:
+        name: kubernetes
+        apply:
+          tags: [kubes, development-tools]
+      tags: [kubes, development-tools]
+
+    - name: Ansible Configuration
+      include_role:
+        name: ansible
+        apply:
+          tags: [ansible, development-tools]
+      tags: [ansible, development-tools]
+
+    - name: Vim - The Power and The Glory
+      include_role:
+        name: vim
+        apply:
+          tags: [vim, development-tools, editors]
+      tags: [vim, development-tools, editors]
+
+    - name: Neovim Configuration
+      include_role:
+        name: neovim
+        apply:
+          tags: [neovim, development-tools, editors]
+      tags: [neovim, development-tools, editors]

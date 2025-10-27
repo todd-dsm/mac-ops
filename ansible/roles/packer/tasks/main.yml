@@ -1,0 +1,27 @@
+# Install and configure HashiCorp Packer
+---
+- name: Add HashiCorp tap
+  community.general.homebrew_tap:
+    name: hashicorp/tap
+    state: present
+  register: hashicorp_tap
+
+- name: Install HashiCorp Packer
+  community.general.homebrew:
+    name: hashicorp/tap/packer
+    state: present
+  register: app_install
+
+- name: Copy Packer environment configuration
+  ansible.builtin.copy:
+    src: packer.zsh
+    dest: "$HOME/.oh-my-zsh/custom/packer.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display Packer setup status
+  debug:
+    msg:
+      - "Packer setup completed:"
+      # - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"

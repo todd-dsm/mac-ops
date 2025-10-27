@@ -1,0 +1,50 @@
+# Terminal support - theme download and settings restore
+---
+- name: Display terminal setup start
+  debug:
+    msg: "Setting up terminal support files..."
+
+- name: Ensure terminal downloads directory exists
+  file:
+    path: "{{ ansible_env.termStuff }}"
+    state: directory
+    mode: '0755'
+
+# Clone Solarized terminal theme for manual import
+- name: Clone Solarized terminal theme
+  ansible.builtin.git:
+    repo: "{{ ansible_env.solarizedGitRepo }}"
+    dest: "{{ ansible_env.termStuff }}/solarized"
+    accept_hostkey: yes
+    update: yes
+  register: solarized_clone
+
+# Restore terminal settings from backup if available
+- name: Check for existing settings to restore
+  stat:
+    path: "{{ ansible_env.myBackups }}"
+  register: backup_check
+
+- name: Display settings restore status
+  debug:
+    msg: 
+
+- name: Restore terminal settings if available
+  shell: rsync -aEv "{{ ansible_env.myBackups }}/Documents/system" "{{ ansible_env.myDocs }}/"
+  when: backup_check.stat.exists
+  register: settings_restore
+  ignore_errors: yes
+
+- name: Display settings restore result
+  debug:
+    msg: "Settings restore {% if settings_restore.rc == 0 %}completed successfully{% else %}had issues - check /tmp/rsync-err-system.out{% endif %}"
+  when: backup_check.stat.exists
+
+# Post-configuration reminder
+- name: Display manual configuration reminder
+  debug:
+    msg:
+      - "Terminal theme setup completed:"
+      - "  - Solarized theme: {% if solarized_clone.changed %}cloned{% else %}already downloaded{% endif %}"
+      - "  - Settings: {% if backup_check.stat.exists %}Settings backup found - will be restored{% else %}No settings backup found to restore{% endif %}"
+

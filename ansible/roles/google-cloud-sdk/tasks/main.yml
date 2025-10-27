@@ -1,0 +1,46 @@
+# Install and configure Google Cloud SDK
+---
+- name: Install Google Cloud SDK
+  community.general.homebrew_cask:
+    name: google-cloud-sdk
+    state: present
+  register: app_install
+
+- name: Copy Google Cloud SDK environment configuration
+  ansible.builtin.copy:
+    src: gcp.zsh
+    dest: "$HOME/.oh-my-zsh/custom/gcp.zsh"
+    mode: '0644'
+  register: env_config
+
+# -----------------------------------------------------------------------------
+# Add OMZSH plugin
+# -----------------------------------------------------------------------------
+- name: Check if OMZSH/gcloud plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*gcloud.*'
+    state: absent
+  check_mode: yes
+  register: gcloud_plugin_check
+  changed_when: false
+
+- name: Add OMZSH gcloud plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 gcloud)'
+    backrefs: yes
+  when: not gcloud_plugin_check.found
+
+# -----------------------------------------------------------------------------
+# Display status
+# -----------------------------------------------------------------------------
+- name: Display Google Cloud SDK setup status
+  debug:
+    msg:
+      - "Google Cloud SDK setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+      - "Added:"
+      - "  - OMZSH/gcloud plugin: {% if gcloud_plugin_check.changed %}configured{% else %}already present{% endif %}"

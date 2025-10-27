@@ -1,16 +1,10 @@
-# OS generated files #
-######################
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
 
-
-# Vagrant files #
-######################
-.vagrant/
-bento/
-packer/
-opscode_macosx-10.9_chef-provisionerless.box
-zarchive/
+# Virtual environments
+.venv

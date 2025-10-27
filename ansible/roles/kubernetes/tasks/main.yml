@@ -1,0 +1,240 @@
+# Install and configure Kubernetes CLI with ktx
+---
+# -----------------------------------------------------------------------------
+# Kubernetes Core Tools
+# -----------------------------------------------------------------------------
+- name: Install core Kubernetes tools
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - kubernetes-cli
+    - helm
+    - minikube
+    - k9s
+    - eksctl
+    - kubectx
+    - stern
+    - kustomize
+    - popeye
+  register: k8s_core_tools
+
+- name: Copy Kubernetes Core Tools environment configuration
+  ansible.builtin.copy:
+    src: kubernetes.zsh
+    dest: "$HOME/.oh-my-zsh/custom/kubernetes.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Check if OMZSH/kubectl plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*kubectl.*'
+    state: absent
+  check_mode: yes
+  register: kubectl_plugin_check
+  changed_when: false
+
+- name: Add OMZSH kubectl plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 kubectl)'
+    backrefs: yes
+  when: not kubectl_plugin_check.found
+
+# -----------------------------------------------------------------------------
+# Helm
+# -----------------------------------------------------------------------------
+- name: Check if OMZSH/helm plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*helm.*'
+    state: absent
+  check_mode: yes
+  register: helm_plugin_check
+  changed_when: false
+
+- name: Add OMZSH helm plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 helm)'
+    backrefs: yes
+  when: not helm_plugin_check.found
+
+# -----------------------------------------------------------------------------
+# Minikube
+# -----------------------------------------------------------------------------
+- name: Configuring Minikube default settings
+  ansible.builtin.shell: |
+    minikube config set cpus 2
+    minikube config set memory 4096
+    minikube config set driver docker
+    minikube config set WantVirtualBoxDriverWarning false
+  register: minikube_config
+  changed_when: false
+
+- name: Check if OMZSH/minikube plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*minikube.*'
+    state: absent
+  check_mode: yes
+  register: minikube_plugin_check
+  changed_when: false
+
+- name: Add OMZSH minikube plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 minikube)'
+    backrefs: yes
+  when: not minikube_plugin_check.found
+
+# -----------------------------------------------------------------------------
+# Service Mesh Tools
+# -----------------------------------------------------------------------------
+- name: Install service mesh tools
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - istioctl
+    - linkerd
+    - cilium-cli
+  register: k8s_mesh_tools
+
+# -----------------------------------------------------------------------------
+# GitOps Tools
+# -----------------------------------------------------------------------------
+- name: Install GitOps tools
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - flux
+    - argocd
+  register: k8s_gitops_tools
+
+# -----------------------------------------------------------------------------
+# Krew Plugin Manager
+# -----------------------------------------------------------------------------
+- name: Install Krew plugin manager
+  community.general.homebrew:
+    name: krew
+    state: present
+  register: krew_install
+
+# Configure Krew system path
+- name: Add Krew to system path
+  ansible.builtin.lineinfile:
+    path: /etc/paths
+    insertbefore: '^/usr/local/bin$'
+    line: "{{ ansible_env.HOME }}/.krew/bin"
+  become: yes
+  register: krew_path
+
+# -----------------------------------------------------------------------------
+# Krew Plugins
+# -----------------------------------------------------------------------------
+- name: Install Krew Plugins
+  ansible.builtin.shell: kubectl krew install {{ item }}
+  loop:
+    - resource-capacity
+    - tree
+    - whoami
+    - who-can
+  register: k8s_krew_plugins
+
+# -----------------------------------------------------------------------------
+# the weird plugins
+# -----------------------------------------------------------------------------
+# https://github.com/luksa/kubectl-plugins/blob/master/kubectl-ssh
+- name: Download kubectl-ssh plugin
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/luksa/kubectl-plugins/master/kubectl-ssh
+    dest: /tmp/kubectl-ssh
+    mode: '0755'
+  register: kubectl_ssh_download
+
+- name: Install kubectl-ssh to system location
+  ansible.builtin.command:
+    cmd: mv /tmp/kubectl-ssh /usr/local/bin/kubectl-ssh
+    creates: /usr/local/bin/kubectl-ssh
+  become: yes
+  register: kubectl_ssh_install
+
+- name: Clean up temporary kubectl-ssh download
+  ansible.builtin.file:
+    path: /tmp/kubectl-ssh
+    state: absent
+
+- name: Verify kubectl-ssh installation
+  ansible.builtin.command: which kubectl-ssh
+  register: kubectl_ssh_verify
+  changed_when: false
+  failed_when: kubectl_ssh_verify.rc != 0
+
+# -----------------------------------------------------------------------------
+# ktx
+# -----------------------------------------------------------------------------
+- name: Clone ktx repository
+  ansible.builtin.git:
+    repo: https://github.com/heptiolabs/ktx
+    dest: /tmp/ktx
+    force: yes
+  register: ktx_clone
+
+- name: Install ktx bash function
+  ansible.builtin.command:
+    cmd: cp /tmp/ktx/ktx "{{ ansible_env.HOME }}/.ktx"
+    creates: "{{ ansible_env.HOME }}/.ktx"
+  register: ktx_install
+
+- name: Set ktx permissions
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ktx"
+    mode: '0755'
+  when: ktx_install.changed
+
+- name: Install ktx completion
+  ansible.builtin.command:
+    cmd: cp /tmp/ktx/ktx-completion.sh "{{ ansible_env.HOME }}/.ktx-completion.sh"
+    creates: "{{ ansible_env.HOME }}/.ktx-completion.sh"
+  register: ktx_completion
+
+- name: Set ktx completion permissions
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.ktx-completion.sh"
+    mode: '0644'
+  when: ktx_completion.changed
+
+- name: Clean up ktx temporary directory
+  ansible.builtin.file:
+    path: /tmp/ktx
+    state: absent
+
+# -----------------------------------------------------------------------------
+# Display status
+# -----------------------------------------------------------------------------
+- name: Display Kubernetes CLI setup status
+  debug:
+    msg:
+      - "Kubernetes CLI setup completed:"
+      - "  - Kubernetes Core Tools: {% if k8s_core_tools.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+      - "  - Kubernetes Service Mesh Tools: {% if k8s_mesh_tools.changed %}installed{% else %}already present{% endif %}"
+      - "  - Kubernetes GitOps Tools: {% if k8s_gitops_tools.changed %}installed{% else %}already present{% endif %}"
+      - "  - Krew plugin manager: {% if krew_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Krew Plugins: {% if k8s_krew_plugins.changed %}installed{% else %}already present{% endif %}"
+      - "  - Minikube default settings: {% if minikube_config.changed %}configured{% else %}already present{% endif %}"
+      - "  - ktx function: {% if ktx_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - ktx completion: {% if ktx_completion.changed %}installed{% else %}already present{% endif %}"
+      - "  - Krew plugin manager: {% if krew_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Krew system path: {% if krew_path.changed %}configured{% else %}already configured{% endif %}"
+      - "  - kubectl-ssh plugin: {% if kubectl_ssh_install.changed %}installed{% else %}already present{% endif %}"
+      - "Added:"
+      - "  - OMZSH/kubectl plugin: {% if kubectl_plugin_check.changed %}configured{% else %}already present{% endif %}"
+      - "  - OMZSH/helm plugin: {% if helm_plugin_check.changed %}configured{% else %}already present{% endif %}"
+      - "  - OMZSH/minikube plugin: {% if minikube_plugin_check.changed %}configured{% else %}already present{% endif %}"

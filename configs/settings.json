@@ -1,0 +1,75 @@
+// Cursor Config: sensible defaults
+{
+  "[terraform]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
+  },
+  "[hcl]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
+  },
+  "[json]": {
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
+  },
+  "[jsonc]": {
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
+  },
+  "[yaml]": {
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
+  },
+  "[yml]": {
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
+  },
+  "[xml]": {
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
+  },
+  // Cursor behavior
+  "window.commandCenter": 1,
+  "files.autoSave": "onFocusChange",
+  "editor.fontSize": 14,
+  "workbench.settings.applyToAllProfiles": [
+    "editor.fontFamily"
+  ],
+  "workbench.colorTheme": "Solarized Dark",
+  "makefile.configureOnOpen": true,
+  // Force compliant yaml, json, hcl, xml
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  // Trim whitespace automatically
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "files.insertFinalNewline": true,
+  "editor.tabSize": 2,
+  // Enhanced bracket pair highlighting settings
+  "editor.bracketPairColorization.enabled": true,
+  // This parameter draws lines between bracket pairs
+  "editor.guides.bracketPairs": "active",
+  "editor.guides.bracketPairsHorizontal": "active",
+  "editor.matchBrackets": "always",
+  "editor.guides.highlightActiveIndentation": true,
+  // Additional bracket highlighting settings
+  "editor.showFoldingControls": "always",
+  "editor.foldingHighlight": true,
+  "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+  "editor.guides.indentation": true,
+  "editor.formatOnType": false,
+  "go.toolsManagement.autoUpdate": true,
+  "workbench.colorCustomizations": {}
+}

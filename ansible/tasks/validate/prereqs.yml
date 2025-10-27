@@ -1,0 +1,25 @@
+# Validate foundational support
+---
+- name: Check admin directory
+  ansible.builtin.stat:
+    path: "{{ ansible_env.adminDir }}"
+  register: admin_dir_check
+
+- name: Validate admin directory exists
+  assert:
+    that:
+      - admin_dir_check.stat.exists
+    fail_msg: "Fail: Admin directory {{ ansible_env.adminDir }} does not exist. Please run install-prep.sh first."
+    success_msg: "Pass: Admin directory found at {{ admin_dir_check.stat.path }}."
+
+- name: Check backup directory
+  ansible.builtin.stat:
+    path: "{{ ansible_env.backup_dir }}"
+  register: backup_dir_check
+
+- name: Validate backup directory exists
+  assert:
+    that:
+      - backup_dir_check.stat.exists
+    fail_msg: "Fail: Backup directory {{ ansible_env.backup_dir }} does not exist. Please run install-prep.sh first."
+    success_msg: "Pass: Backup directory found at {{ backup_dir_check.stat.path }}."

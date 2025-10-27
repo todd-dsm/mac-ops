@@ -1,0 +1,15 @@
+# This facilitates smoother automated git operations by
+# ensuring the GitHub SSH key is present in the known_hosts file
+# before doing anything else.
+---
+- name: Ensure GitHub SSH key in known_hosts
+  ansible.builtin.known_hosts:
+    name: "{{ ansible_env.host_remote }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + ansible_env.host_remote) }}"
+    path: "{{ ansible_env.knownHosts }}"
+    state: present
+  register: github_key_result
+
+- name: Display GitHub key status
+  debug:
+    msg: "GitHub SSH key {% if github_key_result.changed %}added to{% else %}already present in{% endif %} {{ ansible_env.knownHosts }}"

@@ -1,0 +1,91 @@
+# Install and configure Ansible
+---
+- name: Ensure Ansible directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.myAnsibleDir }}"
+    state: directory
+    mode: '0755'
+  register: ansible_dir
+
+- name: Ensure roles subdirectory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.myAnsibleDir }}/roles"
+    state: directory
+    mode: '0755'
+  register: ansible_roles_dir
+
+- name: Generate Ansible configuration file
+  ansible.builtin.shell: ansible-config init --disabled > "{{ ansible_env.myAnsibleCFG }}"
+  args:
+    creates: "{{ ansible_env.myAnsibleCFG }}"
+  register: ansible_cfg_generate
+
+- name: Create basic Ansible hosts inventory file
+  ansible.builtin.copy:
+    dest: "{{ ansible_env.myAnsibleHosts }}"
+    mode: '0644'
+    content: |
+      # Ansible inventory file
+      # For more information see: https://docs.ansible.com/ansible/latest/inventory_guide/intro_inventory.html
+
+      [local]
+      localhost ansible_connection=local
+  register: ansible_hosts_create
+
+- name: Configure inventory path in ansible.cfg
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.myAnsibleCFG }}"
+    regexp: '^;?inventory='
+    line: 'inventory=$HOME/.ansible/hosts,/etc/ansible/hosts'
+  register: ansible_inventory_config
+
+- name: Disable host key checking in ansible.cfg
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.myAnsibleCFG }}"
+    regexp: '^;?host_key_checking='
+    line: 'host_key_checking=False'
+  register: ansible_hostkey_config
+
+- name: Copy Ansible environment configuration
+  ansible.builtin.copy:
+    src: ansible.zsh
+    dest: "$HOME/.oh-my-zsh/custom/ansible.zsh"
+    mode: '0644'
+  register: env_config
+
+# -----------------------------------------------------------------------------
+# Add OMZSH plugin
+# -----------------------------------------------------------------------------
+- name: Check if OMZSH/ansible plugin already configured
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=.*ansible.*'
+    state: absent
+  check_mode: yes
+  register: ansible_plugin_check
+  changed_when: false
+
+- name: Add OMZSH ansible plugin to ~/.zshrc plugins
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^plugins=\((.*)\)$'
+    line: 'plugins=(\1 ansible)'
+    backrefs: yes
+  when: not ansible_plugin_check.found
+
+# -----------------------------------------------------------------------------
+# Display status
+# -----------------------------------------------------------------------------
+- name: Display Ansible setup status
+  debug:
+    msg:
+      - "Ansible setup completed:"
+      - "  - Ansible directory: {% if ansible_dir.changed %}created{% else %}already exists{% endif %}"
+      - "  - Roles directory: {% if ansible_roles_dir.changed %}created{% else %}already exists{% endif %}"
+      - "  - Hosts inventory: {% if ansible_hosts_create.changed %}created{% else %}already present{% endif %}"
+      - "  - Main config: {% if ansible_cfg_generate.changed %}generated{% else %}already present{% endif %}"
+      - "  - Inventory path: {% if ansible_inventory_config.changed %}configured{% else %}already set{% endif %}"
+      - "  - Host key checking: {% if ansible_hostkey_config.changed %}disabled{% else %}already disabled{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
+      - "Added:"
+      - "  - OMZSH/ansible plugin: {% if ansible_plugin_check.changed %}configured{% else %}already present{% endif %}"

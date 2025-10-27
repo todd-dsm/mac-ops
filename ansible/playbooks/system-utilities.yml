@@ -1,0 +1,13 @@
+# System utilities installation
+---
+- name: System Utilities Installation
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Install system utilities
+      include_role:
+        name: utilities
+        apply:
+          tags: [utils, system-utilities]
+      tags: [utils, system-utilities]

@@ -1,0 +1,28 @@
+# Install and configure Bun JavaScript runtime
+---
+- name: Add Bun Homebrew tap
+  community.general.homebrew_tap:
+    name: oven-sh/bun
+    state: present
+  register: bun_tap
+
+- name: Install Bun
+  community.general.homebrew:
+    name: oven-sh/bun/bun
+    state: present
+  register: app_install
+
+- name: Copy Bun environment configuration
+  ansible.builtin.copy:
+    src: bun.zsh
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/bun.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display Bun setup status
+  debug:
+    msg:
+      - "Bun setup completed:"
+      - "  - Tap: {% if bun_tap.changed %}added{% else %}already present{% endif %}"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"

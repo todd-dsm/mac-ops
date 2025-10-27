@@ -1,0 +1,39 @@
+# Install and configure Rust programming language
+# File: roles/rust/tasks/main.yml
+---
+- name: Install Rust
+  community.general.homebrew:
+    name: rust
+    state: present
+  register: app_install
+
+# Create Cargo bin directory
+- name: Create Cargo bin directory
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.cargo/bin"
+    state: directory
+    mode: '0755'
+  register: create_bin_dir
+
+- name: Configure Rust system path
+  ansible.builtin.lineinfile:
+    path: /etc/paths
+    insertbefore: '^/usr/local/bin$'
+    line: "{{ ansible_env.HOME }}/.cargo/bin"
+  become: yes
+  register: sys_path
+
+- name: Copy Rust environment configuration
+  ansible.builtin.copy:
+    src: rust.zsh
+    dest: "$HOME/.oh-my-zsh/custom/rust.zsh"
+    mode: '0644'
+  register: env_config
+
+- name: Display Rust setup status
+  debug:
+    msg:
+      - "Rust setup completed:"
+      - "  - Package: {% if app_install.changed %}installed{% else %}already present{% endif %}"
+      - "  - System path: {% if sys_path.changed %}configured{% else %}already configured{% endif %}"
+      - "  - Shell config: {% if env_config.changed %}deployed{% else %}already present{% endif %}"
