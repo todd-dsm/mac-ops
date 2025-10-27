@@ -1,6 +1,10 @@
 # Why We mac-ops
 
-This is all about time but - *what isn't?!*
+This is all about time but - what isn't?
+
+```shell
+¯\_(ツ)_/¯
+```
 
 In short, this helps to avoid the tedium of configuring the thousands of settings on a new MacBook that make it a joy to use. And, if you forget just one of those settings, it's ***super annoying***. Use this if you are:
 
