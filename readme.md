@@ -30,8 +30,8 @@ Clone the repo down to your laptop:
 Manually:
 
 * Update macOS to the latest major or minor (patch) version
-* Install the Xcode CLI Tools
-* then run `install-prep.sh` to:
+* Install the Xcode CLI Tools: `xcode-select --install`
+* then run the phase-1 automation:
 
 ```shell
 tools/install-prep.sh 2>&1 | tee /tmp/install-prep.out
