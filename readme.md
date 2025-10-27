@@ -4,7 +4,7 @@ Sequoia (`macOS v15.x`) marks the rebirth of mac-ops.
 
 ## TL;DR
 
-Before you can build anything, you first need the tools. Herein lies automation to configure a full-featured (and highly opinionated) macOS that aims to support **Platform Engineering_** (SRE/DevOps) work. Read the [full breakdown] if you care.
+You need the tools before you can build anything. Herein lies automation to configure a full-featured (and highly opinionated) macOS that aims to support **Platform Engineering_** (SRE/DevOps) work. Read the [full breakdown] if you care.
 
 ## Pre-Game
 
@@ -64,15 +64,13 @@ This is the final step.
 # duration: ~14:30
 ```
 
-Again, follow the ons-screen instructions.
+Again, follow the ons-screen instructions, or continue to [post-install] steps.
 
 Then you're ready to start working.
 
 <!-- docs/refs -->
 
-[full breakdown]:
+[full breakdown]:https://github.com/todd-dsm/mac-ops/blob/main/docs/why-we-macops.md
 [generate a new SSH key]:https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key
 [associate the SSH key]:https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
-[Oh My ZSH]:https://ohmyz.sh/
-[phase1]:https://github.com/todd-dsm/process-ph1
-[install prep]:https://github.com/todd-dsm/mac-ops/wiki/Install-Prep
+[post-install]:https://github.com/todd-dsm/mac-ops/blob/main/docs/post-install.md
