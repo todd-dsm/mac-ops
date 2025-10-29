@@ -8,10 +8,6 @@
 # -----------------------------------------------------------------------------
 #  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | zsh | tee /tmp/install-prep.out
 # -----------------------------------------------------------------------------
-#     TODO: 1)
-#           2)
-#           3)
-# -----------------------------------------------------------------------------
 #   AUTHOR: todd-dsm
 # -----------------------------------------------------------------------------
 #set -x
@@ -23,12 +19,10 @@
 ### ENV Stuff
 stage='pre'
 source my-vars.env > /dev/null 2>&1
-
-#ghAnsibleCFG="$rawGHContent/ansible/ansible/stable-2.9/examples/ansible.cfg"
-ghAnsibleHosts="$rawGHContent/ansible/ansible/stable-2.9/examples/hosts"
+timePre="$(date +'%s')"
+# program array
 paramsFile="${sourceDir}/gnu-programs.list"
 gnuProgs=()
-timePre="$(date +'%s')"
 
 
 ###----------------------------------------------------------------------------
