@@ -102,21 +102,14 @@
   when: current_plugins.rc == 0
   register: plugins_updated
 # -----------------------------------------------------------------------------
-# Add OMZSH Custom aliases and functions
+# Add OMZSH Custom Shell environment configuration
 # -----------------------------------------------------------------------------
-- name: Copy custom shell aliases to Oh My ZSH
+- name: Copy custom shell environment configuration
   ansible.builtin.copy:
-    src: ../../../../configs/aliases.zsh
-    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/aliases.zsh"
+    src: ../../../../configs/shell.zsh
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/shell.zsh"
     mode: '0644'
-  register: aliases_copy
-
-- name: Copy custom shell functions to Oh My ZSH
-  ansible.builtin.copy:
-    src: ../../../../configs/functions.zsh
-    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/functions.zsh"
-    mode: '0644'
-  register: functions_copy
+  register: shell_copy
 
 - name: Copy custom shellcheckrc rules to ~/.shellcheckrc
   ansible.builtin.copy:
@@ -137,7 +130,6 @@
       - "  - LibreSSL path: {% if libressl_path.changed %}added{% else %}already present{% endif %}"
       - "Shell configuration:"
       - "  - Oh My ZSH plugins: {% if plugins_updated.changed %}updated ({{ utility_plugins | length }} plugins){% else %}already configured{% endif %}"
-      - "Shell aliases and functions configured:"
-      - "  - Aliases: {% if aliases_copy.changed %}updated{% else %}already present{% endif %}"
-      - "  - Functions: {% if functions_copy.changed %}updated{% else %}already present{% endif %}"
+      - "Shell configured:"
+      - "  - Environment config: {% if shell_copy.changed %}updated{% else %}already present{% endif %}"
       - "  - Global shellcheckrc: {% if shellcheckrc_copy.changed %}deployed{% else %}already present{% endif %}"
