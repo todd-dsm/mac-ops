@@ -55,6 +55,14 @@
     duration_minutes: "{{ ((automation_duration | int % 3600) // 60) }}"
     duration_seconds: "{{ (automation_duration | int % 60) }}"
 
+- name: Backup my-vars.env to admin backup directory
+  ansible.builtin.copy:
+    src: "{{ ansible_env.PWD }}/../../my-vars.env"
+    dest: "{{ ansible_env.backup_dir }}/my-vars.env"
+    mode: '0600'
+    backup: yes
+  register: my_vars_backup
+
 # Display summary
 - name: Display cleanup and automation summary
   debug:
@@ -70,6 +78,7 @@
       - "=== CLEANUP SUMMARY ==="
       - "  - Homebrew cleanup: {% if brew_cleanup_result.changed %}completed{% else %}no cleanup needed{% endif %}"
       - "  - SSH key permissions: {% if ssh_permissions_fixed.changed %}{{ ssh_permissions_fixed.results | selectattr('changed') | list | length }} keys fixed{% else %}all keys properly secured{% endif %}"
+      - "  - my-vars.env backup: {% if my_vars_backup.changed %}backed up{% else %}already present{% endif %}"
       - ""
       - "NEXT STEPS:"
       - "  • Review manual configuration steps in: docs/post-install.md"
