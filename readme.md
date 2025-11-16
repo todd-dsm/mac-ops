@@ -1,6 +1,6 @@
 # mac-ops - Tahoe
 
-Sequoia (`macOS v15.x`) marks the rebirth of mac-ops.
+Sequoia (`macOS v15.x`) marks the rebirth of mac-ops. Tahoe is tested and ready for business.
 
 ## TL;DR
 
