@@ -97,5 +97,3 @@
       - "  - Config backup: {% if nvim_dir_backup.changed %}created{% else %}not needed{% endif %}"
       - "  - Symlink: {% if nvim_link.changed %}created{% else %}already present{% endif %}"
       - "  - lazy.nvim: {% if lazy_install.changed %}installed{% else %}already present{% endif %}"
-      - ""
-      - "Launch 'nvim' to start using nvim-simple"

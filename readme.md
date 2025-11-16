@@ -48,7 +48,7 @@ gclonecd git@github.com:todd-dsm/mac-ops.git
 Run the phase-1 automation; this will install some foundational tools and prep your system for the next phase.
 
 ```shell
-tools/install-prep.sh 2>&1 | tee /tmp/install-prep.out
+tools/install-prep.sh 2>&1 | tee /tmp/install-prep.log
 ```
 
 This is all over in `~02:11`; at the end, you will see:
