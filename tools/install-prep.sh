@@ -64,13 +64,6 @@ if [[ ! -d "$adminDir" ]]; then
 fi
 
 
-###---
-### Update the OS
-###---
-print_goal "Updating macOS..."
-#softwareupdate --all --install --force
-
-
 ###----------------------------------------------------------------------------
 ### Install Homebrew
 ###----------------------------------------------------------------------------
@@ -328,7 +321,7 @@ fi
 ### Janitorial stuff
 ###----------------------------------------------------------------------------
 ### Save the install-prep log
-mv -f /tmp/install-prep.out "$adminLogs/install-prep.log"
+mv -f /tmp/install-prep.log "$adminLogs"
 
 ### Create a link to the log file
 ln -s "$adminLogs/install-prep.log" /tmp/install-prep.log
