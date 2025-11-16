@@ -73,7 +73,7 @@ Then follow the ons-screen instructions.
 This is the final step.
 
 ```shell
-./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
+./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.log
 ```
 
 This step lasts `<15:00`; again, follow the ons-screen instructions, or continue to [post-install] steps.
