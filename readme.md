@@ -1,4 +1,4 @@
-# mac-ops - Sequoia
+# mac-ops - Tahoe
 
 Sequoia (`macOS v15.x`) marks the rebirth of mac-ops.
 
