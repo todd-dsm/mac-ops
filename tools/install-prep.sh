@@ -6,7 +6,7 @@
 #  PREREQS: Script must be ran as Bash per Homebrew's requirements.
 #           https://docs.brew.sh/Installation
 # -----------------------------------------------------------------------------
-#  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | zsh | tee /tmp/install-prep.out
+#  EXECUTE: curl -fsSL https://goo.gl/j2y1Dn 2>&1 | zsh | tee /tmp/install-prep.log
 # -----------------------------------------------------------------------------
 #   AUTHOR: todd-dsm
 # -----------------------------------------------------------------------------
