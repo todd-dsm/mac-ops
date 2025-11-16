@@ -6,7 +6,15 @@ Sequoia (`macOS v15.x`) marks the rebirth of mac-ops.
 
 You need the tools before you can build anything. Herein lies automation to configure a full-featured (and highly opinionated) macOS that aims to support **Platform Engineering** (SRE/DevOps) work. Read the [full breakdown] if you care.
 
+In all likelihood, you'll probably want to fork/customize to suit your needs.
+
 ## Pre-Game
+
+Update macOS to the latest major or minor (patch) version.
+
+> *I will test to the latest current patch version, within a short time of release.*
+
+IF you don't already have ssh keys, create them:
 
 1. [generate a new SSH key] if necessary
 2. [associate the SSH key] with your GitHub account
@@ -20,13 +28,15 @@ Hi yourUserName! You've successfully authenticated, but GitHub does not provide 
 Clone the repo down to your laptop:
 
 ```shell
-gclonecd git@github.com:todd-dsm/mac-ops.git
+git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/
 ```
 
-Or, if this is your first time:
+If this is a new macOS, this will trigger the install of the Xcode CLI Tools; install it.
+
+Or, if you're a returning contestant:
 
 ```shell
-git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/
+gclonecd git@github.com:todd-dsm/mac-ops.git
 ```
 
 ### CONFIGURE *YOUR* VARIABLES
@@ -35,17 +45,13 @@ git clone git@github.com:todd-dsm/mac-ops.git && cd mac-ops/
 
 ---
 
-Manually:
-
-* Update macOS to the latest major or minor (patch) version
-* Install the Xcode CLI Tools: `xcode-select --install`
-* then run the phase-1 automation:
+Run the phase-1 automation; this will install some foundational tools and prep your system for the next phase.
 
 ```shell
 tools/install-prep.sh 2>&1 | tee /tmp/install-prep.out
 ```
 
-This is all over in `~03:30`; when it's all over, you will see:
+This is all over in `~02:11`; at the end, you will see:
 
 ```shell
          __                                     __
@@ -67,12 +73,12 @@ Then follow the ons-screen instructions.
 This is the final step.
 
 ```shell
-./bootstrap.sh ANSIBLE_NOCOLOR=True 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
+./bootstrap.sh 2>&1 | tee ~/.config/admin/logs/mac-ops-config.out
 ```
 
-This step lasts `~14:30`; again, follow the ons-screen instructions, or continue to [post-install] steps.
+This step lasts `<15:00`; again, follow the ons-screen instructions, or continue to [post-install] steps.
 
-In under an hour, you're ready to start working.
+Now you're ready to start working.
 
 <!-- docs/refs -->
 
