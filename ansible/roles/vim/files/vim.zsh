@@ -10,5 +10,7 @@ alias vi='vim'
 
 # Optional: Uncomment to use neovim as default editor
 # export EDITOR='nvim'
+# Alias vi to vim
+alias ni='nvim'
 # export VISUAL="$EDITOR"
 # alias vi='nvim'
