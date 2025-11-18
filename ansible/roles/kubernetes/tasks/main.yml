@@ -158,11 +158,10 @@
     mode: '0755'
   register: kubectl_ssh_download
 
-- name: Install kubectl-ssh to system location
+- name: Install kubectl-ssh to Homebrew bin directory
   ansible.builtin.command:
-    cmd: mv /tmp/kubectl-ssh /usr/local/bin/kubectl-ssh
-    creates: /usr/local/bin/kubectl-ssh
-  become: yes
+    cmd: mv /tmp/kubectl-ssh /opt/homebrew/bin/kubectl-ssh
+    creates: /opt/homebrew/bin/kubectl-ssh
   register: kubectl_ssh_install
 
 - name: Clean up temporary kubectl-ssh download

@@ -1,3 +1,6 @@
+# Project Files
+my-vars.env
+
 # Python-generated files
 __pycache__/
 *.py[oc]
