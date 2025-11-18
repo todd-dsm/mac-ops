@@ -15,7 +15,7 @@
 
 - name: Clone vim-simple repository
   ansible.builtin.git:
-    repo: https://github.com/todd-dsm/vim-simple.git
+    repo: git@github.com:todd-dsm/vim-simple.git
     dest: "{{ ansible_env.HOME }}/code/vim-simple"
     update: yes
   register: vim_repo
