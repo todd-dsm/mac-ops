@@ -39,7 +39,7 @@
 
 - name: Clone nvim-simple repository
   ansible.builtin.git:
-    repo: https://github.com/todd-dsm/nvim-simple.git
+    repo: git@github.com:todd-dsm/nvim-simple.git
     dest: "{{ ansible_env.HOME }}/code/nvim-simple"
     update: no
   register: nvim_repo
