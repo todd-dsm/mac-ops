@@ -39,6 +39,8 @@ Or, if you're a returning contestant:
 gclonecd git@github.com:todd-dsm/mac-ops.git
 ```
 
+Grant Terminal [Full Disk Access] so mac-ops can configure all system areas.
+
 ### CONFIGURE *YOUR* VARIABLES
 
 `vi my-vars.env` (or however you edit files)
@@ -85,4 +87,5 @@ Now you're ready to start working.
 [full breakdown]:https://github.com/todd-dsm/mac-ops/blob/main/docs/why-we-macops.md
 [generate a new SSH key]:https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key
 [associate the SSH key]:https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
+[Full Disk Access]:https://www.alfredapp.com/help/troubleshooting/indexing/terminal-full-disk-access/
 [post-install]:https://github.com/todd-dsm/mac-ops/blob/main/docs/post-install.md
