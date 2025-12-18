@@ -2,27 +2,27 @@
 ---
 - name: Ensure Ansible directory exists
   ansible.builtin.file:
-    path: "{{ ansible_env.myAnsibleDir }}"
+    path: "{{ ansible_facts.env.myAnsibleDir }}"
     state: directory
     mode: '0755'
   register: ansible_dir
 
 - name: Ensure roles subdirectory exists
   ansible.builtin.file:
-    path: "{{ ansible_env.myAnsibleDir }}/roles"
+    path: "{{ ansible_facts.env.myAnsibleDir }}/roles"
     state: directory
     mode: '0755'
   register: ansible_roles_dir
 
 - name: Generate Ansible configuration file
-  ansible.builtin.shell: ansible-config init --disabled > "{{ ansible_env.myAnsibleCFG }}"
+  ansible.builtin.shell: ansible-config init --disabled > "{{ ansible_facts.env.myAnsibleCFG }}"
   args:
-    creates: "{{ ansible_env.myAnsibleCFG }}"
+    creates: "{{ ansible_facts.env.myAnsibleCFG }}"
   register: ansible_cfg_generate
 
 - name: Create basic Ansible hosts inventory file
   ansible.builtin.copy:
-    dest: "{{ ansible_env.myAnsibleHosts }}"
+    dest: "{{ ansible_facts.env.myAnsibleHosts }}"
     mode: '0644'
     content: |
       # Ansible inventory file
@@ -34,14 +34,14 @@
 
 - name: Configure inventory path in ansible.cfg
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.myAnsibleCFG }}"
+    path: "{{ ansible_facts.env.myAnsibleCFG }}"
     regexp: '^;?inventory='
     line: 'inventory=$HOME/.ansible/hosts,/etc/ansible/hosts'
   register: ansible_inventory_config
 
 - name: Disable host key checking in ansible.cfg
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.myAnsibleCFG }}"
+    path: "{{ ansible_facts.env.myAnsibleCFG }}"
     regexp: '^;?host_key_checking='
     line: 'host_key_checking=False'
   register: ansible_hostkey_config
@@ -58,7 +58,7 @@
 # -----------------------------------------------------------------------------
 - name: Check if OMZSH/ansible plugin already configured
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=.*ansible.*'
     state: absent
   check_mode: yes
@@ -67,7 +67,7 @@
 
 - name: Add OMZSH ansible plugin to ~/.zshrc plugins
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=\((.*)\)$'
     line: 'plugins=(\1 ansible)'
     backrefs: yes

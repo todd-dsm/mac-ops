@@ -19,7 +19,7 @@
 # -----------------------------------------------------------------------------
 - name: Ensure AWS CLI directory exists
   file:
-    path: "{{ ansible_env.HOME }}/.aws/cli"
+    path: "{{ ansible_facts.env.HOME }}/.aws/cli"
     state: directory
     mode: '0755'
   register: aws_dir_create
@@ -35,7 +35,7 @@
 - name: Copy alias file to AWS CLI directory
   ansible.builtin.copy:
     src: /tmp/awscli-aliases/alias
-    dest: "{{ ansible_env.HOME }}/.aws/cli/alias"
+    dest: "{{ ansible_facts.env.HOME }}/.aws/cli/alias"
     mode: '0644'
     remote_src: yes
   register: aliases_install

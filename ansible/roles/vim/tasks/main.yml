@@ -8,7 +8,7 @@
 
 - name: Ensure code directory exists
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/code"
+    path: "{{ ansible_facts.env.HOME }}/code"
     state: directory
     mode: '0755'
   register: code_dir
@@ -16,19 +16,19 @@
 - name: Clone vim-simple repository
   ansible.builtin.git:
     repo: git@github.com:todd-dsm/vim-simple.git
-    dest: "{{ ansible_env.HOME }}/code/vim-simple"
+    dest: "{{ ansible_facts.env.HOME }}/code/vim-simple"
     update: yes
   register: vim_repo
 
 # Backup existing vim configuration
 - name: Check for existing vimrc
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.vimrc"
+    path: "{{ ansible_facts.env.HOME }}/.vimrc"
   register: existing_vimrc
 
 - name: Backup existing vimrc
   ansible.builtin.command:
-    cmd: mv "{{ ansible_env.HOME }}/.vimrc" "{{ ansible_env.adminDir }}/backup/vimrc"
+    cmd: mv "{{ ansible_facts.env.HOME }}/.vimrc" "{{ ansible_facts.env.adminDir }}/backup/vimrc"
   when: 
     - existing_vimrc.stat.exists
     - not existing_vimrc.stat.islnk
@@ -36,12 +36,12 @@
 
 - name: Check for existing vim directory
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.vim"
+    path: "{{ ansible_facts.env.HOME }}/.vim"
   register: existing_vim_dir
 
 - name: Backup existing vim directory
   ansible.builtin.command:
-    cmd: mv "{{ ansible_env.HOME }}/.vim" "{{ ansible_env.adminDir }}/backup/vim"
+    cmd: mv "{{ ansible_facts.env.HOME }}/.vim" "{{ ansible_facts.env.adminDir }}/backup/vim"
   when:
     - existing_vim_dir.stat.exists
     - not existing_vim_dir.stat.islnk
@@ -50,16 +50,16 @@
 # Create symlinks
 - name: Symlink vimrc to home directory
   ansible.builtin.file:
-    src: "{{ ansible_env.HOME }}/code/vim-simple/vimrc"
-    dest: "{{ ansible_env.HOME }}/.vimrc"
+    src: "{{ ansible_facts.env.HOME }}/code/vim-simple/vimrc"
+    dest: "{{ ansible_facts.env.HOME }}/.vimrc"
     state: link
     force: yes
   register: vimrc_link
 
 - name: Symlink vim directory to home directory
   ansible.builtin.file:
-    src: "{{ ansible_env.HOME }}/code/vim-simple/vim"
-    dest: "{{ ansible_env.HOME }}/.vim"
+    src: "{{ ansible_facts.env.HOME }}/code/vim-simple/vim"
+    dest: "{{ ansible_facts.env.HOME }}/.vim"
     state: link
     force: yes
   register: vim_dir_link
@@ -67,7 +67,7 @@
 # Install vim-plug and plugins
 - name: Check if vim-plug autoload exists
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.vim/autoload/plug.vim"
+    path: "{{ ansible_facts.env.HOME }}/.vim/autoload/plug.vim"
   register: vim_plug_check
 
 - name: Install vim plugins via vim-plug
@@ -76,7 +76,7 @@
   args:
     executable: /bin/bash
   environment:
-    HOME: "{{ ansible_env.HOME }}"
+    HOME: "{{ ansible_facts.env.HOME }}"
   register: plugin_install
   changed_when: plugin_install.rc == 0
   failed_when: false
@@ -84,12 +84,12 @@
 # Disable conflicting bundled snippets
 - name: Check if vim-snippets plugin exists
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.vim/plugged/vim-snippets/snippets"
+    path: "{{ ansible_facts.env.HOME }}/.vim/plugged/vim-snippets/snippets"
   register: vim_snippets_dir
 
 - name: Check which snippet files exist
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.vim/plugged/vim-snippets/snippets/{{ item }}.snippets"
+    path: "{{ ansible_facts.env.HOME }}/.vim/plugged/vim-snippets/snippets/{{ item }}.snippets"
   loop:
     - bash
     - sh
@@ -99,7 +99,7 @@
 
 - name: Disable conflicting bundled snippets
   ansible.builtin.command:
-    cmd: mv "{{ ansible_env.HOME }}/.vim/plugged/vim-snippets/snippets/{{ item.item }}.snippets" "{{ ansible_env.HOME }}/.vim/plugged/vim-snippets/snippets/{{ item.item }}.snippets.disabled"
+    cmd: mv "{{ ansible_facts.env.HOME }}/.vim/plugged/vim-snippets/snippets/{{ item.item }}.snippets" "{{ ansible_facts.env.HOME }}/.vim/plugged/vim-snippets/snippets/{{ item.item }}.snippets.disabled"
   loop: "{{ snippet_files.results }}"
   when:
     - vim_snippets_dir.stat.exists
@@ -112,7 +112,7 @@
 - name: Copy vim environment configuration
   ansible.builtin.copy:
     src: vim.zsh
-    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/vim.zsh"
+    dest: "{{ ansible_facts.env.HOME }}/.oh-my-zsh/custom/vim.zsh"
     mode: '0644'
   register: env_config
 

@@ -92,8 +92,7 @@ fi
 check_dir "$HOME/.oh-my-zsh" "Oh My ZSH"
 check_file "$HOME/.zshrc" ".zshrc"
 #check_opt "$HOME/.oh-my-zsh/custom/homebrew.zsh" "Homebrew config"
-check_opt "$HOME/.oh-my-zsh/custom/aliases.zsh" "Custom aliases"
-check_opt "$HOME/.oh-my-zsh/custom/functions.zsh" "Custom functions"
+check_opt "$HOME/.oh-my-zsh/custom/shell.zsh" "Custom shell config"
 
 # ============================================================================
 header "PROGRAMMING LANGUAGES"

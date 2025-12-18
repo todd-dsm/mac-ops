@@ -13,8 +13,8 @@
     - name: Kick-off message
       debug:
         msg: |
-          Configuring this macOS for {{ ansible_env.myFullName }}
-          Start time: {{ ansible_date_time.time }}
+          Configuring this macOS for {{ ansible_facts.env.myFullName }}
+          Start time: {{ ansible_facts.date_time.time }}
 
     - name: Pre-flight validation
       include_tasks:

@@ -4,12 +4,12 @@
 ---
 - name: Ensure GitHub SSH key in known_hosts
   ansible.builtin.known_hosts:
-    name: "{{ ansible_env.host_remote }}"
-    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + ansible_env.host_remote) }}"
-    path: "{{ ansible_env.knownHosts }}"
+    name: "{{ ansible_facts.env.host_remote }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + ansible_facts.env.host_remote) }}"
+    path: "{{ ansible_facts.env.knownHosts }}"
     state: present
   register: github_key_result
 
 - name: Display GitHub key status
   debug:
-    msg: "GitHub SSH key {% if github_key_result.changed %}added to{% else %}already present in{% endif %} {{ ansible_env.knownHosts }}"
+    msg: "GitHub SSH key {% if github_key_result.changed %}added to{% else %}already present in{% endif %} {{ ansible_facts.env.knownHosts }}"

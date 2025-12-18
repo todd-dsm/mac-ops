@@ -15,7 +15,7 @@
 - name: Copy Bun environment configuration
   ansible.builtin.copy:
     src: bun.zsh
-    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/bun.zsh"
+    dest: "{{ ansible_facts.env.HOME }}/.oh-my-zsh/custom/bun.zsh"
     mode: '0644'
   register: env_config
 

@@ -28,7 +28,7 @@
 
 - name: Check if OMZSH/kubectl plugin already configured
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=.*kubectl.*'
     state: absent
   check_mode: yes
@@ -37,7 +37,7 @@
 
 - name: Add OMZSH kubectl plugin to ~/.zshrc plugins
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=\((.*)\)$'
     line: 'plugins=(\1 kubectl)'
     backrefs: yes
@@ -48,7 +48,7 @@
 # -----------------------------------------------------------------------------
 - name: Check if OMZSH/helm plugin already configured
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=.*helm.*'
     state: absent
   check_mode: yes
@@ -57,7 +57,7 @@
 
 - name: Add OMZSH helm plugin to ~/.zshrc plugins
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=\((.*)\)$'
     line: 'plugins=(\1 helm)'
     backrefs: yes
@@ -77,7 +77,7 @@
 
 - name: Check if OMZSH/minikube plugin already configured
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=.*minikube.*'
     state: absent
   check_mode: yes
@@ -86,7 +86,7 @@
 
 - name: Add OMZSH minikube plugin to ~/.zshrc plugins
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=\((.*)\)$'
     line: 'plugins=(\1 minikube)'
     backrefs: yes
@@ -131,7 +131,7 @@
   ansible.builtin.lineinfile:
     path: /etc/paths
     insertbefore: '^/usr/local/bin$'
-    line: "{{ ansible_env.HOME }}/.krew/bin"
+    line: "{{ ansible_facts.env.HOME }}/.krew/bin"
   become: yes
   register: krew_path
 
@@ -187,25 +187,25 @@
 
 - name: Install ktx bash function
   ansible.builtin.command:
-    cmd: cp /tmp/ktx/ktx "{{ ansible_env.HOME }}/.ktx"
-    creates: "{{ ansible_env.HOME }}/.ktx"
+    cmd: cp /tmp/ktx/ktx "{{ ansible_facts.env.HOME }}/.ktx"
+    creates: "{{ ansible_facts.env.HOME }}/.ktx"
   register: ktx_install
 
 - name: Set ktx permissions
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.ktx"
+    path: "{{ ansible_facts.env.HOME }}/.ktx"
     mode: '0755'
   when: ktx_install.changed
 
 - name: Install ktx completion
   ansible.builtin.command:
-    cmd: cp /tmp/ktx/ktx-completion.sh "{{ ansible_env.HOME }}/.ktx-completion.sh"
-    creates: "{{ ansible_env.HOME }}/.ktx-completion.sh"
+    cmd: cp /tmp/ktx/ktx-completion.sh "{{ ansible_facts.env.HOME }}/.ktx-completion.sh"
+    creates: "{{ ansible_facts.env.HOME }}/.ktx-completion.sh"
   register: ktx_completion
 
 - name: Set ktx completion permissions
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.ktx-completion.sh"
+    path: "{{ ansible_facts.env.HOME }}/.ktx-completion.sh"
     mode: '0644'
   when: ktx_completion.changed
 

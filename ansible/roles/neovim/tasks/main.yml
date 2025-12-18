@@ -27,20 +27,20 @@
 
 - name: Ensure code directory exists
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/code"
+    path: "{{ ansible_facts.env.HOME }}/code"
     state: directory
     mode: '0755'
   register: code_dir
 
 - name: Check if nvim-simple repository exists
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/code/nvim-simple/.git"
+    path: "{{ ansible_facts.env.HOME }}/code/nvim-simple/.git"
   register: nvim_repo_check
 
 - name: Clone nvim-simple repository
   ansible.builtin.git:
     repo: git@github.com:todd-dsm/nvim-simple.git
-    dest: "{{ ansible_env.HOME }}/code/nvim-simple"
+    dest: "{{ ansible_facts.env.HOME }}/code/nvim-simple"
     update: no
   register: nvim_repo
   when: not nvim_repo_check.stat.exists
@@ -48,12 +48,12 @@
 # Backup existing neovim configuration
 - name: Check for existing neovim config directory
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.config/nvim"
+    path: "{{ ansible_facts.env.HOME }}/.config/nvim"
   register: existing_nvim_dir
 
 - name: Backup existing neovim config directory
   ansible.builtin.command:
-    cmd: mv "{{ ansible_env.HOME }}/.config/nvim" "{{ ansible_env.adminDir }}/backup/nvim"
+    cmd: mv "{{ ansible_facts.env.HOME }}/.config/nvim" "{{ ansible_facts.env.adminDir }}/backup/nvim"
   when:
     - existing_nvim_dir.stat.exists
     - not existing_nvim_dir.stat.islnk
@@ -62,8 +62,8 @@
 # Create symlink
 - name: Symlink nvim-simple to config directory
   ansible.builtin.file:
-    src: "{{ ansible_env.HOME }}/code/nvim-simple"
-    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    src: "{{ ansible_facts.env.HOME }}/code/nvim-simple"
+    dest: "{{ ansible_facts.env.HOME }}/.config/nvim"
     state: link
     force: yes
   register: nvim_link
@@ -71,7 +71,7 @@
 # Install lazy.nvim and plugins (auto-bootstrap on first launch)
 - name: Check if lazy.nvim exists
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.local/share/nvim/lazy/lazy.nvim"
+    path: "{{ ansible_facts.env.HOME }}/.local/share/nvim/lazy/lazy.nvim"
   register: lazy_nvim_check
 
 - name: Bootstrap lazy.nvim and install plugins
@@ -80,7 +80,7 @@
   args:
     executable: /bin/bash
   environment:
-    HOME: "{{ ansible_env.HOME }}"
+    HOME: "{{ ansible_facts.env.HOME }}"
   register: lazy_install
   changed_when: lazy_install.rc == 0
   failed_when: false

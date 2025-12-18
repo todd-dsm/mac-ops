@@ -65,7 +65,7 @@
 # Add OMZSH plugins - OPTIMIZED APPROACH
 # -----------------------------------------------------------------------------
 - name: Get current Oh My ZSH plugin list
-  ansible.builtin.shell: grep '^plugins=' "{{ ansible_env.HOME }}/.zshrc" | sed 's/^plugins=(\(.*\))$/\1/'
+  ansible.builtin.shell: grep '^plugins=' "{{ ansible_facts.env.HOME }}/.zshrc" | sed 's/^plugins=(\(.*\))$/\1/'
   register: current_plugins
   changed_when: false
   failed_when: false
@@ -96,7 +96,7 @@
 
 - name: Update Oh My ZSH plugins in ~/.zshrc
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=\(.*\)$'
     line: "plugins=({{ all_plugins | join(' ') }})"
   when: current_plugins.rc == 0
@@ -107,14 +107,14 @@
 - name: Copy custom shell environment configuration
   ansible.builtin.copy:
     src: ../../../../configs/shell.zsh
-    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/shell.zsh"
+    dest: "{{ ansible_facts.env.HOME }}/.oh-my-zsh/custom/shell.zsh"
     mode: '0644'
   register: shell_copy
 
 - name: Copy custom shellcheckrc rules to ~/.shellcheckrc
   ansible.builtin.copy:
     src: ../../../../configs/shellcheckrc.sh
-    dest: "{{ ansible_env.HOME }}/.shellcheckrc"
+    dest: "{{ ansible_facts.env.HOME }}/.shellcheckrc"
     mode: '0644'
   register: shellcheckrc_copy
 

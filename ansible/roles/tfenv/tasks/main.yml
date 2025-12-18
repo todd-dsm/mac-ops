@@ -43,7 +43,7 @@
 
 - name: Check if OMZSH/Terraform plugin already configured
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=.*terraform.*'
     state: absent
   check_mode: yes
@@ -52,7 +52,7 @@
 
 - name: Add OMZSH terraform plugin to ~/.zshrc plugins
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=\((.*)\)$'
     line: 'plugins=(\1 terraform)'
     backrefs: yes

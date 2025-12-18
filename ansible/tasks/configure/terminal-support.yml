@@ -6,15 +6,15 @@
 
 - name: Ensure terminal downloads directory exists
   file:
-    path: "{{ ansible_env.termStuff }}"
+    path: "{{ ansible_facts.env.termStuff }}"
     state: directory
     mode: '0755'
 
 # Clone Solarized terminal theme for manual import
 - name: Clone Solarized terminal theme
   ansible.builtin.git:
-    repo: "{{ ansible_env.solarizedGitRepo }}"
-    dest: "{{ ansible_env.termStuff }}/solarized"
+    repo: "{{ ansible_facts.env.solarizedGitRepo }}"
+    dest: "{{ ansible_facts.env.termStuff }}/solarized"
     accept_hostkey: yes
     update: yes
   register: solarized_clone

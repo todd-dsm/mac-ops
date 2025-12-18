@@ -10,7 +10,7 @@
 # Create Cargo bin directory
 - name: Create Cargo bin directory
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.cargo/bin"
+    path: "{{ ansible_facts.env.HOME }}/.cargo/bin"
     state: directory
     mode: '0755'
   register: create_bin_dir
@@ -19,7 +19,7 @@
   ansible.builtin.lineinfile:
     path: /etc/paths
     insertbefore: '^/usr/local/bin$'
-    line: "{{ ansible_env.HOME }}/.cargo/bin"
+    line: "{{ ansible_facts.env.HOME }}/.cargo/bin"
   become: yes
   register: sys_path
 

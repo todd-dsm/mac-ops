@@ -3,13 +3,13 @@
 ---
 - name: Ensure admin logs directory exists
   ansible.builtin.file:
-    path: "{{ ansible_env.adminLogs }}"
+    path: "{{ ansible_facts.env.adminLogs }}"
     state: directory
     mode: '0755'
 
 - name: Run post-install application inventory script
   ansible.builtin.command:
-    cmd: "{{ ansible_env.PWD }}/../../tools/admin-app-details.sh post"
+    cmd: "{{ ansible_facts.env.PWD }}/../../tools/admin-app-details.sh post"
   register: app_inventory_script
   changed_when: false
 
@@ -20,7 +20,7 @@
 
 - name: Find SSH private keys
   ansible.builtin.find:
-    paths: "{{ ansible_env.HOME }}/.ssh"
+    paths: "{{ ansible_facts.env.HOME }}/.ssh"
     patterns:
       - "id_*"
       - "*_rsa"
@@ -57,8 +57,8 @@
 
 - name: Backup my-vars.env to admin backup directory
   ansible.builtin.copy:
-    src: "{{ ansible_env.PWD }}/../../my-vars.env"
-    dest: "{{ ansible_env.backup_dir }}/my-vars.env"
+    src: "{{ ansible_facts.env.PWD }}/../../my-vars.env"
+    dest: "{{ ansible_facts.env.backup_dir }}/my-vars.env"
     mode: '0600'
     backup: yes
   register: my_vars_backup
@@ -74,7 +74,7 @@
       - ""
       - "AUTOMATION SUMMARY:"
       - "  Duration: {{ duration_hours }}h {{ duration_minutes }}m {{ duration_seconds }}s"
-      - "  See Logs: {{ ansible_env.adminLogs }}/"
+      - "  See Logs: {{ ansible_facts.env.adminLogs }}/"
       - "=== CLEANUP SUMMARY ==="
       - "  - Homebrew cleanup: {% if brew_cleanup_result.changed %}completed{% else %}no cleanup needed{% endif %}"
       - "  - SSH key permissions: {% if ssh_permissions_fixed.changed %}{{ ssh_permissions_fixed.results | selectattr('changed') | list | length }} keys fixed{% else %}all keys properly secured{% endif %}"
@@ -91,7 +91,7 @@
       - "  1. Open Terminal > Preferences (⌘,)"
       - "  2. Click 'Profiles' tab"
       - "  3. Click gear icon > Import..."
-      - "  4. Navigate to {{ ansible_env.termStuff }}/solarized/osx-terminal.app-colors-solarized/"
+      - "  4. Navigate to {{ ansible_facts.env.termStuff }}/solarized/osx-terminal.app-colors-solarized/"
       - "  5. Import your preferred Solarized theme"
       - ""
       - "THEN:"

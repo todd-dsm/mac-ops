@@ -2,14 +2,14 @@
 # System facts collection and reporting
 - name: Ensure admin logs directory exists
   ansible.builtin.file:
-    path: "{{ ansible_env.adminLogs }}"
+    path: "{{ ansible_facts.env.adminLogs }}"
     state: directory
     mode: '0755'
 
 - name: Save complete system facts to JSON file
   ansible.builtin.copy:
     content: "{{ ansible_facts | to_nice_json }}"
-    dest: "{{ ansible_env.adminLogs }}/facts-{{ inventory_hostname }}.json"
+    dest: "{{ ansible_facts.env.adminLogs }}/facts-{{ inventory_hostname }}.json"
     mode: '0644'
   register: complete_facts
 
@@ -27,10 +27,10 @@
         "memory_mb": "{{ ansible_memtotal_mb }}",
         "python_version": "{{ ansible_python_version }}",
         "user": "{{ ansible_user_id }}",
-        "date_time": "{{ ansible_date_time.iso8601 }}",
+        "date_time": "{{ ansible_facts.date_time.iso8601 }}",
         "uptime": "{{ ansible_uptime_seconds }}"
       }
-    dest: "{{ ansible_env.adminLogs }}/system-summary-{{ inventory_hostname }}.json"
+    dest: "{{ ansible_facts.env.adminLogs }}/system-summary-{{ inventory_hostname }}.json"
     mode: '0644'
   register: summary_facts
 
@@ -38,5 +38,5 @@
   debug:
     msg:
       - "Facts collection completed:"
-      - "  - Complete facts: {{ ansible_env.adminLogs }}/facts-{{ inventory_hostname }}.json"
-      - "  - System summary: {{ ansible_env.adminLogs }}/system-summary-{{ inventory_hostname }}.json"
+      - "  - Complete facts: {{ ansible_facts.env.adminLogs }}/facts-{{ inventory_hostname }}.json"
+      - "  - System summary: {{ ansible_facts.env.adminLogs }}/system-summary-{{ inventory_hostname }}.json"

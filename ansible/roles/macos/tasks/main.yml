@@ -10,12 +10,12 @@
         cmd: "scutil --set {{ item.type }} {{ item.value }}"
       become: yes
       loop:
-        - { type: "ComputerName", value: "{{ ansible_env.myHostName }}" }
-        - { type: "HostName", value: "{{ ansible_env.myHostName.split('.')[0] }}" }
-        - { type: "LocalHostName", value: "{{ ansible_env.myHostName.split('.')[0] }}" }
+        - { type: "ComputerName", value: "{{ ansible_facts.env.myHostName }}" }
+        - { type: "HostName", value: "{{ ansible_facts.env.myHostName.split('.')[0] }}" }
+        - { type: "LocalHostName", value: "{{ ansible_facts.env.myHostName.split('.')[0] }}" }
       register: hostname_results
   #     changed_when: true
-  # when: ansible_env.myMBPisFor == "personal"
+  # when: ansible_facts.env.myMBPisFor == "personal"
 
 # -----------------------------------------------------------------------------
 # Preferences: Finder Security
@@ -60,7 +60,7 @@
     - { key: "NSAutomaticDashSubstitutionEnabled", type: "bool", value: false }
     # Open home in new window
     - { key: "NewWindowTarget", type: "string", value: "PfLo" }
-    - { key: "NewWindowTargetPath", type: "string", value: "file://{{ ansible_env.HOME }}/" }
+    - { key: "NewWindowTargetPath", type: "string", value: "file://{{ ansible_facts.env.HOME }}/" }
     # Show path bar and status bar by default
     - { key: "ShowPathbar", type: "bool", value: true }
     - { key: "ShowStatusBar", type: "bool", value: true }
@@ -130,7 +130,7 @@
   block:
     - name: Create screenshots directory
       ansible.builtin.file:
-        path: "{{ ansible_env.myPics }}/screens"
+        path: "{{ ansible_facts.env.myPics }}/screens"
         state: directory
         mode: '0755'
       register: screenshot_dir
@@ -142,14 +142,14 @@
         type: "{{ item.type }}"
         value: "{{ item.value }}"
       loop:
-        - { key: "location", type: "string", value: "{{ ansible_env.myPics }}/screens" }
+        - { key: "location", type: "string", value: "{{ ansible_facts.env.myPics }}/screens" }
         - { key: "disable-shadow", type: "bool", value: true }
       register: screenshot_prefs
 
     - name: Create screenshots symlink on Desktop
       ansible.builtin.file:
-        src: "{{ ansible_env.myPics }}/screens"
-        dest: "{{ ansible_env.myDesktop }}/screens"
+        src: "{{ ansible_facts.env.myPics }}/screens"
+        dest: "{{ ansible_facts.env.myDesktop }}/screens"
         state: link
       register: screenshot_symlink
 
@@ -238,7 +238,7 @@
     type: "{{ item.type }}"
     value: "{{ item.value }}"
   loop:
-    - { key: "author", type: "string", value: "{{ ansible_env.myFullName }}" }
+    - { key: "author", type: "string", value: "{{ ansible_facts.env.myFullName }}" }
     - { key: "RichText", type: "int", value: 0 }
     - { key: "NSFixedPitchFont", type: "string", value: "Hack-Regular" }
     - { key: "NSFixedPitchFontSize", type: "string", value: 14 }
@@ -268,9 +268,9 @@
       # - "  - Applications restarted: {% if app_restarts.changed %}yes{% else %}not needed{% endif %}"
 
       - "Screenshot configuration configured:"
-      - "  - Directory: {% if screenshot_dir.changed %}created{% else %}already exists{% endif %} ({{ ansible_env.myPics }}/screens)"
+      - "  - Directory: {% if screenshot_dir.changed %}created{% else %}already exists{% endif %} ({{ ansible_facts.env.myPics }}/screens)"
       - "  - Preferences: {% if screenshot_prefs.changed %}configured{% else %}already set{% endif %}"
-      - "  - Desktop symlink: {% if screenshot_symlink.changed %}created{% else %}already exists{% endif %} ({{ ansible_env.myDesktop }}/screens)"
+      - "  - Desktop symlink: {% if screenshot_symlink.changed %}created{% else %}already exists{% endif %} ({{ ansible_facts.env.myDesktop }}/screens)"
       - "  - Finder restart: {% if finder_restart.changed %}restarted{% else %}already running{% endif %}"
 
       # - "Menu bar configuration configured:"

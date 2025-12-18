@@ -9,7 +9,7 @@
 # Create Go bin directory
 - name: Create Go bin directory
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/go/bin"
+    path: "{{ ansible_facts.env.HOME }}/go/bin"
     state: directory
     mode: '0755'
   register: create_bin_dir
@@ -19,7 +19,7 @@
   ansible.builtin.lineinfile:
     path: /etc/paths
     insertbefore: '^/usr/local/bin$'
-    line: "{{ ansible_env.HOME }}/go/bin"
+    line: "{{ ansible_facts.env.HOME }}/go/bin"
   become: yes
   register: sys_path
 
@@ -35,7 +35,7 @@
 # -----------------------------------------------------------------------------
 - name: Check if OMZSH/golang plugin already configured
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=.*golang.*'
     state: absent
   check_mode: yes
@@ -44,7 +44,7 @@
 
 - name: Add OMZSH golang plugin to ~/.zshrc plugins
   ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.zshrc"
+    path: "{{ ansible_facts.env.HOME }}/.zshrc"
     regexp: '^plugins=\((.*)\)$'
     line: 'plugins=(\1 golang)'
     backrefs: yes
